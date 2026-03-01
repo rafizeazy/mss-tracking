@@ -1,6 +1,6 @@
 ---
 name: fluxui-development
-description: >-
+description: 
   Develops UIs with Flux UI Free components. Activates when creating buttons, forms, modals,
   inputs, dropdowns, checkboxes, or UI components; replacing HTML form elements with Flux;
   working with flux: components; or when the user mentions Flux, component library, UI components,
@@ -11,7 +11,7 @@ description: >-
 
 ## When to Apply
 
-Activate this skill when:
+Activate this skill:
 
 - Creating UI components or pages
 - Working with forms, modals, or interactive elements

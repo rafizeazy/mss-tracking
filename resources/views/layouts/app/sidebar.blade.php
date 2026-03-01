@@ -1,94 +1,193 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }"
+    x-init="$watch('darkMode', val => { localStorage.setItem('darkMode', val); val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark') }); if(darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');"
+    :class="{ 'dark': darkMode }"
+>
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.header>
-                <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
-                <flux:sidebar.collapse class="lg:hidden" />
-            </flux:sidebar.header>
+    <body class="min-h-screen font-sans antialiased"
+        style="background: #fffbf4; color: #4c4c5c;"
+        x-data="{ sidebarMobileOpen: false, sidebarHovered: false }"
+        :style="darkMode ? 'background: #17181e; color: #aab8c5;' : 'background: #fffbf4; color: #4c4c5c;'"
+    >
+        <div class="flex min-h-screen">
+            {{-- ═══════ Sidebar ═══════ --}}
+            <aside
+                class="boron-sidebar boron-scrollbar fixed inset-y-0 left-0 z-40 flex flex-col overflow-y-auto overflow-x-hidden sidebar-collapsed"
+                :class="{
+                    '-translate-x-full lg:translate-x-0': !sidebarMobileOpen,
+                    'translate-x-0': sidebarMobileOpen,
+                    'sidebar-expanded': sidebarHovered,
+                    'sidebar-collapsed': !sidebarHovered
+                }"
+                @mouseenter="sidebarHovered = true"
+                @mouseleave="sidebarHovered = false"
+            >
+                {{-- Logo --}}
+                <div class="flex h-[70px] items-center border-b border-[#343a40] px-0 dark:border-[#37394d] sidebar-logo">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 w-full" wire:navigate>
+                        <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                            <x-app-logo-icon class="size-5 fill-current text-white" />
+                        </span>
+                        <span class="text-base font-semibold text-white sidebar-label whitespace-nowrap">{{ config('app.name', 'MSS') }}</span>
+                    </a>
+                    <button @click="sidebarMobileOpen = false" class="ml-auto p-1 text-[#8a969c] hover:text-white lg:hidden">
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
 
-            <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Platform')" class="grid">
-                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-            </flux:sidebar.nav>
+                {{-- Navigation --}}
+                <nav class="flex-1 py-2">
+                    <div class="side-nav-title"><span class="sidebar-label">{{ __('Main') }}</span></div>
 
-            <flux:spacer />
+                    <a href="{{ route('dashboard') }}" wire:navigate
+                        class="side-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                        title="{{ __('Dashboard') }}"
+                    >
+                        <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-dashboard text-lg"></i></span>
+                        <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
+                    </a>
 
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
+                    @if (auth()->user()->isSuperAdmin())
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Administration') }}</span></div>
 
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
+                        <a href="{{ route('users.index') }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
+                            title="{{ __('User Management') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-users text-lg"></i></span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('User Management') }}</span>
+                        </a>
+                    @endif
 
-            <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
-        </flux:sidebar>
+                    <div class="side-nav-title"><span class="sidebar-label">{{ __('Account') }}</span></div>
 
-        <!-- Mobile User Menu -->
-        <flux:header class="lg:hidden">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+                    <a href="{{ route('profile.edit') }}" wire:navigate
+                        class="side-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
+                        title="{{ __('Settings') }}"
+                    >
+                        <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-settings text-lg"></i></span>
+                        <span class="sidebar-label whitespace-nowrap">{{ __('Settings') }}</span>
+                    </a>
+                </nav>
 
-            <flux:spacer />
+                {{-- Sidebar Footer --}}
+                <div class="border-t border-[#343a40] p-4 dark:border-[#37394d]">
+                    <div class="flex items-center gap-3">
+                        <span class="sidebar-icon-center shrink-0 flex size-8 items-center justify-center rounded-full bg-[#669776]/20 text-xs font-bold text-[#669776]">
+                            {{ auth()->user()->initials() }}
+                        </span>
+                        <div class="flex-1 truncate sidebar-label">
+                            <p class="truncate text-sm font-medium text-white">{{ auth()->user()->name }}</p>
+                            <p class="truncate text-[11px] text-[#8a969c]">{{ auth()->user()->role->label() }}</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
 
-            <flux:dropdown position="top" align="end">
-                <flux:profile
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                />
+            {{-- ═══════ Main Content Area ═══════ --}}
+            <div class="flex min-h-screen flex-1 flex-col transition-all duration-200 lg:ml-[70px]"
+            >
+                {{-- ═══════ Topbar ═══════ --}}
+                <header class="boron-topbar sticky top-0 z-30 flex items-center gap-4 px-4 sm:px-6">
+                    {{-- Sidebar Toggle (mobile only) --}}
+                    <button @click="sidebarMobileOpen = !sidebarMobileOpen" class="boron-topbar-btn lg:hidden" data-test="sidebar-toggle">
+                        <i class="ti ti-menu-2 text-lg"></i>
+                    </button>
 
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <flux:avatar
-                                    :name="auth()->user()->name"
-                                    :initials="auth()->user()->initials()"
-                                />
+                    {{-- Search (desktop) --}}
+                    <div class="hidden flex-1 sm:block sm:max-w-xs">
+                        <div class="relative">
+                            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
+                            <input type="text" placeholder="Search something..."
+                                class="w-full rounded-[0.3rem] border border-[#343a40] bg-transparent py-2 pl-9 pr-4 text-sm placeholder:text-[#a1a9b1] focus:outline-none focus:ring-2 focus:ring-[#669776]/30 dark:border-[#37394d]"
+                            >
+                        </div>
+                    </div>
 
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
-                                    <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
+                    <div class="flex flex-1 items-center justify-end gap-2">
+                        {{-- Notification --}}
+                        <button class="boron-topbar-btn relative">
+                            <i class="ti ti-bell animate-ring-bell text-lg"></i>
+                            <span class="absolute -right-0.5 -top-0.5 flex size-2"><span class="absolute inline-flex size-full rounded-full bg-[#ed6060]"></span></span>
+                        </button>
+
+                        {{-- Dark Mode --}}
+                        <button @click="darkMode = !darkMode" class="boron-topbar-btn" title="Toggle dark mode">
+                            <i x-show="!darkMode" class="ti ti-moon text-lg"></i>
+                            <i x-show="darkMode" x-cloak class="ti ti-sun text-lg"></i>
+                        </button>
+
+                        {{-- User Dropdown --}}
+                        <div class="relative ml-1" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center gap-2 rounded-[0.3rem] border border-[#343a40] bg-white px-3 py-1.5 text-sm transition-all hover:bg-[#f6f7fb] dark:border-[#37394d] dark:bg-[#1e1f27] dark:hover:bg-[#252630]" data-test="sidebar-menu-button">
+                                <span class="flex size-7 items-center justify-center rounded-full bg-[#669776]/20 text-xs font-bold text-[#669776]">
+                                    {{ auth()->user()->initials() }}
+                                </span>
+                                <span class="hidden font-medium sm:inline dark:text-[#aab8c5]">{{ Str::words(auth()->user()->name, 2, '') }}</span>
+                                <i class="ti ti-chevron-down text-xs text-[#a1a9b1]" :class="open ? 'rotate-180' : ''" style="transition: transform 0.2s;"></i>
+                            </button>
+
+                            <div x-show="open" @click.away="open = false"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                x-cloak
+                                class="absolute right-0 mt-2 w-52 origin-top-right rounded-[0.3rem] border border-[#343a40] bg-white py-1 shadow-lg dark:border-[#37394d] dark:bg-[#1e1f27]"
+                                style="box-shadow: 5px 7px 0 #6c757d;"
+                            >
+                                <div class="border-b border-dashed border-[#e7e9eb] px-4 py-3 dark:border-[#37394d]">
+                                    <p class="text-sm font-semibold text-[#313a46] dark:text-white">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-[#8a969c]">{{ auth()->user()->email }}</p>
+                                </div>
+
+                                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center gap-2 px-4 py-2 text-sm text-[#4c4c5c] hover:bg-[#f6f7fb] dark:text-[#aab8c5] dark:hover:bg-white/5">
+                                    <i class="ti ti-settings text-base"></i>
+                                    {{ __('Settings') }}
+                                </a>
+
+                                <div class="border-t border-dashed border-[#e7e9eb] dark:border-[#37394d]">
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-[#ed6060] hover:bg-[#ed6060]/5" data-test="logout-button">
+                                            <i class="ti ti-logout text-base"></i>
+                                            {{ __('Sign Out') }}
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    </flux:menu.radio.group>
+                    </div>
+                </header>
 
-                    <flux:menu.separator />
+                {{-- Page Content --}}
+                <div class="flex-1 px-4 sm:px-6">
+                    {{ $slot }}
+                </div>
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                            {{ __('Settings') }}
-                        </flux:menu.item>
-                    </flux:menu.radio.group>
+                {{-- Footer --}}
+                <footer class="boron-footer">
+                    &copy; {{ date('Y') }} {{ config('app.name') }} — By <span class="font-bold uppercase">MSS</span>
+                </footer>
+            </div>
+        </div>
 
-                    <flux:menu.separator />
-
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item
-                            as="button"
-                            type="submit"
-                            icon="arrow-right-start-on-rectangle"
-                            class="w-full cursor-pointer"
-                            data-test="logout-button"
-                        >
-                            {{ __('Log out') }}
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:header>
-
-        {{ $slot }}
+        {{-- Mobile Overlay --}}
+        <div x-show="sidebarMobileOpen" @click="sidebarMobileOpen = false"
+            class="fixed inset-0 z-30 bg-black/40 lg:hidden"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            x-cloak
+        ></div>
 
         @fluxScripts
     </body>
