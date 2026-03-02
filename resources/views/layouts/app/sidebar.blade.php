@@ -1,16 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
-    x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }"
-    x-init="$watch('darkMode', val => { localStorage.setItem('darkMode', val); val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark') }); if(darkMode) document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark');"
-    :class="{ 'dark': darkMode }"
->
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen font-sans antialiased"
-        style="background: #fffbf4; color: #4c4c5c;"
+    <body class="boron-body min-h-screen font-sans antialiased"
         x-data="{ sidebarMobileOpen: false, sidebarHovered: false }"
-        :style="darkMode ? 'background: #17181e; color: #aab8c5;' : 'background: #fffbf4; color: #4c4c5c;'"
     >
         <div class="flex min-h-screen">
             {{-- ═══════ Sidebar ═══════ --}}
@@ -115,9 +109,13 @@
                         </button>
 
                         {{-- Dark Mode --}}
-                        <button @click="darkMode = !darkMode" class="boron-topbar-btn" title="Toggle dark mode">
-                            <i x-show="!darkMode" class="ti ti-moon text-lg"></i>
-                            <i x-show="darkMode" x-cloak class="ti ti-sun text-lg"></i>
+                        <button x-data @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'" class="boron-topbar-btn" title="Toggle dark mode">
+                            <template x-if="$flux.appearance !== 'dark'">
+                                <i class="ti ti-moon text-lg"></i>
+                            </template>
+                            <template x-if="$flux.appearance === 'dark'">
+                                <i class="ti ti-sun text-lg"></i>
+                            </template>
                         </button>
 
                         {{-- User Dropdown --}}

@@ -45,11 +45,31 @@
 /* Flux UI Overrides */
 [data-flux-field]:not(ui-radio, ui-checkbox) { @apply grid gap-2; }
 [data-flux-label] { @apply !mb-0 !leading-tight; }
+input[data-flux-control],
+textarea[data-flux-control],
+select[data-flux-control] {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 0.3rem !important;
+    background: #fff !important;
+}
+.dark input[data-flux-control],
+.dark textarea[data-flux-control],
+.dark select[data-flux-control] {
+    border-color: #37394d !important;
+    background: #1e1f27 !important;
+    color: #aab8c5 !important;
+}
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+    @apply outline-hidden ring-2 ring-offset-2 ring-offset-accent-foreground;
+    border-color: #669776 !important;
+    --tw-ring-color: rgba(102, 151, 118, 0.3) !important;
 }
+
+/* Body Background */
+.boron-body { background-color: #fffbf4; color: #4c4c5c; }
+.dark .boron-body { background-color: #17181e; color: #aab8c5; }
 
 /* Auth Background */
 .auth-bg { background-color: #fffbf4; }
@@ -199,6 +219,23 @@ select:focus[data-flux-control] {
 .boron-scrollbar::-webkit-scrollbar { width: 5px; }
 .boron-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .boron-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 9999px; }
+
+/* Settings Nav */
+.settings-nav-link {
+    @apply flex items-center gap-2.5 rounded-[0.3rem] px-3 py-2 text-sm font-medium transition-all duration-150;
+    color: #4c4c5c;
+}
+.settings-nav-link:hover { background: #f6f7fb; color: #313a46; }
+.dark .settings-nav-link { color: #aab8c5; }
+.dark .settings-nav-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.settings-nav-link.active {
+    background: rgba(102, 151, 118, 0.12);
+    color: #669776;
+}
+.dark .settings-nav-link.active {
+    background: rgba(102, 151, 118, 0.15);
+    color: #669776;
+}
 
 /* Footer */
 .boron-footer {
