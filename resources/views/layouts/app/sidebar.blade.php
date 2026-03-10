@@ -44,6 +44,21 @@
                         <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
                     </a>
 
+                    <!-- Finance Sidebar -->
+                    @if (auth()->user()->role === \App\Enums\Role::Finance)
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Provisioning & Billing') }}</span></div>
+
+                        <a href="{{ route('finance.tracking') }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('finance.tracking') ? 'active' : '' }}"
+                            title="{{ __('Provisioning Tracking') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                                <i class="ti ti-track text-lg"></i>
+                            </span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Tracking') }}</span>
+                        </a>
+                    @endif
+
                     @if (auth()->user()->isSuperAdmin())
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Administration') }}</span></div>
 
