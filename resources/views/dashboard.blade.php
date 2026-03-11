@@ -1,6 +1,5 @@
 <x-layouts::app :title="__('Dashboard')">
     <div class="py-6">
-        {{-- Page Title --}}
         <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">{{ __('Dashboard') }}</h4>
@@ -13,7 +12,46 @@
             </div>
         </div>
 
-        {{-- Stat Cards --}}
+        @if(auth()->user()->role === \App\Enums\Role::Marketing)
+            <div class="mb-6 boron-card border border-[#669776]/30 shadow-sm dark:border-[#669776]/30">
+                <div class="boron-card-header bg-[#669776]/10 pb-3">
+                    <h5 class="font-semibold text-[#669776] dark:text-[#70bb63]">
+                        <i class="ti ti-link mr-1"></i> {{ __('Link Registrasi Pelanggan Baru') }}
+                    </h5>
+                </div>
+                
+                <div class="boron-card-body" x-data="{ 
+                    link: '{{ route('customer.register') }}', 
+                    copied: false,
+                    copyToClipboard() {
+                        navigator.clipboard.writeText(this.link);
+                        this.copied = true;
+                        setTimeout(() => this.copied = false, 2000);
+                    }
+                }">
+                    <p class="mb-4 text-sm text-[#8a969c]">
+                        {{ __('Salin dan bagikan tautan ini kepada calon pelanggan yang telah sepakat untuk melakukan registrasi layanan internet. Tautan ini bersifat statis.') }}
+                    </p>
+                    
+                    <div class="flex items-center gap-2 max-w-2xl">
+                        <div class="relative flex-1">
+                            <i class="ti ti-world absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
+                            <input type="text" readonly x-model="link" 
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-[#f8f9fa] py-2 pl-9 pr-4 text-sm text-[#4c4c5c] focus:border-[#669776] focus:outline-none dark:border-[#37394d] dark:bg-[#1e1f27] dark:text-[#aab8c5]"
+                            >
+                        </div>
+                        <button @click="copyToClipboard" 
+                            class="btn-boron btn-boron-primary flex items-center gap-2 whitespace-nowrap !px-4 !py-2 transition-colors"
+                            :class="copied ? '!bg-[#70bb63] !border-[#70bb63]' : ''"
+                        >
+                            <i class="ti" :class="copied ? 'ti-check' : 'ti-copy'"></i>
+                            <span x-text="copied ? 'Tersalin!' : 'Copy Link'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             @php
                 $stats = [
@@ -51,9 +89,7 @@
             @endforeach
         </div>
 
-        {{-- Content Grid --}}
         <div class="mt-6 grid gap-5 lg:grid-cols-3">
-            {{-- Recent Activity --}}
             <div class="boron-card lg:col-span-2">
                 <div class="boron-card-header">
                     <h5 class="font-semibold text-[#313a46] dark:text-white">{{ __('Recent Activity') }}</h5>
@@ -94,9 +130,7 @@
                 </div>
             </div>
 
-            {{-- Right Panel --}}
             <div class="space-y-5">
-                {{-- System Status --}}
                 <div class="boron-card">
                     <div class="boron-card-header">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">{{ __('System Status') }}</h5>
@@ -126,7 +160,6 @@
                     </div>
                 </div>
 
-                {{-- Team Online --}}
                 <div class="boron-card">
                     <div class="boron-card-header">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">{{ __('Team Online') }}</h5>

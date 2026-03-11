@@ -44,6 +44,18 @@
                         <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
                     </a>
 
+                    <!-- Data Pelanggan -->
+                    <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
+                    <a href="{{ route('customers.index') }}" wire:navigate
+                        class="side-nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}"
+                        title="{{ __('Data Pelanggan') }}"
+                    >
+                        <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                            <i class="ti ti-users-group text-lg"></i>
+                        </span>
+                        <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
+                    </a>
+
                     <!-- Finance Sidebar -->
                     @if (auth()->user()->role === \App\Enums\Role::Finance)
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Provisioning & Billing') }}</span></div>
