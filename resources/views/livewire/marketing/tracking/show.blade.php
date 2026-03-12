@@ -1,0 +1,331 @@
+<div class="py-6">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">
+                Verifikasi Data: {{ $customer->company_name }}
+            </h4>
+            <p class="mt-0.5 text-sm text-[#8a969c]">ID: MSS-CUST-{{ str_pad($customer->id, 3, '0', STR_PAD_LEFT) }} | Tgl Daftar: {{ $customer->created_at->format('d M Y, H:i') }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
+                <i class="ti ti-arrow-left"></i> Kembali ke Antrean
+            </a>
+        </div>
+    </div>
+
+    @if (session()->has('success'))
+        <div class="mb-4 rounded-[0.3rem] border border-[#70bb63]/30 bg-[#70bb63]/10 p-3 text-sm text-[#70bb63]">
+            <i class="ti ti-check mr-1"></i> {{ session('success') }}
+        </div>
+    @endif
+    @if (session()->has('error'))
+        <div class="mb-4 rounded-[0.3rem] border border-[#ed6060]/30 bg-[#ed6060]/10 p-3 text-sm text-[#ed6060]">
+            <i class="ti ti-x mr-1"></i> {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="grid gap-6 xl:grid-cols-3">
+        
+        <div class="space-y-6 xl:col-span-2">
+            
+            <div class="boron-card">
+                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <h5 class="font-semibold text-[#313a46] dark:text-white"><i class="ti ti-user mr-1 text-[#669776]"></i> 1. Informasi Pendaftar (Yang Diberi Wewenang)</h5>
+                </div>
+                <div class="boron-card-body p-5 grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6 text-sm">
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Nama Lengkap</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->user->name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Nomor KTP</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->ktp_number ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Jenis Kelamin</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->gender === 'L' ? 'Laki-laki' : ($customer->gender === 'P' ? 'Perempuan' : '-') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Jabatan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->position ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Email Login</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->user->email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">No. Handphone</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->phone ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="boron-card">
+                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <h5 class="font-semibold text-[#313a46] dark:text-white"><i class="ti ti-building mr-1 text-[#669776]"></i> 2. Informasi Perusahaan / Institusi</h5>
+                </div>
+                <div class="boron-card-body p-5 grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6 text-sm">
+                    <div class="col-span-2 sm:col-span-3">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Nama Perusahaan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Bidang Usaha</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->business_type ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">NPWP Perusahaan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->npwp_number ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Telepon Perusahaan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_phone ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-3">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Lengkap Perusahaan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_address ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Kota</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->city ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Provinsi</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->province ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Kode Pos</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->postal_code ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="boron-card">
+                    <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d] bg-[#f8f9fa] dark:bg-white/5">
+                        <h5 class="font-semibold text-[#313a46] dark:text-white text-sm">PIC Keuangan / Penagihan</h5>
+                    </div>
+                    <div class="boron-card-body p-4 space-y-3 text-sm">
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase">Nama PIC Finance</p>
+                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_name ?? '-' }} <span class="text-xs font-normal text-[#8a969c]">({{ $customer->finance_position ?? 'Staff' }})</span></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase">Kontak</p>
+                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_phone ?? '-' }} <br> {{ $customer->finance_email ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase">Alamat Penagihan (Invoice)</p>
+                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->billing_address ?? 'Sama dengan alamat perusahaan' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="boron-card">
+                    <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d] bg-[#f8f9fa] dark:bg-white/5">
+                        <h5 class="font-semibold text-[#313a46] dark:text-white text-sm">PIC Teknis / Instalasi</h5>
+                    </div>
+                    <div class="boron-card-body p-4 space-y-3 text-sm">
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase">Nama PIC Teknis</p>
+                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_name ?? '-' }} <span class="text-xs font-normal text-[#8a969c]">({{ $customer->technical_position ?? 'Staff' }})</span></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase">Kontak</p>
+                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_phone ?? '-' }} <br> {{ $customer->technical_email ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase">Alamat Instalasi Router</p>
+                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->installation_address ?? 'Sama dengan alamat perusahaan' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="boron-card">
+                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <h5 class="font-semibold text-[#313a46] dark:text-white"><i class="ti ti-wifi mr-1 text-[#669776]"></i> 3. Layanan & Dokumen Terlampir</h5>
+                </div>
+                <div class="boron-card-body p-5">
+                    <div class="flex items-center gap-6 mb-6">
+                        <div class="flex-1 rounded-[0.3rem] border border-[#60addf]/30 bg-[#60addf]/5 p-4">
+                            <p class="text-xs text-[#60addf] uppercase font-semibold mb-1">Paket Layanan Dipilih</p>
+                            <p class="text-lg font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->service_type }}</p>
+                        </div>
+                        <div class="flex-1 rounded-[0.3rem] border border-[#ebb751]/30 bg-[#ebb751]/5 p-4">
+                            <p class="text-xs text-[#ebb751] uppercase font-semibold mb-1">Durasi Kontrak</p>
+                            <p class="text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">{{ $customer->term_of_service }} Tahun ({{ $customer->term_of_service * 12 }} Bulan)</p>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-[#8a969c] uppercase mb-3 font-semibold border-b border-dashed border-[#e7e9eb] pb-2 dark:border-[#37394d]">Pemeriksaan Dokumen Legal</p>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        @php
+                            $documents = [
+                                ['label' => 'Scan KTP', 'path' => $customer->ktp_file_path],
+                                ['label' => 'Scan NPWP', 'path' => $customer->npwp_file_path],
+                                ['label' => 'Scan NIB', 'path' => $customer->nib_file_path],
+                                ['label' => 'Sertifikat Standar', 'path' => $customer->certificate_file_path],
+                            ];
+                        @endphp
+
+                        @foreach($documents as $doc)
+                            <div class="flex items-center justify-between rounded bg-[#f8f9fa] px-4 py-3 border border-[#dee2e6] dark:bg-[#1e1f27] dark:border-[#37394d]">
+                                <div class="flex items-center gap-3">
+                                    <i class="ti {{ $doc['path'] ? 'ti-file-check text-[#669776]' : 'ti-file-x text-[#ed6060]' }} text-xl"></i>
+                                    <span class="text-sm font-medium {{ $doc['path'] ? 'text-[#313a46] dark:text-white' : 'text-[#8a969c]' }}">{{ $doc['label'] }}</span>
+                                </div>
+                                @if($doc['path'])
+                                    <a href="{{ asset('storage/' . $doc['path']) }}" target="_blank" class="text-xs font-semibold text-[#60addf] hover:underline">Lihat File</a>
+                                @else
+                                    <span class="text-xs text-[#ed6060]">Tidak dilampirkan</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="space-y-6">
+            
+            @if($customer->status === 'menunggu_verifikasi')
+                <div class="boron-card border-2 border-[#ebb751] shadow-lg">
+                    <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
+                        <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]"><i class="ti ti-shield-check"></i> Form Verifikasi & Komersial</h5>
+                    </div>
+                    <div class="boron-card-body p-5">
+                        <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-4 pb-4 border-b border-dashed border-[#e7e9eb] dark:border-[#37394d]">
+                            Lengkapi detail komersial berikut sebelum menyetujui. Data ini akan menjadi acuan dasar pembuatan Invoice oleh tim Finance.
+                        </p>
+                        
+                        <form wire:submit.prevent="approve" class="space-y-4">
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="col-span-2">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Jenis Layanan Final</label>
+                                    <input type="text" wire:model="service_type" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    @error('service_type') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">SLA (Service Level Agreement)</label>
+                                    <input type="text" wire:model="sla" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    @error('sla') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="col-span-2">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Biaya Registrasi / Instalasi (Rp)</label>
+                                    <input type="number" wire:model="registration_fee" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    @error('registration_fee') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Biaya Bulanan (Rp)</label>
+                                    <input type="number" wire:model="monthly_fee" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <p class="mt-1 text-[10px] italic text-[#ed6060]">*Harga di atas belum termasuk PPN 11%</p>
+                                    @error('monthly_fee') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 rounded bg-[#f8f9fa] p-3 border border-[#dee2e6] dark:bg-white/5 dark:border-[#37394d] mt-2">
+                                <div class="col-span-2">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Nama Sales / Marketing</label>
+                                    <input type="text" wire:model="marketing_name" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    @error('marketing_name') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">No. Handphone Marketing</label>
+                                    <input type="text" wire:model="marketing_phone" placeholder="Contoh: 0812..." class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    @error('marketing_phone') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <button type="submit" wire:target="approve" wire:loading.attr="disabled" class="mt-4 w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
+                                <i class="ti ti-check text-lg"></i> Setujui
+                            </button>
+                        </form>
+                        
+                        <div class="mt-3 border-t border-dashed border-[#e7e9eb] pt-3 dark:border-[#37394d]">
+                            <button type="button" wire:click="reject" wire:confirm="Yakin ingin menolak pendaftaran ini? Aksi ini tidak dapat dibatalkan." class="w-full btn-boron !bg-transparent !text-[#ed6060] hover:!bg-[#ed6060]/10 flex justify-center gap-2 !py-2 transition-colors">
+                                <i class="ti ti-x text-lg"></i> Tolak (Reject)
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            @endif
+
+            <div class="boron-card h-fit">
+                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <h5 class="font-semibold text-[#313a46] dark:text-white">Progres Layanan</h5>
+                </div>
+                <div class="boron-card-body p-6">
+                    @php
+                        $statusOrder = [
+                            'menunggu_verifikasi', 'menunggu_pembayaran', 'pembayaran_disetujui', 
+                            'proses_instalasi', 'proses_aktivasi', 'menunggu_baa', 'baa_terbit', 'selesai'
+                        ];
+                        $currentIndex = array_search($customer->status, $statusOrder);
+                        
+                        $workflows = [
+                            ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
+                            ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'icon' => 'ti-receipt'],
+                            ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
+                            ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'icon' => 'ti-router'],
+                            ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'icon' => 'ti-wifi'],
+                            ['id' => 'selesai', 'title' => 'Selesai & Aktif', 'icon' => 'ti-circle-check'],
+                        ];
+                    @endphp
+
+                    <div class="relative ml-3 border-l-2 border-[#e7e9eb] dark:border-[#37394d]">
+                        @foreach($workflows as $index => $step)
+                            @php
+                                $stepIndex = array_search($step['id'], $statusOrder);
+                                if ($customer->status === 'ditolak') {
+                                    $state = 'pending';
+                                } elseif ($stepIndex < $currentIndex) {
+                                    $state = 'completed';
+                                } elseif ($stepIndex === $currentIndex) {
+                                    $state = 'active';
+                                } else {
+                                    $state = 'pending';
+                                }
+                            @endphp
+
+                            <div class="mb-6 ml-8 relative last:mb-0">
+                                @if($state === 'completed')
+                                    <span class="absolute -left-[2.85rem] flex size-10 items-center justify-center rounded-full bg-[#669776] text-white ring-4 ring-white dark:ring-[#15151b]">
+                                        <i class="ti ti-check text-xl"></i>
+                                    </span>
+                                @elseif($state === 'active')
+                                    <span class="absolute -left-[2.85rem] flex size-10 items-center justify-center rounded-full bg-[#60addf] text-white ring-4 ring-white dark:ring-[#15151b] shadow-[0_0_15px_rgba(96,173,223,0.5)]">
+                                        <i class="ti {{ $step['icon'] }} text-xl animate-pulse"></i>
+                                    </span>
+                                @else
+                                    <span class="absolute -left-[2.85rem] flex size-10 items-center justify-center rounded-full bg-[#f8f9fa] border-2 border-[#dee2e6] text-[#a1a9b1] ring-4 ring-white dark:bg-[#1e1f27] dark:border-[#37394d] dark:ring-[#15151b]">
+                                        <i class="ti {{ $step['icon'] }} text-xl"></i>
+                                    </span>
+                                @endif
+
+                                <div>
+                                    <h5 class="text-sm font-semibold pt-2 {{ $state === 'active' ? 'text-[#60addf]' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#8a969c]') }}">
+                                        {{ $step['title'] }}
+                                    </h5>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @if($customer->status === 'ditolak')
+                        <div class="mt-4 rounded bg-[#ed6060]/10 p-3 text-center text-sm font-semibold text-[#ed6060]">
+                            <i class="ti ti-x"></i> Registrasi Ditolak oleh Marketing
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

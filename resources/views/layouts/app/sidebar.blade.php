@@ -7,7 +7,6 @@
         x-data="{ sidebarMobileOpen: false, sidebarHovered: false }"
     >
         <div class="flex min-h-screen">
-            {{-- ═══════ Sidebar ═══════ --}}
             <aside
                 class="boron-sidebar boron-scrollbar fixed inset-y-0 left-0 z-40 flex flex-col overflow-y-auto overflow-x-hidden sidebar-collapsed"
                 :class="{
@@ -19,9 +18,8 @@
                 @mouseenter="sidebarHovered = true"
                 @mouseleave="sidebarHovered = false"
             >
-                {{-- Logo --}}
                 <div class="flex h-[70px] items-center border-b border-[#343a40] px-0 dark:border-[#37394d] sidebar-logo">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 w-full" wire:navigate>
+                    <a href="{{ auth()->user()->role === \App\Enums\Role::Customer ? route('customer.dashboard') : route('dashboard') }}" class="flex items-center gap-2.5 w-full" wire:navigate>
                         <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
                             <x-app-logo-icon class="size-5 fill-current text-white" />
                         </span>
@@ -32,59 +30,95 @@
                     </button>
                 </div>
 
-                {{-- Navigation --}}
+
                 <nav class="flex-1 py-2">
-                    <div class="side-nav-title"><span class="sidebar-label">{{ __('Main') }}</span></div>
+                    @if (auth()->user()->role === \App\Enums\Role::Customer)
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Main') }}</span></div>
+                        <a href="{{ route('customer.dashboard') }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('customer.dashboard') ? 'active' : '' }}"
+                            title="{{ __('Dashboard') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-dashboard text-lg"></i></span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
+                        </a>
 
-                    <a href="{{ route('dashboard') }}" wire:navigate
-                        class="side-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                        title="{{ __('Dashboard') }}"
-                    >
-                        <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-dashboard text-lg"></i></span>
-                        <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
-                    </a>
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Billing') }}</span></div>
+                        <a href="#" wire:navigate
+                            class="side-nav-link"
+                            title="{{ __('Tagihan Saya') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-receipt text-lg"></i></span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Tagihan Saya') }}</span>
+                        </a>
 
-                    <!-- Data Pelanggan -->
-                    <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
-                    <a href="{{ route('customers.index') }}" wire:navigate
-                        class="side-nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}"
-                        title="{{ __('Data Pelanggan') }}"
-                    >
-                        <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                            <i class="ti ti-users-group text-lg"></i>
-                        </span>
-                        <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
-                    </a>
+                    @else
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Main') }}</span></div>
+                        <a href="{{ route('dashboard') }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                            title="{{ __('Dashboard') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-dashboard text-lg"></i></span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
+                        </a>
 
-                    <!-- Finance Sidebar -->
-                    @if (auth()->user()->role === \App\Enums\Role::Finance)
-                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Provisioning & Billing') }}</span></div>
+                        {{-- Menu Khusus Marketing & Super Admin --}}
+                        @if (auth()->user()->role === \App\Enums\Role::Marketing || auth()->user()->isSuperAdmin())
+                            <div class="side-nav-title"><span class="sidebar-label">{{ __('Sales & Marketing') }}</span></div>
 
-                        <a href="{{ route('finance.tracking') }}" wire:navigate
-                            class="side-nav-link {{ request()->routeIs('finance.tracking') ? 'active' : '' }}"
-                            title="{{ __('Provisioning Tracking') }}"
+                            <a href="{{ route('marketing.tracking.index') }}" wire:navigate
+                                class="side-nav-link {{ request()->routeIs('marketing.tracking.*') ? 'active' : '' }}"
+                                title="{{ __('Tracking Registrasi') }}"
+                            >
+                                <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                                    <i class="ti ti-radar text-lg"></i>
+                                </span>
+                                <span class="sidebar-label whitespace-nowrap">{{ __('Tracking Registrasi') }}</span>
+                            </a>
+                        @endif
+
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
+                        <a href="{{ route('customers.index') }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}"
+                            title="{{ __('Data Pelanggan') }}"
                         >
                             <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                                <i class="ti ti-track text-lg"></i>
+                                <i class="ti ti-users-group text-lg"></i>
                             </span>
-                            <span class="sidebar-label whitespace-nowrap">{{ __('Tracking') }}</span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
                         </a>
+
+
+                        @if (auth()->user()->role === \App\Enums\Role::Finance)
+                            <div class="side-nav-title"><span class="sidebar-label">{{ __('Provisioning & Billing') }}</span></div>
+
+                            <a href="{{ route('finance.tracking') }}" wire:navigate
+                                class="side-nav-link {{ request()->routeIs('finance.tracking') ? 'active' : '' }}"
+                                title="{{ __('Provisioning Tracking') }}"
+                            >
+                                <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                                    <i class="ti ti-track text-lg"></i>
+                                </span>
+                                <span class="sidebar-label whitespace-nowrap">{{ __('Tracking') }}</span>
+                            </a>
+                        @endif
+
+                        @if (auth()->user()->isSuperAdmin())
+                            <div class="side-nav-title"><span class="sidebar-label">{{ __('Administration') }}</span></div>
+
+                            <a href="{{ route('users.index') }}" wire:navigate
+                                class="side-nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
+                                title="{{ __('User Management') }}"
+                            >
+                                <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-users text-lg"></i></span>
+                                <span class="sidebar-label whitespace-nowrap">{{ __('User Management') }}</span>
+                            </a>
+                        @endif
+
                     @endif
 
-                    @if (auth()->user()->isSuperAdmin())
-                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Administration') }}</span></div>
-
-                        <a href="{{ route('users.index') }}" wire:navigate
-                            class="side-nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}"
-                            title="{{ __('User Management') }}"
-                        >
-                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-users text-lg"></i></span>
-                            <span class="sidebar-label whitespace-nowrap">{{ __('User Management') }}</span>
-                        </a>
-                    @endif
+                    
 
                     <div class="side-nav-title"><span class="sidebar-label">{{ __('Account') }}</span></div>
-
                     <a href="{{ route('profile.edit') }}" wire:navigate
                         class="side-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
                         title="{{ __('Settings') }}"
@@ -94,7 +128,6 @@
                     </a>
                 </nav>
 
-                {{-- Sidebar Footer --}}
                 <div class="border-t border-[#343a40] p-4 dark:border-[#37394d]">
                     <div class="flex items-center gap-3">
                         <span class="sidebar-icon-center shrink-0 flex size-8 items-center justify-center rounded-full bg-[#669776]/20 text-xs font-bold text-[#669776]">
@@ -108,17 +141,12 @@
                 </div>
             </aside>
 
-            {{-- ═══════ Main Content Area ═══════ --}}
-            <div class="flex min-h-screen flex-1 flex-col transition-all duration-200 lg:ml-[70px]"
-            >
-                {{-- ═══════ Topbar ═══════ --}}
+            <div class="flex min-h-screen flex-1 flex-col transition-all duration-200 lg:ml-[70px]">
                 <header class="boron-topbar sticky top-0 z-30 flex items-center gap-4 px-4 sm:px-6">
-                    {{-- Sidebar Toggle (mobile only) --}}
                     <button @click="sidebarMobileOpen = !sidebarMobileOpen" class="boron-topbar-btn lg:hidden" data-test="sidebar-toggle">
                         <i class="ti ti-menu-2 text-lg"></i>
                     </button>
 
-                    {{-- Search (desktop) --}}
                     <div class="hidden flex-1 sm:block sm:max-w-xs">
                         <div class="relative">
                             <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
@@ -129,13 +157,11 @@
                     </div>
 
                     <div class="flex flex-1 items-center justify-end gap-2">
-                        {{-- Notification --}}
                         <button class="boron-topbar-btn relative">
                             <i class="ti ti-bell animate-ring-bell text-lg"></i>
                             <span class="absolute -right-0.5 -top-0.5 flex size-2"><span class="absolute inline-flex size-full rounded-full bg-[#ed6060]"></span></span>
                         </button>
 
-                        {{-- Dark Mode --}}
                         <button x-data @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'" class="boron-topbar-btn" title="Toggle dark mode">
                             <template x-if="$flux.appearance !== 'dark'">
                                 <i class="ti ti-moon text-lg"></i>
@@ -145,7 +171,6 @@
                             </template>
                         </button>
 
-                        {{-- User Dropdown --}}
                         <div class="relative ml-1" x-data="{ open: false }">
                             <button @click="open = !open" class="flex items-center gap-2 rounded-[0.3rem] border border-[#343a40] bg-white px-3 py-1.5 text-sm transition-all hover:bg-[#f6f7fb] dark:border-[#37394d] dark:bg-[#1e1f27] dark:hover:bg-[#252630]" data-test="sidebar-menu-button">
                                 <span class="flex size-7 items-center justify-center rounded-full bg-[#669776]/20 text-xs font-bold text-[#669776]">
@@ -190,19 +215,16 @@
                     </div>
                 </header>
 
-                {{-- Page Content --}}
                 <div class="flex-1 px-4 sm:px-6">
                     {{ $slot }}
                 </div>
 
-                {{-- Footer --}}
                 <footer class="boron-footer">
                     &copy; {{ date('Y') }} {{ config('app.name') }} — By <span class="font-bold uppercase">MSS</span>
                 </footer>
             </div>
         </div>
 
-        {{-- Mobile Overlay --}}
         <div x-show="sidebarMobileOpen" @click="sidebarMobileOpen = false"
             class="fixed inset-0 z-30 bg-black/40 lg:hidden"
             x-transition:enter="transition ease-out duration-200"
