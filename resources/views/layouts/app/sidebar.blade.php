@@ -30,7 +30,6 @@
                     </button>
                 </div>
 
-
                 <nav class="flex-1 py-2">
                     @if (auth()->user()->role === \App\Enums\Role::Customer)
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Main') }}</span></div>
@@ -61,7 +60,6 @@
                             <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
                         </a>
 
-                        {{-- Menu Khusus Marketing & Super Admin --}}
                         @if (auth()->user()->role === \App\Enums\Role::Marketing || auth()->user()->isSuperAdmin())
                             <div class="side-nav-title"><span class="sidebar-label">{{ __('Sales & Marketing') }}</span></div>
 
@@ -87,18 +85,17 @@
                             <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
                         </a>
 
-
-                        @if (auth()->user()->role === \App\Enums\Role::Finance)
+                        @if (auth()->user()->role === \App\Enums\Role::Finance || auth()->user()->isSuperAdmin())
                             <div class="side-nav-title"><span class="sidebar-label">{{ __('Provisioning & Billing') }}</span></div>
 
-                            <a href="{{ route('finance.tracking') }}" wire:navigate
-                                class="side-nav-link {{ request()->routeIs('finance.tracking') ? 'active' : '' }}"
-                                title="{{ __('Provisioning Tracking') }}"
+                            <a href="{{ route('finance.tracking.index') }}" wire:navigate
+                                class="side-nav-link {{ request()->routeIs('finance.tracking.*') ? 'active' : '' }}"
+                                title="{{ __('Tracking Registrasi') }}"
                             >
                                 <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                                    <i class="ti ti-track text-lg"></i>
+                                    <i class="ti ti-file-invoice text-lg"></i>
                                 </span>
-                                <span class="sidebar-label whitespace-nowrap">{{ __('Tracking') }}</span>
+                                <span class="sidebar-label whitespace-nowrap">{{ __('Tracking Registrasi') }}</span>
                             </a>
                         @endif
 
@@ -115,8 +112,6 @@
                         @endif
 
                     @endif
-
-                    
 
                     <div class="side-nav-title"><span class="sidebar-label">{{ __('Account') }}</span></div>
                     <a href="{{ route('profile.edit') }}" wire:navigate

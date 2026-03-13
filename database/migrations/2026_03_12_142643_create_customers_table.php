@@ -49,11 +49,12 @@ return new class extends Migration
             $table->string('nib_file_path')->nullable();
             $table->string('certificate_file_path')->nullable();
 
-            $table->decimal('monthly_fee', 15, 2)->nullable(); // Biaya Bulanan
-            $table->decimal('registration_fee', 15, 2)->nullable(); // Biaya Registrasi
-            $table->string('sla')->default('99.5%'); // SLA
-            $table->string('marketing_name')->nullable(); // Nama Marketing
-            $table->string('marketing_phone')->nullable(); // No HP Marketing
+            $table->decimal('monthly_fee', 15, 2)->nullable();
+            $table->decimal('registration_fee', 15, 2)->nullable();
+            $table->string('sla')->default('99.5%');
+            $table->string('marketing_name')->nullable();
+            $table->string('marketing_phone')->nullable();
+            $table->string('payment_proof_file_path')->nullable();
             
             // 5. Status Workflow (Penting untuk Finance & NOC)
             $table->string('status')->default('menunggu_verifikasi'); 

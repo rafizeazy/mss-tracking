@@ -8,6 +8,7 @@ Route::get('register/customer', \App\Livewire\Customer\Register::class)->name('c
 // Route Khusus Pelanggan
 Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
     Route::get('customer/dashboard', \App\Livewire\Customer\Dashboard::class)->name('customer.dashboard');
+    Route::get('customer/invoice/{id}', [\App\Http\Controllers\InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
 });
 
 // ROUTE UMUM (Bisa diakses oleh semua role)
@@ -29,7 +30,8 @@ Route::middleware(['auth', 'verified', 'role:marketing'])->group(function () {
 
 // ROUTE FINANCE
 Route::middleware(['auth', 'verified', 'role:finance'])->group(function () {
-    Route::get('finance/tracking', \App\Livewire\Finance\Tracking::class)->name('finance.tracking');
+    Route::get('finance/tracking', \App\Livewire\Finance\Index::class)->name('finance.tracking.index');
+    Route::get('finance/tracking/{id}', \App\Livewire\Finance\Show::class)->name('finance.tracking.show');
 });
 
 require __DIR__.'/settings.php';

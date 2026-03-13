@@ -13,6 +13,18 @@
         </div>
     </div>
 
+    @if (session()->has('success'))
+        <div class="mb-6 rounded-[0.3rem] border border-[#70bb63]/30 bg-[#70bb63]/10 p-3 text-sm text-[#70bb63]">
+            <i class="ti ti-check mr-1"></i> {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session()->has('info'))
+        <div class="mb-6 rounded-[0.3rem] border border-[#60addf]/30 bg-[#60addf]/10 p-3 text-sm text-[#60addf]">
+            <i class="ti ti-info-circle mr-1"></i> {{ session('info') }}
+        </div>
+    @endif
+
     @if($customer->status === 'menunggu_verifikasi')
         <div class="mb-6 rounded-[0.3rem] border border-[#60addf]/30 bg-[#60addf]/10 p-4">
             <div class="flex items-start gap-3">
@@ -20,7 +32,31 @@
                 <div>
                     <h5 class="text-sm font-semibold text-[#1e5d87] dark:text-[#60addf]">Status: Menunggu Verifikasi Dokumen</h5>
                     <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5]">
-                        Terima kasih telah mendaftar layanan PT Media Solusi Sukses. Saat ini, tim kami sedang memeriksa kelengkapan data dan dokumen Anda. Proses ini biasanya memakan waktu 1x24 jam kerja.
+                        Terima kasih telah mendaftar layanan PT Media Solusi Sukses. Saat ini, tim kami sedang memeriksa kelengkapan data dan dokumen Anda.
+                    </p>
+                </div>
+            </div>
+        </div>
+    @elseif($customer->status === 'menunggu_pembayaran')
+        <div class="mb-6 rounded-[0.3rem] border border-[#ebb751]/30 bg-[#ebb751]/10 p-4">
+            <div class="flex items-start gap-3">
+                <i class="ti ti-receipt text-xl text-[#ebb751]"></i>
+                <div>
+                    <h5 class="text-sm font-semibold text-[#b58c3d] dark:text-[#ebb751]">Status: Menunggu Pembayaran Registrasi</h5>
+                    <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5]">
+                        Tagihan (Invoice) awal telah diterbitkan. Silakan cek detail pada tabel di bawah, lakukan pembayaran, dan unggah bukti transfer.
+                    </p>
+                </div>
+            </div>
+        </div>
+    @elseif($customer->status === 'verifikasi_pembayaran')
+        <div class="mb-6 rounded-[0.3rem] border border-[#60addf]/30 bg-[#60addf]/10 p-4">
+            <div class="flex items-start gap-3">
+                <i class="ti ti-search text-xl text-[#60addf]"></i>
+                <div>
+                    <h5 class="text-sm font-semibold text-[#1e5d87] dark:text-[#60addf]">Status: Verifikasi Pembayaran</h5>
+                    <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5]">
+                        Terima kasih, bukti pembayaran Anda telah kami terima. Tim Finance kami sedang melakukan pengecekan. Mohon kesediaannya menunggu.
                     </p>
                 </div>
             </div>
@@ -32,7 +68,7 @@
                 <div>
                     <h5 class="text-sm font-semibold text-[#a84444] dark:text-[#ed6060]">Status: Pendaftaran Ditolak</h5>
                     <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5]">
-                        Mohon maaf, pendaftaran Anda tidak dapat dilanjutkan saat ini. Silakan hubungi dukungan kami untuk informasi lebih lanjut.
+                        Mohon maaf, pendaftaran Anda tidak dapat dilanjutkan saat ini. Silakan hubungi dukungan kami.
                     </p>
                 </div>
             </div>
@@ -42,9 +78,9 @@
             <div class="flex items-start gap-3">
                 <i class="ti ti-check text-xl text-[#70bb63]"></i>
                 <div>
-                    <h5 class="text-sm font-semibold text-[#4a8a3f] dark:text-[#70bb63]">Status: Data Telah Diverifikasi</h5>
+                    <h5 class="text-sm font-semibold text-[#4a8a3f] dark:text-[#70bb63]">Status: Layanan Diproses</h5>
                     <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5]">
-                        Data Anda telah disetujui oleh tim kami. Silakan pantau tahapan proses layanan Anda selanjutnya pada tabel di bawah ini.
+                        Pembayaran telah dikonfirmasi. Silakan pantau tahapan proses layanan Anda selanjutnya pada tabel di bawah ini.
                     </p>
                 </div>
             </div>
@@ -60,7 +96,7 @@
             <div class="boron-card-body p-6">
                 @php
                     $statusOrder = [
-                        'menunggu_verifikasi', 'menunggu_pembayaran', 'pembayaran_disetujui', 
+                        'menunggu_verifikasi', 'menunggu_pembayaran', 'verifikasi_pembayaran', 'pembayaran_disetujui', 
                         'proses_instalasi', 'proses_aktivasi', 'menunggu_baa', 'baa_terbit', 'selesai'
                     ];
                     
@@ -69,7 +105,8 @@
                     $workflows = [
                         ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'desc' => 'Tim kami sedang memverifikasi data KTP/NPWP dan layanan Anda.', 'icon' => 'ti-shield-check'],
                         ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => 'Penerbitan tagihan awal (Invoice) untuk biaya langganan/instalasi.', 'icon' => 'ti-receipt'],
-                        ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => 'Verifikasi pembayaran oleh departemen Finance.', 'icon' => 'ti-cash'],
+                        ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => 'Tim Finance sedang memverifikasi keabsahan bukti pembayaran Anda.', 'icon' => 'ti-search'],
+                        ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
                         ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'desc' => 'Penjadwalan dan pemasangan perangkat fisik oleh tim NOC.', 'icon' => 'ti-router'],
                         ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'desc' => 'Konfigurasi jaringan dan aktivasi bandwidth internet.', 'icon' => 'ti-wifi'],
                         ['id' => 'menunggu_baa', 'title' => 'Menunggu BAA', 'desc' => 'Penyusunan dokumen Berita Acara Aktivasi (BAA).', 'icon' => 'ti-file-description'],
@@ -124,13 +161,44 @@
                             @endif
 
                             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                                <div>
+                                <div class="w-full">
                                     <h5 class="text-base font-semibold {{ $state === 'active' ? 'text-[#60addf]' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#8a969c]') }}">
                                         {{ $step['title'] }}
                                     </h5>
                                     <p class="mt-1 text-sm {{ $state === 'pending' ? 'text-[#a1a9b1]' : 'text-[#4c4c5c] dark:text-[#aab8c5]' }}">
                                         {{ $step['desc'] }}
                                     </p>
+                                    
+                                    @if($state === 'active' && $step['id'] === 'menunggu_pembayaran')
+                                        <div class="mt-4 flex flex-wrap gap-2 items-center">
+                                        <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="inline-flex items-center gap-1.5 rounded bg-[#60addf]/10 px-3 py-1.5 text-xs font-semibold text-[#60addf] border border-[#60addf]/30 hover:bg-[#60addf] hover:text-white transition-colors">
+                                    <i class="ti ti-file-invoice text-sm"></i> Lihat Invoice
+                                </a>
+
+                                            <div class="relative">
+                                                <input type="file" wire:model="payment_proof" id="upload-proof" class="hidden" accept="image/*">
+                                                <label for="upload-proof" class="inline-flex items-center gap-1.5 rounded bg-[#669776] px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-[#669776]/30 hover:bg-[#527a5f] transition-colors cursor-pointer" wire:loading.class="opacity-50" wire:target="payment_proof">
+                                                    <i class="ti ti-upload text-sm"></i> 
+                                                    <span wire:loading.remove wire:target="payment_proof">Pilih Bukti Transfer</span>
+                                                    <span wire:loading wire:target="payment_proof">Memproses...</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        @error('payment_proof') <span class="text-[10px] text-[#ed6060] block mt-1">{{ $message }}</span> @enderror
+                                        
+                                        @if($payment_proof)
+                                            <div class="mt-3 p-3 rounded border border-[#e7e9eb] bg-[#f8f9fa] dark:border-[#37394d] dark:bg-white/5 flex flex-wrap items-center justify-between gap-3">
+                                                <div class="flex items-center gap-2 text-sm text-[#313a46] dark:text-white overflow-hidden">
+                                                    <i class="ti ti-photo text-[#669776] shrink-0"></i> 
+                                                    <span class="truncate max-w-[200px]">{{ $payment_proof->getClientOriginalName() }}</span>
+                                                </div>
+                                                <button wire:click="uploadPayment" wire:loading.attr="disabled" class="btn-boron btn-boron-primary !px-3 !py-1 text-xs shadow-md shadow-[#669776]/30 shrink-0">
+                                                    <i class="ti ti-send"></i> Kirim Bukti
+                                                </button>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </div>
                                 @if($state === 'active')
                                     <span class="shrink-0 text-xs font-medium text-[#60addf] bg-[#60addf]/10 px-2 py-1 rounded">

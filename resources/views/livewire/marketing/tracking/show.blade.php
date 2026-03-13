@@ -264,7 +264,7 @@
                 <div class="boron-card-body p-6">
                     @php
                         $statusOrder = [
-                            'menunggu_verifikasi', 'menunggu_pembayaran', 'pembayaran_disetujui', 
+                            'menunggu_verifikasi', 'menunggu_pembayaran', 'verifikasi_pembayaran', 'pembayaran_disetujui', 
                             'proses_instalasi', 'proses_aktivasi', 'menunggu_baa', 'baa_terbit', 'selesai'
                         ];
                         $currentIndex = array_search($customer->status, $statusOrder);
@@ -272,6 +272,7 @@
                         $workflows = [
                             ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
                             ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'icon' => 'ti-receipt'],
+                            ['id' => 'verifikasi_pembayaran', 'title' => 'Verifikasi Pembayaran', 'icon' => 'ti-search'],
                             ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
                             ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'icon' => 'ti-router'],
                             ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'icon' => 'ti-wifi'],
@@ -308,7 +309,6 @@
                                         <i class="ti {{ $step['icon'] }} text-xl"></i>
                                     </span>
                                 @endif
-
                                 <div>
                                     <h5 class="text-sm font-semibold pt-2 {{ $state === 'active' ? 'text-[#60addf]' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#8a969c]') }}">
                                         {{ $step['title'] }}
