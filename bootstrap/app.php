@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureSuperAdmin;
+use App\Http\Middleware\EnsureHasRole; // Pastikan Anda membuat file ini nanti
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'super_admin' => EnsureSuperAdmin::class,
+            'role' => EnsureHasRole::class, 
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
