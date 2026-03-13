@@ -8,8 +8,14 @@ class Customer extends Model
 {
     protected $guarded = ['id'];
 
-    // Relasi balik ke User
-    public function user()
+    protected function casts(): array
+    {
+        return [
+            'invoice_generated_at' => 'datetime',
+        ];
+    }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }

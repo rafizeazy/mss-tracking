@@ -15,6 +15,7 @@ class Dashboard extends Component
     use WithFileUploads;
 
     public Customer $customer;
+
     public $payment_proof;
 
     public function mount()
@@ -22,9 +23,9 @@ class Dashboard extends Component
         $this->customer = Customer::where('user_id', auth()->id())->latest()->first();
     }
 
-    public function viewInvoice()
+    public function viewInvoice(): void
     {
-        session()->flash('info', 'File Invoice (PDF) sedang dalam proses pembuatan. Fitur cetak akan segera tersedia.');
+        $this->dispatch('toast', type: 'info', title: 'Info', message: 'Fitur cetak Invoice akan segera tersedia.');
     }
 
     public function uploadPayment()
@@ -35,12 +36,10 @@ class Dashboard extends Component
         $path = $this->payment_proof->store('payment_proofs', 'public');
         $this->customer->update([
             'payment_proof_file_path' => $path,
-            'status' => 'verifikasi_pembayaran'
+            'status' => 'verifikasi_pembayaran',
         ]);
 
-        session()->flash('success', 'Bukti transfer berhasil dikirim! Menunggu verifikasi dari tim Finance kami.');
-        
-        // Reset state
+        $this->dispatch('toast', type: 'success', title: 'Bukti Terkirim!', message: 'Bukti transfer berhasil dikirim. Menunggu verifikasi dari tim Finance kami.');
         $this->payment_proof = null;
     }
 

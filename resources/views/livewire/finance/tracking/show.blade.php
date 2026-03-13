@@ -12,18 +12,6 @@
         </div>
     </div>
 
-    @if (session()->has('success'))
-        <div class="mb-4 rounded-[0.3rem] border border-[#70bb63]/30 bg-[#70bb63]/10 p-3 text-sm text-[#70bb63]">
-            <i class="ti ti-check mr-1"></i> {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="mb-4 rounded-[0.3rem] border border-[#ed6060]/30 bg-[#ed6060]/10 p-3 text-sm text-[#ed6060]">
-            <i class="ti ti-x mr-1"></i> {{ session('error') }}
-        </div>
-    @endif
-
     <div class="grid gap-6 xl:grid-cols-3">
         
         <div class="space-y-6 xl:col-span-2">
@@ -155,13 +143,53 @@
                         <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-5">
                             Pelanggan telah mengunggah bukti pembayaran. Silakan cek gambar di sebelah kiri dan cocokan dengan mutasi rekening perusahaan.
                         </p>
-                        <div class="flex flex-col gap-3">
-                            <button wire:click="approvePayment" wire:confirm="Dana sudah masuk? Lanjutkan layanan ke tim Instalasi?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
-                                <i class="ti ti-check text-lg"></i> Pembayaran Valid (Setujui)
-                            </button>
-                            <button wire:click="rejectPayment" wire:confirm="Tolak bukti ini? Pelanggan akan diminta mengunggah ulang." class="w-full btn-boron !bg-transparent !text-[#ed6060] border border-[#ed6060] hover:!bg-[#ed6060]/10 flex justify-center gap-2 !py-2.5 transition-colors">
-                                <i class="ti ti-x text-lg"></i> Tolak (Tidak Valid)
-                            </button>
+                        <div x-data="{ confirmType: null }" class="flex flex-col gap-3">
+
+                            {{-- Initial action buttons --}}
+                            <template x-if="!confirmType">
+                                <div class="flex flex-col gap-3">
+                                    <button @click="confirmType = 'approve'" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 py-2.5 shadow-lg shadow-[#669776]/30">
+                                        <i class="ti ti-check text-lg"></i> Pembayaran Valid (Setujui)
+                                    </button>
+                                    <button @click="confirmType = 'reject'" class="w-full btn-boron bg-transparent text-[#ed6060] border border-[#ed6060] hover:bg-[#ed6060]/10 flex justify-center gap-2 py-2.5 transition-colors">
+                                        <i class="ti ti-x text-lg"></i> Tolak (Tidak Valid)
+                                    </button>
+                                </div>
+                            </template>
+
+                            {{-- Inline confirmation as Modal --}}
+                            <template x-if="confirmType">
+                                <div>
+                                    {{-- Backdrop --}}
+                                    <div class="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-sm" @click="confirmType = null"></div>
+                                    
+                                    {{-- Modal Box --}}
+                                    <div class="fixed inset-0 z-[9991] flex items-center justify-center p-4">
+                                        <div class="w-full max-w-sm rounded-[0.5rem] bg-white p-6 shadow-2xl dark:bg-[#1e1e2a]">
+                                            <div class="mb-4 flex items-center gap-3">
+                                                <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#ebb751]/10">
+                                                    <i class="ti ti-alert-triangle text-xl text-[#ebb751]"></i>
+                                                </div>
+                                                <h5 class="font-semibold text-[#313a46] dark:text-white">Konfirmasi Aksi</h5>
+                                            </div>
+                                            <p class="mb-6 text-sm leading-relaxed text-[#4c4c5c] dark:text-[#aab8c5]" x-text="confirmType === 'approve' ? 'Dana sudah masuk ke rekening perusahaan? Lanjutkan layanan ke tim Instalasi?' : 'Tolak bukti ini? Pelanggan akan diminta mengunggah ulang bukti transfer yang valid.'"></p>
+                                            <div class="flex justify-end gap-3">
+                                                <button @click="confirmType = null" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-[#f6f7fb] dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">
+                                                    Batal
+                                                </button>
+                                                <button
+                                                    @click="confirmType === 'approve' ? $wire.approvePayment() : $wire.rejectPayment(); confirmType = null"
+                                                    :class="confirmType === 'approve' ? 'btn-boron-primary shadow-md shadow-[#669776]/30' : 'bg-[#ed6060] text-white hover:bg-[#d95454]'"
+                                                    class="btn-boron px-4 py-2 text-sm"
+                                                >
+                                                    <span x-text="confirmType === 'approve' ? 'Ya, Konfirmasi' : 'Ya, Tolak'"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
                         </div>
                     </div>
                 </div>

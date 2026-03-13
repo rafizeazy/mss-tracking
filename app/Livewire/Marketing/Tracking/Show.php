@@ -12,19 +12,25 @@ use Livewire\Component;
 class Show extends Component
 {
     public Customer $customer;
+
     public $service_type;
+
     public $monthly_fee;
+
     public $registration_fee;
+
     public $sla = '99.5%';
+
     public $marketing_name;
+
     public $marketing_phone;
 
     public function mount($id)
     {
         $this->customer = Customer::with('user')->findOrFail($id);
-        
+
         $this->service_type = $this->customer->service_type;
-        $this->marketing_name = auth()->user()->name; 
+        $this->marketing_name = auth()->user()->name;
     }
 
     protected function rules()
@@ -50,19 +56,19 @@ class Show extends Component
             'sla' => $this->sla,
             'marketing_name' => $this->marketing_name,
             'marketing_phone' => $this->marketing_phone,
-            'status' => 'menunggu_pembayaran'
+            'status' => 'menunggu_pembayaran',
         ]);
 
-        session()->flash('success', 'Data registrasi disetujui dan detail komersial telah disimpan. Tagihan otomatis diteruskan ke Finance.');
+        $this->dispatch('toast', type: 'success', title: 'Registrasi Disetujui', message: 'Data komersial disimpan. Antrean tagihan diteruskan ke Finance.');
     }
 
     public function reject()
     {
         $this->customer->update([
-            'status' => 'ditolak'
+            'status' => 'ditolak',
         ]);
 
-        session()->flash('error', 'Data registrasi pendaftar telah ditolak.');
+        $this->dispatch('toast', type: 'error', title: 'Pendaftaran Ditolak', message: 'Data registrasi pendaftar telah ditolak.');
     }
 
     public function render()

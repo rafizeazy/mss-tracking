@@ -12,10 +12,13 @@ use Livewire\Component;
 class Show extends Component
 {
     public Customer $customer;
+
     public $showInvoicePreview = false;
-    
+
     public $subtotal = 0;
+
     public $ppn = 0;
+
     public $grand_total = 0;
 
     public function mount($id)
@@ -36,26 +39,33 @@ class Show extends Component
         $this->showInvoicePreview = true;
     }
 
-    public function sendInvoice()
+    public function sendInvoice(): void
     {
-        session()->flash('success', 'Invoice Registrasi berhasil dikirim ke Dashboard Pelanggan! Menunggu pembayaran dari pelanggan.');
+        $invoiceNumber = 'INV-REG-'.date('Ymd').'-'.str_pad($this->customer->id, 3, '0', STR_PAD_LEFT);
+
+        $this->customer->update([
+            'invoice_number' => $invoiceNumber,
+            'invoice_generated_at' => now(),
+        ]);
+
+        $this->dispatch('toast', type: 'success', title: 'Invoice Terkirim', message: 'Invoice '.$invoiceNumber.' berhasil dikirim ke Dashboard Pelanggan.');
         $this->showInvoicePreview = false;
     }
 
     public function approvePayment()
     {
         $this->customer->update([
-            'status' => 'pembayaran_disetujui'
+            'status' => 'pembayaran_disetujui',
         ]);
-        session()->flash('success', 'Pembayaran berhasil dikonfirmasi. Layanan akan dilanjutkan ke tahap Instalasi oleh tim NOC.');
+        $this->dispatch('toast', type: 'success', title: 'Pembayaran Dikonfirmasi', message: 'Pembayaran valid. Layanan dilanjutkan ke tim NOC untuk proses instalasi.');
     }
 
     public function rejectPayment()
     {
         $this->customer->update([
-            'status' => 'menunggu_pembayaran'
+            'status' => 'menunggu_pembayaran',
         ]);
-        session()->flash('error', 'Bukti pembayaran ditolak. Pelanggan telah diminta untuk mengunggah ulang bukti transfer yang valid.');
+        $this->dispatch('toast', type: 'error', title: 'Pembayaran Ditolak', message: 'Bukti pembayaran ditolak. Pelanggan diminta mengunggah ulang bukti transfer yang valid.');
     }
 
     public function render()

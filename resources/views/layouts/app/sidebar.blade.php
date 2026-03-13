@@ -230,6 +230,155 @@
             x-transition:leave-end="opacity-0"
             x-cloak
         ></div>
+        {{-- Toast Modal --}}
+        <div
+            x-data="{
+                toast: null,
+                timer: null,
+                show(detail) {
+                    clearTimeout(this.timer);
+                    this.toast = detail;
+                    this.timer = setTimeout(() => { this.toast = null; }, detail.duration ?? 4000);
+                },
+                close() { clearTimeout(this.timer); this.toast = null; }
+            }"
+            @toast.window="show($event.detail)"
+            x-cloak
+        >
+            {{-- Backdrop --}}
+            <div
+                x-show="toast !== null"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-sm"
+                @click="close()"
+            ></div>
+
+            {{-- Modal Card --}}
+            <div
+                x-show="toast !== null"
+                x-transition:enter="transition ease-out duration-250"
+                x-transition:enter-start="opacity-0 scale-90"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-90"
+                class="fixed inset-0 z-[9991] flex items-center justify-center pointer-events-none"
+                aria-live="polite"
+            >
+                <div class="pointer-events-auto mx-4 w-full max-w-sm rounded-xl bg-white shadow-2xl dark:bg-[#1e1e2a] overflow-hidden">
+
+                    {{-- Colored top bar --}}
+                    <div
+                        :class="{
+                            'bg-[#70bb63]': toast?.type === 'success',
+                            'bg-[#ed6060]': toast?.type === 'error',
+                            'bg-[#60addf]': toast?.type === 'info',
+                            'bg-[#ebb751]': toast?.type === 'warning',
+                        }"
+                        class="h-1.5 w-full"
+                    ></div>
+
+                    <div class="p-6">
+                        {{-- Icon + close --}}
+                        <div class="flex items-start justify-between gap-3 mb-4">
+                            <div
+                                :class="{
+                                    'bg-[#70bb63]/10 text-[#70bb63]': toast?.type === 'success',
+                                    'bg-[#ed6060]/10 text-[#ed6060]': toast?.type === 'error',
+                                    'bg-[#60addf]/10 text-[#60addf]': toast?.type === 'info',
+                                    'bg-[#ebb751]/10 text-[#ebb751]': toast?.type === 'warning',
+                                }"
+                                class="flex size-12 shrink-0 items-center justify-center rounded-full text-2xl"
+                            >
+                                <template x-if="toast?.type === 'success'"><i class="ti ti-circle-check"></i></template>
+                                <template x-if="toast?.type === 'error'"><i class="ti ti-circle-x"></i></template>
+                                <template x-if="toast?.type === 'info'"><i class="ti ti-info-circle"></i></template>
+                                <template x-if="toast?.type === 'warning'"><i class="ti ti-alert-triangle"></i></template>
+                            </div>
+                            <button @click="close()" class="text-[#a1a9b1] hover:text-[#313a46] dark:hover:text-white transition-colors mt-0.5">
+                                <i class="ti ti-x text-lg"></i>
+                            </button>
+                        </div>
+
+                        {{-- Text --}}
+                        <p x-show="toast?.title" x-text="toast?.title" class="text-base font-bold text-[#313a46] dark:text-white mb-1"></p>
+                        <p x-text="toast?.message" class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed"></p>
+
+                        {{-- OK button --}}
+                        <button
+                            @click="close()"
+                            :class="{
+                                'bg-[#70bb63] hover:bg-[#5da855] shadow-[#70bb63]/30': toast?.type === 'success',
+                                'bg-[#ed6060] hover:bg-[#d95454] shadow-[#ed6060]/30': toast?.type === 'error',
+                                'bg-[#60addf] hover:bg-[#4d9acc] shadow-[#60addf]/30': toast?.type === 'info',
+                                'bg-[#ebb751] hover:bg-[#d4a448] shadow-[#ebb751]/30': toast?.type === 'warning',
+                            }"
+                            class="mt-5 w-full rounded-lg py-2.5 text-sm font-semibold text-white shadow-md transition-colors"
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Custom Confirm Modal --}}
+        <div
+            x-data="{
+                show: false,
+                message: '',
+                confirmText: 'Ya, Lanjutkan',
+                cancelText: 'Batal',
+                resolve: null,
+                open(detail) {
+                    this.message     = detail.message ?? 'Apakah Anda yakin?';
+                    this.confirmText = detail.confirmText ?? 'Ya, Lanjutkan';
+                    this.cancelText  = detail.cancelText  ?? 'Batal';
+                    this.show        = true;
+                    return new Promise(res => { this.resolve = res; });
+                },
+                confirm() { this.show = false; this.resolve && this.resolve(true); },
+                cancel()  { this.show = false; this.resolve && this.resolve(false); },
+            }"
+            @show-confirm.window="open($event.detail).then(ok => ok && $dispatch('confirmed-' + $event.detail.key))"
+            x-cloak
+        >
+            <div
+                x-show="show"
+                class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+            >
+                <div
+                    class="mx-4 w-full max-w-sm rounded-[0.5rem] bg-white p-6 shadow-2xl dark:bg-[#1e1e2a]"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    @click.stop
+                >
+                    <div class="mb-4 flex items-center gap-3">
+                        <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#ebb751]/10">
+                            <i class="ti ti-alert-triangle text-xl text-[#ebb751]"></i>
+                        </div>
+                        <h5 class="font-semibold text-[#313a46] dark:text-white">Konfirmasi Aksi</h5>
+                    </div>
+                    <p x-text="message" class="mb-6 text-sm leading-relaxed text-[#4c4c5c] dark:text-[#aab8c5]"></p>
+                    <div class="flex justify-end gap-3">
+                        <button @click="cancel()" x-text="cancelText" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-[#f6f7fb] dark:border-[#37394d] dark:text-white dark:hover:bg-white/5"></button>
+                        <button @click="confirm()" x-text="confirmText" class="btn-boron btn-boron-primary px-4 py-2 text-sm shadow-md shadow-[#669776]/30"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         @fluxScripts
     </body>

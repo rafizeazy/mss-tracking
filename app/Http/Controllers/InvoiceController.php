@@ -3,28 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
-    public function streamCustomerInvoice($id)
+    public function streamCustomerInvoice(int $id): \Illuminate\View\View
     {
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::with('user')->findOrFail($id);
+
+        // Hanya pemilik invoice yang boleh melihat
         if ($customer->user_id !== auth()->id()) {
             abort(403, 'Anda tidak memiliki akses ke Invoice ini.');
         }
-        $subtotal = $customer->monthly_fee + $customer->registration_fee;
-        $ppn = $subtotal * 0.11;
-        $grand_total = $subtotal + $ppn;
 
-        // Render PDF
-        $pdf = Pdf::loadView('pdf.invoice', [
-            'customer' => $customer,
-            'subtotal' => $subtotal,
-            'ppn' => $ppn,
-            'grand_total' => $grand_total,
-        ]);
-        return $pdf->stream('Invoice-Registrasi-MSS-' . str_pad($customer->id, 3, '0', STR_PAD_LEFT) . '.pdf');
+        $subtotal = ($customer->monthly_fee ?? 0) + ($customer->registration_fee ?? 0);
+        $ppn = $subtotal * 0.11;
+        $grandTotal = $subtotal + $ppn;
+
+        return view('customer.invoice', compact('customer', 'subtotal', 'ppn', 'grandTotal'));
     }
 }
