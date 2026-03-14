@@ -57,12 +57,8 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Biaya Registrasi / Instalasi Awal</td>
+                    <td>Biaya Registrasi / Instalasi Awal Jaringan ({{ $customer->service_type }})</td>
                     <td class="text-right">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Biaya Layanan Bulan Pertama ({{ $customer->service_type }})</td>
-                    <td class="text-right">{{ number_format($customer->monthly_fee, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -75,8 +71,8 @@
             </tr>
             <tr>
                 <td></td>
-                <td>PPN (11%):</td>
-                <td>Rp {{ number_format($ppn, 0, ',', '.') }}</td>
+                <td>PPN (0%):</td>
+                <td>Rp 0</td>
             </tr>
             <tr class="grand-total">
                 <td></td>
@@ -86,7 +82,7 @@
         </table>
         
         <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #8a969c;">
-            Harap lakukan pembayaran sesuai dengan nominal Total Tagihan. Terima kasih.
+            Harap lakukan pembayaran sesuai dengan nominal Total Tagihan. Biaya berlangganan bulan pertama akan ditagihkan secara terpisah setelah layanan aktif (BAA diterbitkan). Terima kasih.
         </div>
     </div>
 </body>

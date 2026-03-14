@@ -59,7 +59,6 @@
 </head>
 <body>
 
-<!-- Print bar -->
 <div class="print-bar">
     <h6>Invoice Registrasi #{{ $customer->invoice_number }} — PT Media Solusi Sukses</h6>
     <button onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
@@ -67,7 +66,6 @@
 
 <div class="page">
 
-    <!-- Header -->
     <div class="header">
         <div>
             <div class="company-name">PT Media Solusi Sukses</div>
@@ -79,7 +77,6 @@
         </div>
     </div>
 
-    <!-- Meta info -->
     <div class="meta">
         <div class="meta-box">
             <label>Ditagihkan Kepada</label>
@@ -101,7 +98,6 @@
         </div>
     </div>
 
-    <!-- Items table -->
     <table>
         <thead>
             <tr>
@@ -119,18 +115,9 @@
                 </td>
                 <td>{{ number_format($customer->registration_fee ?? 0, 0, ',', '.') }}</td>
             </tr>
-            <tr>
-                <td>2</td>
-                <td>
-                    Biaya Langganan Bulan Pertama ({{ $customer->service_type }})<br>
-                    <small style="color:#8a969c">SLA: {{ $customer->sla }}</small>
-                </td>
-                <td>{{ number_format($customer->monthly_fee ?? 0, 0, ',', '.') }}</td>
-            </tr>
         </tbody>
     </table>
 
-    <!-- Totals -->
     <div class="totals">
         <div class="totals-box">
             <div class="totals-row">
@@ -138,7 +125,7 @@
                 <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
             </div>
             <div class="totals-row">
-                <span>PPN (11%)</span>
+                <span>PPN (0%)</span>
                 <span>Rp {{ number_format($ppn, 0, ',', '.') }}</span>
             </div>
             <div class="totals-row grand">
@@ -148,7 +135,6 @@
         </div>
     </div>
 
-    <!-- Payment info -->
     <div class="payment-info">
         <h4>Informasi Pembayaran</h4>
         <p><strong>Bank:</strong> Bank BCA</p>
@@ -159,9 +145,8 @@
         </p>
     </div>
 
-    <!-- Notes -->
     <div class="notes">
-        <p>Invoice ini dibuat secara otomatis oleh sistem. Apabila ada pertanyaan mengenai tagihan ini, silakan hubungi tim Finance kami.</p>
+        <p>Invoice ini dibuat secara otomatis oleh sistem. Biaya berlangganan bulan pertama akan ditagihkan secara terpisah setelah layanan aktif (BAA diterbitkan). Apabila ada pertanyaan mengenai tagihan ini, silakan hubungi tim Finance kami.</p>
         <p style="margin-top:8px;">© {{ date('Y') }} PT Media Solusi Sukses — {{ config('app.url') }}</p>
     </div>
 

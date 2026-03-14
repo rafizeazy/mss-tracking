@@ -1,8 +1,8 @@
 <div class="py-6">
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-            <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">Antrean Penagihan & Invoice</h4>
-            <p class="mt-0.5 text-sm text-[#8a969c]">Daftar pelanggan yang menunggu penerbitan Invoice dan verifikasi pembayaran.</p>
+            <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">{{ __('Antrean Penagihan & Invoice') }}</h4>
+            <p class="mt-0.5 text-sm text-[#8a969c]">{{ __('Daftar pelanggan yang menunggu penerbitan Invoice dan verifikasi pembayaran.') }}</p>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
                         @forelse ($customers as $customer)
                             <tr class="hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $customer->updated_at->format('d M Y') }}
+                                    {{ $customer->updated_at->format('d Mar Y') }}
                                 </td>
                                 <td class="px-6 py-4 font-medium text-[#313a46] dark:text-white">
                                     {{ $customer->company_name }}
@@ -36,14 +36,19 @@
                                     Rp {{ number_format($customer->monthly_fee, 0, ',', '.') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($customer->status === 'menunggu_pembayaran')
-                                        <span class="badge-soft-warning px-2.5 py-1 text-xs">Menunggu Pembayaran</span>
+                                    {{-- PERBAIKAN LOGIKA STATUS DI SINI --}}
+                                    @if($customer->status === 'menunggu_invoice')
+                                        <span class="badge-soft-primary px-2.5 py-1 text-xs">Buat Invoice</span>
+                                    @elseif($customer->status === 'menunggu_pembayaran')
+                                        <span class="badge-soft-warning px-2.5 py-1 text-xs">Menunggu Transfer</span>
+                                    @elseif($customer->status === 'verifikasi_pembayaran')
+                                        <span class="badge-soft-warning px-2.5 py-1 text-xs animate-pulse ring-2 ring-[#ebb751]/50">Cek Bukti TF</span>
                                     @else
                                         <span class="badge-soft-success px-2.5 py-1 text-xs">Pembayaran Lunas</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <a href="{{ route('finance.tracking.show', $customer->id) }}" wire:navigate class="btn-boron btn-boron-outline-primary !px-3 !py-1 text-xs">
+                                    <a href="{{ route('finance.tracking.show', $customer->id) }}" wire:navigate class="btn-boron btn-boron-outline-secondary !px-3 !py-1 text-xs">
                                         Lihat Status
                                     </a>
                                 </td>
@@ -59,6 +64,7 @@
                 </table>
             </div>
             
+            {{-- Pagination Links --}}
             @if($customers->hasPages())
                 <div class="border-t border-[#e7e9eb] p-4 dark:border-[#37394d]">
                     {{ $customers->links() }}

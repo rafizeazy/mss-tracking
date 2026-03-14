@@ -21,7 +21,7 @@ class Register extends Component
 
     public int $totalSteps = 4;
 
-    // Step 1 — Data Pendaftar
+    // Data Pendaftar
     public string $name = '';
 
     public string $email = '';
@@ -34,7 +34,7 @@ class Register extends Component
 
     public string $phone = '';
 
-    // Step 2 — Informasi Perusahaan
+    // Informasi Perusahaan
     public string $company_name = '';
 
     public string $business_type = '';
@@ -51,21 +51,21 @@ class Register extends Component
 
     public string $company_phone = '';
 
-    // Step 3 — PIC Keuangan
+    // PIC Keuangan
     public string $finance_name = '';
 
     public string $billing_address = '';
 
     public string $finance_phone = '';
 
-    // Step 3 — PIC Teknis
+    // PIC Teknis
     public string $technical_name = '';
 
     public string $installation_address = '';
 
     public string $technical_phone = '';
 
-    // Step 4 — Layanan & Dokumen
+    // Layanan & Dokumen
     public string $service_type = '';
 
     public string $term_of_service = '1';
@@ -78,7 +78,7 @@ class Register extends Component
 
     public $certificate_file;
 
-    // Step 4 — Kredensial
+    // Kredensial
     public string $password = '';
 
     public string $password_confirmation = '';

@@ -19,4 +19,13 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function spk()
+    {
+        return $this->hasOne(Spk::class);
+    }
+    public function baa()
+    {
+        return $this->hasOne(Baa::class);
+    }
 }

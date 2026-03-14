@@ -4,7 +4,7 @@
             <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">
                 Verifikasi Data: {{ $customer->company_name }}
             </h4>
-            <p class="mt-0.5 text-sm text-[#8a969c]">ID: MSS-CUST-{{ str_pad($customer->id, 3, '0', STR_PAD_LEFT) }} | Tgl Daftar: {{ $customer->created_at->format('d M Y, H:i') }}</p>
+            <p class="mt-0.5 text-sm text-[#8a969c]">ID: <span class="font-medium text-[#ebb751]">{{ $customer->customer_number ?? 'Belum Diterbitkan (Menunggu BAA)' }}</span> | Tgl Daftar: {{ $customer->created_at->format('d M Y, H:i') }}</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
@@ -257,28 +257,122 @@
                 </div>
             @endif
 
+            @if($customer->status === 'pembayaran_disetujui')
+                <div class="boron-card border-2 border-[#60addf] shadow-lg">
+                    <div class="boron-card-header bg-[#60addf]/10 border-b border-[#60addf]/20 pb-3">
+                        <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf]"><i class="ti ti-file-description"></i> Form Penerbitan SPK NOC</h5>
+                    </div>
+                    <div class="boron-card-body p-5">
+                        <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-4 pb-4 border-b border-dashed border-[#e7e9eb] dark:border-[#37394d]">
+                            Lengkapi data di bawah ini untuk men-generate Surat Perintah Kerja (SPK) untuk tim NOC.
+                        </p>
+                        
+                        <form wire:submit.prevent="saveSpkData" class="space-y-4">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Jenis Pekerjaan</label>
+                                <select wire:model="job_type" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <option value="Aktivasi Baru">Aktivasi Baru</option>
+                                    <option value="Upgrade">Upgrade</option>
+                                    <option value="Downgrade">Downgrade</option>
+                                </select>
+                                @error('job_type') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Tipe Pelanggan</label>
+                                <select wire:model="customer_type" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <option value="">Pilih Tipe...</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Corporate">Corporate</option>
+                                </select>
+                                @error('customer_type') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Due Date (Target Selesai)</label>
+                                <input type="date" wire:model="due_date" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b]">
+                                @error('due_date') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Instruksi Pekerjaan (NOC)</label>
+                                <textarea wire:model="spk_notes" rows="4" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b]"></textarea>
+                                @error('spk_notes') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                            </div>
+
+                            <button type="submit" class="w-full btn-boron btn-boron-outline-primary flex justify-center gap-2 !py-2 text-sm">
+                                <i class="ti ti-device-floppy"></i> Simpan Data SPK
+                            </button>
+                        </form>
+
+                        @if($customer->spk)
+                            <div class="mt-5 pt-5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] space-y-3">
+                                <a href="{{ route('marketing.spk', $customer->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 text-sm dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
+                                    <i class="ti ti-file-pdf text-[#ed6060]"></i> Lihat / Cetak PDF SPK
+                                </a>
+                                
+                                <button wire:click="sendToNoc" wire:confirm="Pastikan PDF SPK sudah sesuai. Lanjutkan kirim ke Dashboard NOC?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
+                                    <i class="ti ti-send text-lg"></i> Kirim SPK ke NOC
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            @if($customer->status === 'verifikasi_baa')
+                <div class="boron-card border-2 border-[#70bb63] shadow-lg">
+                    <div class="boron-card-header bg-[#70bb63]/10 border-b border-[#70bb63]/20 pb-3">
+                        <h5 class="font-bold text-[#4a8a3f] dark:text-[#70bb63]"><i class="ti ti-file-check"></i> Verifikasi Final BAA</h5>
+                    </div>
+                    <div class="boron-card-body p-5">
+                        <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-4">
+                            Pelanggan telah mengunggah BAA yang ditandatangani. Silakan cek keabsahan tanda tangannya.
+                        </p>
+                        
+                        <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 mb-4 dark:bg-[#1e1f27] dark:text-white">
+                            <i class="ti ti-eye text-[#1e5d87]"></i> Cek File TTD Pelanggan
+                        </a>
+
+                        <div class="flex gap-2">
+                            <button wire:click="approveBaa" wire:confirm="Setujui BAA ini dan nyatakan layanan selesai 100%?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5">
+                                <i class="ti ti-check text-lg"></i> Setujui Final
+                            </button>
+                            <button wire:click="rejectBaa" wire:confirm="Tolak BAA ini? Pelanggan harus upload ulang." class="btn-boron bg-transparent text-[#ed6060] border border-[#ed6060] hover:bg-[#ed6060]/10 flex justify-center !py-2.5 !px-3">
+                                <i class="ti ti-x text-lg"></i> Tolak
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="boron-card h-fit">
                 <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
                     <h5 class="font-semibold text-[#313a46] dark:text-white">Progres Layanan</h5>
                 </div>
                 <div class="boron-card-body p-6">
-                    @php
-                        $statusOrder = [
-                            'menunggu_verifikasi', 'menunggu_pembayaran', 'verifikasi_pembayaran', 'pembayaran_disetujui', 
-                            'proses_instalasi', 'proses_aktivasi', 'menunggu_baa', 'baa_terbit', 'selesai'
-                        ];
-                        $currentIndex = array_search($customer->status, $statusOrder);
-                        
-                        $workflows = [
-                            ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
-                            ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'icon' => 'ti-receipt'],
-                            ['id' => 'verifikasi_pembayaran', 'title' => 'Verifikasi Pembayaran', 'icon' => 'ti-search'],
-                            ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
-                            ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'icon' => 'ti-router'],
-                            ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'icon' => 'ti-wifi'],
-                            ['id' => 'selesai', 'title' => 'Selesai & Aktif', 'icon' => 'ti-circle-check'],
-                        ];
-                    @endphp
+                @php
+                    $statusOrder = [
+                        'menunggu_verifikasi', 'menunggu_invoice', 'menunggu_pembayaran', 
+                        'verifikasi_pembayaran', 'pembayaran_disetujui', 'proses_instalasi', 
+                        'proses_aktivasi', 'review_baa', 'menunggu_baa', 'verifikasi_baa', 'selesai'
+                    ];
+                    $currentIndex = array_search($customer->status, $statusOrder);
+                    
+                    $workflows = [
+                        ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
+                        ['id' => 'menunggu_invoice', 'title' => 'Menunggu Invoice', 'icon' => 'ti-file-invoice'],
+                        ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'icon' => 'ti-receipt'],
+                        ['id' => 'verifikasi_pembayaran', 'title' => 'Verifikasi Pembayaran', 'icon' => 'ti-search'],
+                        ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
+                        ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'icon' => 'ti-router'],
+                        ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'icon' => 'ti-wifi'],
+                        ['id' => 'review_baa', 'title' => 'Review BAA (NOC)', 'icon' => 'ti-eye'],
+                        ['id' => 'menunggu_baa', 'title' => 'Tunggu TTD Pelanggan', 'icon' => 'ti-signature'],
+                        ['id' => 'verifikasi_baa', 'title' => 'Verifikasi Akhir BAA', 'icon' => 'ti-file-check'],
+                        ['id' => 'selesai', 'title' => 'Selesai & Aktif', 'icon' => 'ti-circle-check'],
+                    ];
+                @endphp
 
                     <div class="relative ml-3 border-l-2 border-[#e7e9eb] dark:border-[#37394d]">
                         @foreach($workflows as $index => $step)
@@ -309,6 +403,7 @@
                                         <i class="ti {{ $step['icon'] }} text-xl"></i>
                                     </span>
                                 @endif
+
                                 <div>
                                     <h5 class="text-sm font-semibold pt-2 {{ $state === 'active' ? 'text-[#60addf]' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#8a969c]') }}">
                                         {{ $step['title'] }}

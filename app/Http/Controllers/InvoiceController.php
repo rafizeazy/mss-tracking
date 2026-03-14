@@ -9,16 +9,23 @@ class InvoiceController extends Controller
     public function streamCustomerInvoice(int $id): \Illuminate\View\View
     {
         $customer = Customer::with('user')->findOrFail($id);
+        $user = auth()->user();
 
-        // Hanya pemilik invoice yang boleh melihat
-        if ($customer->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki akses ke Invoice ini.');
+        $isCustomer = false;
+        
+        if ($user->role instanceof \App\Enums\Role) {
+            $isCustomer = $user->role === \App\Enums\Role::Customer;
+        } else {
+            $isCustomer = strtolower($user->role) === 'customer';
         }
 
-        $subtotal = ($customer->monthly_fee ?? 0) + ($customer->registration_fee ?? 0);
-        $ppn = $subtotal * 0.11;
-        $grandTotal = $subtotal + $ppn;
+        if ($isCustomer && $customer->user_id !== $user->id) {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
+        }
 
+        $subtotal = $customer->registration_fee ?? 0;
+        $ppn = 0;
+        $grandTotal = $subtotal + $ppn;
         return view('customer.invoice', compact('customer', 'subtotal', 'ppn', 'grandTotal'));
     }
 }

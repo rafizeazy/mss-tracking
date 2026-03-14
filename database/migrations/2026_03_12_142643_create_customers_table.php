@@ -16,6 +16,7 @@ return new class extends Migration
             
             // Relasi ke tabel users (Jika user dihapus, data customer ikut terhapus)
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('customer_number')->nullable();
             
             // 1. Data Pendaftar
             $table->string('ktp_number', 16);

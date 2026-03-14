@@ -8,13 +8,17 @@ Route::get('register/customer', \App\Livewire\Customer\Register::class)->name('c
 // Route Khusus Pelanggan (tanpa 'verified' agar langsung bisa akses usai daftar)
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('customer/dashboard', \App\Livewire\Customer\Dashboard::class)->name('customer.dashboard');
-    Route::get('customer/invoice/{id}', [\App\Http\Controllers\InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
 });
 
 // ROUTE UMUM (Semua role internal)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
-    Route::get('customers', \App\Livewire\Customer\Index::class)->name('customers.index');
+    Route::get('marketing/spk/{id}', [\App\Http\Controllers\SpkController::class, 'streamSpk'])->name('marketing.spk');
+    Route::get('noc/baa/{id}', [\App\Http\Controllers\BaaController::class, 'streamBaa'])->name('noc.baa');
+    Route::get('marketing/data-pelanggan', \App\Livewire\Marketing\Datapelanggan\Index::class)->name('marketing.datapelanggan.index');
+    Route::get('finance/data-pelanggan', \App\Livewire\Finance\Datapelanggan\Index::class)->name('finance.datapelanggan.index');
+    Route::get('noc/data-pelanggan', \App\Livewire\Noc\Datapelanggan\Index::class)->name('noc.datapelanggan.index');
+    Route::get('customer/invoice/{id}', [\App\Http\Controllers\InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
 });
 
 // ROUTE KHUSUS SUPER ADMIN
@@ -36,7 +40,8 @@ Route::middleware(['auth', 'verified', 'role:finance,super_admin'])->group(funct
 
 // ROUTE NOC
 Route::middleware(['auth', 'verified', 'role:noc,super_admin'])->group(function () {
-    Route::get('noc/activations', \App\Livewire\Noc\Activations::class)->name('noc.activations');
+    Route::get('noc/tracking', \App\Livewire\Noc\Tracking\Index::class)->name('noc.tracking.index');
+    Route::get('noc/tracking/{id}', \App\Livewire\Noc\Tracking\Show::class)->name('noc.tracking.show');
 });
 
 require __DIR__.'/settings.php';

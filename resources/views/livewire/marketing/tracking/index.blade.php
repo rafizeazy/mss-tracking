@@ -38,11 +38,17 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($customer->status === 'menunggu_verifikasi')
-                                        <span class="badge-soft-warning px-2.5 py-1 text-xs">Menunggu Verifikasi</span>
+                                        <span class="badge-soft-warning px-2.5 py-1 text-xs">Menunggu Form & Dokumen</span>
+                                    @elseif($customer->status === 'verifikasi_baa')
+                                        <span class="rounded bg-[#70bb63]/10 px-2.5 py-1 text-xs font-bold text-[#70bb63] ring-2 ring-[#70bb63]/50 animate-pulse">
+                                            Cek & Setujui BAA Final
+                                        </span>
                                     @elseif($customer->status === 'ditolak')
                                         <span class="badge-soft-danger px-2.5 py-1 text-xs">Ditolak</span>
                                     @else
-                                        <span class="badge-soft-success px-2.5 py-1 text-xs">Telah Diverifikasi</span>
+                                        <span class="rounded bg-[#f8f9fa] border border-[#dee2e6] px-2.5 py-1 text-xs text-[#8a969c] dark:bg-[#15151b] dark:border-[#37394d]">
+                                            Proses di Dept. Lain
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-center">
