@@ -27,6 +27,9 @@ class Show extends Component
     public $due_date;
     public $spk_notes = 'Tim NOC diminta untuk melakukan proses provisioning layanan sesuai detail di atas, termasuk konfigurasi perangkat jaringan, aktivasi layanan, serta memastikan konektivitas layanan berjalan dengan baik sebelum dilakukan serah terima kepada pelanggan.';
 
+    public $isEditingCustomer = false;
+    public $editData = [];
+
     public function mount($id)
     {
         $this->customer = Customer::with(['user', 'spk'])->findOrFail($id);
@@ -46,6 +49,80 @@ class Show extends Component
     public function refreshData()
     {
         $this->customer->refresh();
+    }
+
+    public function editCustomer()
+    {
+        $this->editData = [
+            'ktp_number' => $this->customer->ktp_number,
+            'gender' => $this->customer->gender,
+            'position' => $this->customer->position,
+            'phone' => $this->customer->phone,
+            
+            'company_name' => $this->customer->company_name,
+            'business_type' => $this->customer->business_type,
+            'npwp_number' => $this->customer->npwp_number,
+            'company_phone' => $this->customer->company_phone,
+            'company_address' => $this->customer->company_address,
+            'city' => $this->customer->city,
+            'province' => $this->customer->province,
+            'postal_code' => $this->customer->postal_code,
+            
+            'finance_name' => $this->customer->finance_name,
+            'finance_phone' => $this->customer->finance_phone,
+            'billing_address' => $this->customer->billing_address,
+            
+            'technical_name' => $this->customer->technical_name,
+            'technical_phone' => $this->customer->technical_phone,
+            'installation_address' => $this->customer->installation_address,
+            
+            'service_type' => $this->customer->service_type,
+            'term_of_service' => $this->customer->term_of_service,
+        ];
+        $this->isEditingCustomer = true;
+    }
+
+    public function updateCustomer()
+    {
+        $this->validate([
+            'editData.ktp_number' => 'nullable|string',
+            'editData.gender' => 'nullable|in:L,P',
+            'editData.position' => 'nullable|string',
+            'editData.phone' => 'required|string|max:20',
+            
+            'editData.company_name' => 'required|string|max:255',
+            'editData.business_type' => 'nullable|string',
+            'editData.npwp_number' => 'nullable|string',
+            'editData.company_phone' => 'nullable|string|max:20',
+            'editData.company_address' => 'required|string',
+            'editData.city' => 'nullable|string',
+            'editData.province' => 'nullable|string',
+            'editData.postal_code' => 'nullable|string',
+            
+            'editData.finance_name' => 'nullable|string|max:255',
+            'editData.finance_phone' => 'nullable|string|max:20',
+            'editData.billing_address' => 'nullable|string',
+            
+            'editData.technical_name' => 'nullable|string|max:255',
+            'editData.technical_phone' => 'nullable|string|max:20',
+            'editData.installation_address' => 'nullable|string',
+            
+            'editData.service_type' => 'required|string',
+            'editData.term_of_service' => 'nullable|numeric',
+        ]);
+
+        $this->customer->update($this->editData);
+
+        broadcast(new CustomerUpdated());
+        $this->customer->refresh();
+
+        $this->isEditingCustomer = false;
+        session()->flash('success', 'Seluruh data profil pelanggan berhasil diperbarui!');
+    }
+
+    public function cancelEdit()
+    {
+        $this->isEditingCustomer = false;
     }
 
     public function approve()

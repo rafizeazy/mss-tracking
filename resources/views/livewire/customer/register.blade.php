@@ -234,12 +234,30 @@
                     </div>
                     <div class="boron-card-body grid gap-6 p-6 md:grid-cols-2">
                         <div class="space-y-4">
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium">Tipe Layanan &amp; Bandwidth <span class="text-[#ed6060]">*</span></label>
-                                <input type="text" wire:model="service_type" placeholder="Contoh: Dedicated Internet 100 Mbps"
-                                    class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d]">
-                                @error('service_type') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
-                            </div>
+                        <div>
+                        <label class="mb-1.5 block text-sm font-medium">Tipe Layanan &amp; Bandwidth <span class="text-[#ed6060]">*</span></label>
+                        <select wire:model="service_type"
+                            class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                            <option value="">-- Pilih Tipe & Bandwidth --</option>
+                            <option value="Internet Dedicated 1:1 100 Mbps">Internet Dedicated 1:1 100 Mbps</option>
+                            <option value="Internet Dedicated 1:1 200 Mbps">Internet Dedicated 1:1 200 Mbps</option>
+                            <option value="Internet Dedicated 1:1 300 Mbps">Internet Dedicated 1:1 300 Mbps</option>
+                            <option value="Internet Dedicated 1:1 400 Mbps">Internet Dedicated 1:1 400 Mbps</option>
+                            <option value="Internet Dedicated 1:1 500 Mbps">Internet Dedicated 1:1 500 Mbps</option>
+                            <option value="Internet Dedicated 1:1 600 Mbps">Internet Dedicated 1:1 600 Mbps</option>
+                            <option value="Internet Dedicated 1:1 700 Mbps">Internet Dedicated 1:1 700 Mbps</option>
+                            <option value="Internet Dedicated 1:1 800 Mbps">Internet Dedicated 1:1 800 Mbps</option>
+                            <option value="Internet Dedicated 1:1 900 Mbps">Internet Dedicated 1:1 900 Mbps</option>
+                            <option value="Internet Dedicated 1:1 1000 Mbps">Internet Dedicated 1:1 1000 Mbps</option>
+                            <option value="Internet Dedicated 1:1 1500 Mbps">Internet Dedicated 1:1 1500 Mbps</option>
+                            <option value="Internet Dedicated 1:1 2000 Mbps">Internet Dedicated 1:1 2000 Mbps</option>
+                            <option value="Internet Dedicated 1:1 2500 Mbps">Internet Dedicated 1:1 2500 Mbps</option>
+                            <option value="Internet Dedicated 1:1 3000 Mbps">Internet Dedicated 1:1 3000 Mbps</option>
+                            <option value="Internet Dedicated 1:1 3500 Mbps">Internet Dedicated 1:1 3500 Mbps</option>
+                            <option value="Internet Dedicated 1:1 4000 Mbps">Internet Dedicated 1:1 4000 Mbps</option>
+                        </select>
+                        @error('service_type') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                    </div>
                             <div>
                                 <label class="mb-1.5 block text-sm font-medium">Jangka Waktu Berlangganan <span class="text-[#ed6060]">*</span></label>
                                 <select wire:model="term_of_service"

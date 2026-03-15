@@ -7,6 +7,10 @@
             <p class="mt-0.5 text-sm text-[#8a969c]">ID: <span class="font-medium text-[#ebb751]">{{ $customer->customer_number ?? 'Belum Diterbitkan (Menunggu BAA)' }}</span> | Tgl Daftar: {{ $customer->created_at->format('d M Y, H:i') }}</p>
         </div>
         <div class="flex gap-2">
+            <button wire:click="editCustomer" class="btn-boron btn-boron-secondary !py-1.5 flex items-center gap-1 bg-[#f8f9fa] text-[#4c4c5c] hover:bg-[#e7e9eb] border border-[#dee2e6] dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
+                <i class="ti ti-edit"></i> Edit Data
+            </button>
+
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
                 <i class="ti ti-arrow-left"></i> Kembali ke Antrean
             </a>
@@ -29,7 +33,7 @@
         <div class="space-y-6 xl:col-span-2">
             
             <div class="boron-card">
-                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d] flex justify-between items-center">
                     <h5 class="font-semibold text-[#313a46] dark:text-white"><i class="ti ti-user mr-1 text-[#669776]"></i> 1. Informasi Pendaftar (Yang Diberi Wewenang)</h5>
                 </div>
                 <div class="boron-card-body p-5 grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6 text-sm">
@@ -423,4 +427,6 @@
 
         </div>
     </div>
+    
+    @include('livewire.marketing.tracking.modalEdit')
 </div>

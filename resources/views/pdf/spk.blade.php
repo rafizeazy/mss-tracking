@@ -5,58 +5,49 @@
     <title>SPK - {{ $customer->company_name }}</title>
     <style>
         @page { margin: 40px 50px; }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; font-size: 13px; line-height: 1.4; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #313a46; font-size: 12px; line-height: 1.5; }
         
-        /* Header Section */
-        .header-table { width: 100%; border-bottom: 2px solid #669776; padding-bottom: 15px; margin-bottom: 20px; }
-        .header-left { width: 60%; }
-        .header-right { width: 40%; text-align: right; }
-        .company-name { font-size: 22px; font-weight: 900; color: #669776; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .company-sub { font-size: 12px; color: #8a969c; margin-top: 4px; letter-spacing: 0.5px; }
+        .header-table { width: 100%; border-bottom: 3px solid #1e5d87; padding-bottom: 15px; margin-bottom: 25px; }
+        .header-logo { height: 55px; width: auto; }
+        .header-info { text-align: right; font-size: 11px; color: #8a969c; line-height: 1.4; }
+        .header-info strong { color: #1e5d87; font-size: 15px; display: block; margin-bottom: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
         
-        /* Title Section */
-        .doc-title { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0 5px 0; text-transform: uppercase; color: #313a46; letter-spacing: 1px; text-decoration: underline; }
-        .doc-subtitle { text-align: center; font-size: 12px; color: #8a969c; margin-bottom: 30px; letter-spacing: 2px; }
+        .doc-title { text-align: center; font-size: 20px; font-weight: 900; color: #1e5d87; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; text-decoration: underline; }
+        .doc-subtitle { text-align: center; font-size: 12px; font-weight: bold; color: #669776; letter-spacing: 1px; margin-bottom: 30px; }
 
-        /* Meta Info */
-        .meta-table { width: 100%; margin-bottom: 20px; font-size: 13px; }
-        .meta-table td { padding: 5px 0; }
-        .meta-label { font-weight: bold; width: 140px; color: #4c4c5c; }
+        .meta-table { width: 100%; margin-bottom: 25px; border-collapse: collapse; }
+        .meta-table td { padding: 8px 12px; border: 1px solid #e7e9eb; font-size: 12px; }
+        .meta-table .meta-label { background-color: #f8f9fa; font-weight: bold; color: #1e5d87; width: 18%; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+        .meta-table .meta-value { color: #313a46; width: 32%; font-weight: 600; }
 
-        /* Sections & Tables */
-        .section-title { font-weight: bold; background: #f6f7fb; color: #1e5d87; padding: 8px 12px; margin-top: 20px; border-left: 4px solid #60addf; font-size: 13px; border-top: 1px solid #e7e9eb; border-right: 1px solid #e7e9eb; border-bottom: 1px solid #e7e9eb; text-transform: uppercase; letter-spacing: 0.5px; }
-        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #e7e9eb; border-top: none; }
-        .content-table td { border-bottom: 1px solid #e7e9eb; padding: 10px 12px; vertical-align: top; }
-        .content-table td.label { width: 35%; font-weight: 600; color: #4c4c5c; background-color: #fdfdfd; border-right: 1px solid #e7e9eb; }
+        .section-title { font-size: 13px; font-weight: bold; color: #1e5d87; margin-bottom: 10px; border-left: 4px solid #669776; padding-left: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .content-table td { padding: 10px 12px; border: 1px solid #e7e9eb; vertical-align: top; font-size: 12px; }
+        .content-table .label { width: 35%; background-color: #f8f9fa; font-weight: bold; color: #4c4c5c; }
+        .content-table .value { color: #313a46; }
 
-        /* Instructions */
-        .instructions { border: 1px solid #e7e9eb; padding: 15px; min-height: 80px; background-color: #fdfdfd; color: #4c4c5c; font-style: italic; border-top: none; line-height: 1.6; }
+        .instructions-box { background-color: rgba(102, 151, 118, 0.05); border: 1px solid rgba(102, 151, 118, 0.2); padding: 15px; border-radius: 4px; color: #313a46; line-height: 1.6; margin-bottom: 40px; font-style: italic; }
 
-        /* Signatures */
-        .signature-table { width: 100%; margin-top: 50px; text-align: center; page-break-inside: avoid; }
-        .signature-table td { width: 50%; padding-top: 10px; }
-        .sign-area { height: 90px; position: relative; }
-        .sign-name { font-weight: bold; text-decoration: underline; margin-bottom: 4px; font-size: 14px; color: #313a46; }
-        .sign-title { color: #8a969c; font-size: 12px; }
-
-        /* Fake Signature / Stamp */
-        .fake-sign { font-family: "Brush Script MT", "Lucida Handwriting", cursive, sans-serif; font-size: 32px; color: #669776; line-height: 90px; opacity: 0.8; transform: rotate(-5deg); display: inline-block; }
+        .signature-table { width: 100%; text-align: center; page-break-inside: avoid; margin-top: 50px; }
+        .signature-table td { width: 50%; vertical-align: bottom; position: relative; }
+        .sign-title { font-weight: bold; color: #313a46; font-size: 12px; margin-bottom: 70px; }
+        .sign-name { font-weight: bold; text-decoration: underline; text-transform: uppercase; font-size: 13px; color: #1e5d87; }
+        .sign-role { font-size: 11px; color: #8a969c; margin-top: 4px; font-weight: 600; }
+        .fake-sign { font-family: "Brush Script MT", "Lucida Handwriting", cursive, sans-serif; font-size: 34px; color: #669776; opacity: 0.6; transform: rotate(-10deg); position: absolute; top: 30px; left: 50%; margin-left: -50px; z-index: -1; }
     </style>
 </head>
 <body>
     
     <table class="header-table">
         <tr>
-            <td class="header-left">
-                <h1 class="company-name">PT MEDIA SOLUSI SUKSES</h1>
-                <div class="company-sub">Layanan Internet & IT Solution Berdedikasi</div>
+            <td width="50%" style="vertical-align: middle;">
+                <img src="{{ public_path('logo/Logo MSS.png') }}" class="header-logo" alt="Logo MSS" onerror="this.style.display='none';">
             </td>
-            <td class="header-right">
-                <div style="font-size: 11px; line-height: 1.5; color: #8a969c;">
-                    Perum. Bumi Karawang Residence, Blok G12 No. 7-9<br>
-                    Cengkong, Purwasari, Kab. Karawang, 41373<br>
-                    +62 21 397 00 444 | admin@mediasolusisukses.co.id
-                </div>
+            <td width="50%" class="header-info" style="vertical-align: middle;">
+                <strong>PT Media Solusi Sukses</strong>
+                Perum. Bumi Karawang Residence, Blok G12 No. 7-9<br>
+                Cengkong, Purwasari, Kab. Karawang, 41373<br>
+                P: +62 21 397 00 444 | E: admin@mediasolusisukses.co.id
             </td>
         </tr>
     </table>
@@ -67,15 +58,15 @@
     <table class="meta-table">
         <tr>
             <td class="meta-label">Nomor SPK</td>
-            <td>: <strong style="color: #313a46;">{{ $customer->spk->spk_number ?? '-' }}</strong></td>
+            <td class="meta-value" style="color: #1e5d87;">{{ $customer->spk->spk_number ?? '-' }}</td>
             <td class="meta-label">Tanggal Terbit</td>
-            <td>: {{ $customer->spk->created_at ? $customer->spk->created_at->format('d F Y') : date('d F Y') }}</td>
+            <td class="meta-value">{{ $customer->spk->created_at ? $customer->spk->created_at->format('d F Y') : date('d F Y') }}</td>
         </tr>
         <tr>
-            <td class="meta-label">Target Selesai (Due)</td>
-            <td style="color: #ed6060; font-weight: bold;">: {{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d F Y') : '-' }}</td>
+            <td class="meta-label">Target Selesai</td>
+            <td class="meta-value" style="color: #ed6060;">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d F Y') : '-' }}</td>
             <td class="meta-label">Diterbitkan Oleh</td>
-            <td>: {{ $customer->marketing_name ?? 'Administration' }}</td>
+            <td class="meta-value">{{ strtoupper($customer->marketing_name ?? 'Administration') }}</td>
         </tr>
     </table>
 
@@ -83,23 +74,23 @@
     <table class="content-table">
         <tr>
             <td class="label">Nama Usaha / Instansi</td>
-            <td style="font-weight: bold; font-size: 15px; color: #313a46;">{{ $customer->company_name }}</td>
+            <td class="value" style="font-weight: 800; font-size: 14px; text-transform: uppercase;">{{ $customer->company_name }}</td>
         </tr>
         <tr>
             <td class="label">ID Pelanggan</td>
-            <td style="color: #ebb751; font-weight: bold;">{{ $customer->customer_number ?? 'DI ISI SETELAH AKTIF' }}</td>
+            <td class="value" style="font-weight: bold;">{{ $customer->customer_number ?? 'DI ISI SETELAH AKTIF' }}</td>
         </tr>
         <tr>
             <td class="label">Tipe Pelanggan</td>
-            <td>{{ $customer->spk->customer_type ?? '-' }}</td>
+            <td class="value">{{ $customer->spk->customer_type ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">Jenis Layanan</td>
-            <td style="font-weight: bold; color: #1e5d87;">{{ $customer->service_type }}</td>
+            <td class="value" style="font-weight: bold; color: #1e5d87;">{{ strtoupper($customer->service_type) }}</td>
         </tr>
         <tr>
             <td class="label">Jenis Pekerjaan NOC</td>
-            <td>{{ $customer->spk->job_type ?? 'Aktivasi Baru' }}</td>
+            <td class="value">{{ strtoupper($customer->spk->job_type ?? 'Aktivasi Baru') }}</td>
         </tr>
     </table>
 
@@ -107,45 +98,39 @@
     <table class="content-table">
         <tr>
             <td class="label">Alamat Lengkap Instalasi</td>
-            <td style="line-height: 1.5;">{{ $customer->installation_address ?? $customer->company_address }}</td>
+            <td class="value" style="line-height: 1.6;">{{ $customer->installation_address ?? $customer->company_address }}</td>
         </tr>
         <tr>
             <td class="label">Nama PIC Teknis (Lokasi)</td>
-            <td>{{ $customer->technical_name ?? $customer->user->name }}</td>
+            <td class="value">{{ strtoupper($customer->technical_name ?? $customer->user->name) }}</td>
         </tr>
         <tr>
             <td class="label">Kontak PIC Teknis</td>
-            <td>{{ $customer->technical_phone ?? $customer->phone }}</td>
+            <td class="value">{{ $customer->technical_phone ?? $customer->phone }}</td>
         </tr>
         <tr>
             <td class="label">Tim Sales / Marketing</td>
-            <td style="font-weight: bold;">{{ $customer->marketing_name ?? '-' }} <span style="font-weight: normal; color:#8a969c;">( {{ $customer->marketing_phone ?? '-' }} )</span></td>
+            <td class="value" style="font-weight: bold;">{{ strtoupper($customer->marketing_name ?? '-') }} <span style="font-weight: normal; color:#8a969c;">( {{ $customer->marketing_phone ?? '-' }} )</span></td>
         </tr>
     </table>
 
     <div class="section-title">3. Instruksi Khusus Pekerjaan</div>
-    <div class="instructions">
+    <div class="instructions-box">
         {!! nl2br(e($customer->spk->notes ?? 'Tim NOC diminta untuk melakukan proses penyediaan layanan sesuai detail di atas, termasuk penarikan kabel, pemasangan OLT/Router, aktivasi bandwidth, serta memastikan konektivitas internet berjalan dengan baik sebelum dilakukan serah terima (BAA) kepada pelanggan.')) !!}
     </div>
 
     <table class="signature-table">
         <tr>
             <td>
-                Mengetahui & Menjalankan,<br>
-                <strong>Tim Operation</strong>
-                <div class="sign-area">
-                    </div>
+                <div class="sign-title">Mengetahui & Menjalankan,<br>Tim Operation</div>
                 <div class="sign-name">( .................................................... )</div>
-                <div class="sign-title">Network Operation Center (NOC)</div>
+                <div class="sign-role">Network Operation Center (NOC)</div>
             </td>
             <td>
-                Hormat Kami,<br>
-                <strong>PT Media Solusi Sukses</strong>
-                <div class="sign-area">
-                    <div class="fake-sign">Approved</div>
-                </div>
-                <div class="sign-name">{{ $customer->marketing_name ?? 'Administration' }}</div>
-                <div class="sign-title">Sales / Marketing</div>
+                <div class="sign-title">Hormat Kami,<br>PT Media Solusi Sukses</div>
+                <div class="fake-sign">Approved</div>
+                <div class="sign-name">{{ strtoupper($customer->marketing_name ?? 'Administration') }}</div>
+                <div class="sign-role">Sales / Marketing</div>
             </td>
         </tr>
     </table>
