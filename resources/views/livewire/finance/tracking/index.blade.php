@@ -24,7 +24,7 @@
                         @forelse ($customers as $customer)
                             <tr class="hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $customer->updated_at->format('d Mar Y') }}
+                                {{ $customer->updated_at->translatedFormat('d F Y • H:i') }}
                                 </td>
                                 <td class="px-6 py-4 font-medium text-[#313a46] dark:text-white">
                                     {{ $customer->company_name }}

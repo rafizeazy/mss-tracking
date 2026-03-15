@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Marketing\Tracking;
 
+use App\Events\CustomerUpdated;
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -40,6 +42,12 @@ class Show extends Component
         }
     }
 
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+        $this->customer->refresh();
+    }
+
     public function approve()
     {
         $this->validate([
@@ -58,8 +66,10 @@ class Show extends Component
             'sla' => $this->sla,
             'marketing_name' => $this->marketing_name,
             'marketing_phone' => $this->marketing_phone,
-            'status' => 'menunggu_invoice' // UBAH DISINI
+            'status' => 'menunggu_invoice'
         ]);
+
+        broadcast(new CustomerUpdated());
 
         session()->flash('success', 'Data registrasi disetujui. Tagihan otomatis diteruskan ke Finance.');
     }
@@ -69,6 +79,8 @@ class Show extends Component
         $this->customer->update([
             'status' => 'ditolak'
         ]);
+
+        broadcast(new CustomerUpdated());
 
         session()->flash('error', 'Data registrasi pendaftar telah ditolak.');
     }
@@ -97,6 +109,8 @@ class Show extends Component
 
         $this->customer->refresh();
 
+        broadcast(new CustomerUpdated());
+
         session()->flash('success', 'Data SPK berhasil disimpan. Anda dapat mengecek PDF SPK sekarang.');
     }
 
@@ -111,12 +125,17 @@ class Show extends Component
             'status' => 'proses_instalasi'
         ]);
 
+        broadcast(new CustomerUpdated());
+
         session()->flash('success', 'SPK berhasil dikirim! Status layanan kini berada di tangan tim NOC.');
     }
 
     public function approveBaa()
     {
         $this->customer->update(['status' => 'selesai']);
+
+        broadcast(new CustomerUpdated());
+
         session()->flash('success', 'BAA disetujui! Layanan pelanggan telah resmi selesai dan aktif sepenuhnya.');
     }
 
@@ -124,6 +143,9 @@ class Show extends Component
     {
         $this->customer->baa->update(['signed_baa_path' => null]);
         $this->customer->update(['status' => 'menunggu_baa']);
+
+        broadcast(new CustomerUpdated());
+
         session()->flash('error', 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
     }
 

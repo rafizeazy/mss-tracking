@@ -3,6 +3,7 @@
 namespace App\Livewire\Noc\Tracking;
 
 use App\Models\Customer;
+use App\Events\CustomerUpdated;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -27,7 +28,7 @@ class Show extends Component
     public $speedtest_image;
     public $devices = [];
 
-    public $isEditingBaa = false; // Mode Edit
+    public $isEditingBaa = false; 
 
     public function mount($id)
     {
@@ -51,6 +52,9 @@ class Show extends Component
     public function finishInstallation()
     {
         $this->customer->update(['status' => 'proses_aktivasi']);
+        
+        broadcast(new CustomerUpdated());
+        
         $this->customer->refresh();
         session()->flash('success', 'Instalasi fisik selesai. Silakan isi form BAA untuk aktivasi.');
     }
@@ -117,6 +121,8 @@ class Show extends Component
             'status' => 'review_baa' 
         ]);
 
+        broadcast(new CustomerUpdated());
+
         $this->isEditingBaa = false;
         $this->customer->refresh();
         session()->flash('success', 'BAA berhasil di-generate! Silakan periksa PDF-nya sebelum dikirim ke pelanggan.');
@@ -125,6 +131,9 @@ class Show extends Component
     public function sendBaaToCustomer()
     {
         $this->customer->update(['status' => 'menunggu_baa']);
+        
+        broadcast(new CustomerUpdated());
+        
         $this->customer->refresh();
         session()->flash('success', 'BAA berhasil dikirim ke Dashboard Pelanggan untuk ditandatangani.');
     }

@@ -179,10 +179,8 @@
                     </div>
 
                     <div class="flex flex-1 items-center justify-end gap-2">
-                        <button class="boron-topbar-btn relative">
-                            <i class="ti ti-bell animate-ring-bell text-lg"></i>
-                            <span class="absolute -right-0.5 -top-0.5 flex size-2"><span class="absolute inline-flex size-full rounded-full bg-[#ed6060]"></span></span>
-                        </button>
+                        
+                        <livewire:notification-bell />
 
                         <button x-data @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'" class="boron-topbar-btn" title="Toggle dark mode">
                             <template x-if="$flux.appearance !== 'dark'">

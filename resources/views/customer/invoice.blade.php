@@ -12,6 +12,8 @@
 
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 24px; border-bottom: 2px solid #669776; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .logo { height: 50px; width: auto; }
         .company-name { font-size: 22px; font-weight: 800; color: #669776; letter-spacing: -0.5px; }
         .company-sub  { font-size: 12px; color: #8a969c; margin-top: 4px; }
         .invoice-title { text-align: right; }
@@ -37,14 +39,21 @@
         .totals-row.grand { font-size: 16px; font-weight: 800; color: #313a46; border-bottom: none; border-top: 2px solid #313a46; padding-top: 12px; margin-top: 4px; }
         .totals-row.grand span:last-child { color: #669776; }
 
-        /* Payment info */
-        .payment-info { margin-top: 36px; padding: 20px; background: #f6f7fb; border-radius: 6px; border-left: 4px solid #669776; }
+        /* Bottom Section (Payment & Signature) */
+        .bottom-section { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 36px; gap: 24px; }
+        
+        .payment-info { padding: 20px; background: #f6f7fb; border-radius: 6px; border-left: 4px solid #669776; flex: 1; }
         .payment-info h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #669776; font-weight: 700; margin-bottom: 12px; }
         .payment-info p  { font-size: 12px; color: #4c4c5c; margin-bottom: 6px; }
         .payment-info p strong { color: #313a46; }
 
+        .signature-box { width: 220px; text-align: center; }
+        .signature-box p.title { font-size: 13px; font-weight: 600; color: #313a46; margin-bottom: 70px; }
+        .signature-box .sign-name { font-size: 13px; font-weight: 800; color: #313a46; text-decoration: underline; text-transform: uppercase; }
+        .signature-box .sign-role { font-size: 11px; color: #8a969c; margin-top: 4px; font-weight: 600; }
+
         /* Notes */
-        .notes { margin-top: 28px; font-size: 11px; color: #8a969c; border-top: 1px solid #e7e9eb; padding-top: 20px; }
+        .notes { margin-top: 36px; font-size: 11px; color: #8a969c; border-top: 1px solid #e7e9eb; padding-top: 20px; }
 
         /* Print button */
         .print-bar { background: #669776; color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 99; }
@@ -52,8 +61,8 @@
         .print-bar button { background: white; color: #669776; border: none; padding: 8px 20px; border-radius: 4px; font-weight: 700; font-size: 13px; cursor: pointer; }
         @media print {
             .print-bar { display: none; }
-            body { background: white; }
-            .page { box-shadow: none; border-radius: 0; margin: 0; }
+            body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page { box-shadow: none; border-radius: 0; margin: 0; max-width: 100%; padding: 20px; }
         }
     </style>
 </head>
@@ -67,9 +76,12 @@
 <div class="page">
 
     <div class="header">
-        <div>
-            <div class="company-name">PT Media Solusi Sukses</div>
-            <div class="company-sub">Penyedia Layanan Internet Terpercaya</div>
+        <div class="header-left">
+            <img src="{{ asset('logo/Logo MSS.png') }}" class="logo" alt="Logo MSS" onerror="this.style.display='none';">
+            <div>
+                <div class="company-name">PT Media Solusi Sukses</div>
+                <div class="company-sub">Penyedia Layanan Internet Terpercaya</div>
+            </div>
         </div>
         <div class="invoice-title">
             <h1>INVOICE</h1>
@@ -135,14 +147,22 @@
         </div>
     </div>
 
-    <div class="payment-info">
-        <h4>Informasi Pembayaran</h4>
-        <p><strong>Bank:</strong> Bank BCA</p>
-        <p><strong>No. Rekening:</strong> 1234567890</p>
-        <p><strong>Atas Nama:</strong> PT Media Solusi Sukses</p>
-        <p style="margin-top:8px;color:#669776;font-weight:600;">
-            Setelah melakukan transfer, harap unggah bukti pembayaran melalui Dashboard Pelanggan Anda.
-        </p>
+    <div class="bottom-section">
+        <div class="payment-info">
+            <h4>Informasi Pembayaran</h4>
+            <p><strong>Bank:</strong> Bank BCA</p>
+            <p><strong>No. Rekening:</strong> 1234567890</p>
+            <p><strong>Atas Nama:</strong> PT Media Solusi Sukses</p>
+            <p style="margin-top:8px;color:#669776;font-weight:600;">
+                Setelah melakukan transfer, harap unggah bukti pembayaran melalui Dashboard Pelanggan Anda.
+            </p>
+        </div>
+
+        <div class="signature-box">
+            <p class="title">Hormat Kami,</p>
+            <div class="sign-name">PT Media Solusi Sukses</div>
+            <div class="sign-role">Finance Department</div>
+        </div>
     </div>
 
     <div class="notes">
@@ -152,4 +172,4 @@
 
 </div>
 </body>
-</html>
+</html>jnjn

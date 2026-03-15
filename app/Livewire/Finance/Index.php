@@ -4,8 +4,8 @@ namespace App\Livewire\Finance;
 
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,11 +16,17 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     #[On('trigger-search')]
     public function updateSearch($query)
     {
         $this->search = $query;
         $this->resetPage(); 
+    }
+
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
     }
 
     public function render()

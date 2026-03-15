@@ -5,6 +5,7 @@ namespace App\Livewire\Noc\Tracking;
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\On; 
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,6 +14,11 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshTabel()
+    {
+    }
 
     public function render()
     {

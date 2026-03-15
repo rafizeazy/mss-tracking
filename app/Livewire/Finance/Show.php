@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Finance;
 
+use App\Events\CustomerUpdated;
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -24,6 +26,12 @@ class Show extends Component
         $this->calculateTotals();
     }
 
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+        $this->customer->refresh();
+    }
+
     public function calculateTotals()
     {
         $this->subtotal = $this->customer->registration_fee;
@@ -42,6 +50,8 @@ class Show extends Component
             'status' => 'menunggu_pembayaran'
         ]);
         
+        broadcast(new CustomerUpdated());
+        
         $this->customer->refresh(); 
         
         session()->flash('success', 'Invoice Registrasi berhasil dikirim ke Dashboard Pelanggan! Menunggu pembayaran dari pelanggan.');
@@ -54,6 +64,8 @@ class Show extends Component
             'status' => 'pembayaran_disetujui'
         ]);
 
+        broadcast(new CustomerUpdated());
+
         $this->customer->refresh(); 
         
         session()->flash('success', 'Pembayaran berhasil dikonfirmasi. Layanan akan dilanjutkan ke tahap Instalasi oleh tim NOC.');
@@ -64,6 +76,8 @@ class Show extends Component
         $this->customer->update([
             'status' => 'menunggu_pembayaran'
         ]);
+
+        broadcast(new CustomerUpdated());
 
         $this->customer->refresh(); 
         

@@ -12,7 +12,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 // ROUTE UMUM (Semua role internal)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('marketing/spk/{id}', [\App\Http\Controllers\SpkController::class, 'streamSpk'])->name('marketing.spk');
     Route::get('noc/baa/{id}', [\App\Http\Controllers\BaaController::class, 'streamBaa'])->name('noc.baa');
     Route::get('marketing/data-pelanggan', \App\Livewire\Marketing\Datapelanggan\Index::class)->name('marketing.datapelanggan.index');
