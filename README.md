@@ -151,7 +151,7 @@ php artisan view:clear
 ---
 
 ### 👨‍💻 Author
-Developed by **Your Name**
+Developed by **Sahrul Maulidi, Rafi Imanullah, Heri Ahmad Fauzi**
 
 ---
 
