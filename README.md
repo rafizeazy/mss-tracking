@@ -144,9 +144,6 @@ php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 ```
-
----
-
 ---
 
 ## ✨ Fitur Utama
@@ -158,14 +155,6 @@ php artisan view:clear
 - 📄 Generate dokumen PDF (BAA & Invoice)
 - 🗂️ Manajemen data pelanggan
 - 📅 Tracking proses provisioning
-
----
-
-## 📸 Preview Sistem
-
-<p align="center">
-  <img src="public/logo/Logo MSS.png" width="500">
-</p>
 
 ---
 
@@ -207,6 +196,8 @@ Sistem ini dikembangkan menggunakan pendekatan:
 - Livewire
 - Tailwind CSS
 - MySQL
+
+---
 
 ### 📌 Catatan
 - Pastikan database sudah dibuat sebelum migrate
