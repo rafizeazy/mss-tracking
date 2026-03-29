@@ -1,17 +1,21 @@
-# 🚀 Laravel Project Setup
+# 🚀 Sistem Workflow Management Provisioning Pelanggan ISP
 
 <p align="center">
-  <a href="#" target="_blank">
-    <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
-  </a>
+  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/tests-passing-brightgreen" alt="Build Status">
-  <img src="https://img.shields.io/badge/downloads-510M-blue" alt="Total Downloads">
-  <img src="https://img.shields.io/badge/version-v1.0.0-orange" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/tests-passing-brightgreen">
+  <img src="https://img.shields.io/badge/version-v1.0.0-orange">
+  <img src="https://img.shields.io/badge/license-MIT-green">
 </p>
+
+---
+
+## 📖 Deskripsi
+
+Project ini merupakan sistem berbasis web yang dikembangkan untuk mengelola dan mengotomatisasi proses provisioning pelanggan baru pada perusahaan ISP.  
+Sistem ini membantu pengelolaan alur kerja dari input data pelanggan hingga penerbitan dokumen seperti BAA dan invoice secara terstruktur, efisien, dan real-time.
 
 ---
 
@@ -142,6 +146,67 @@ php artisan view:clear
 ```
 
 ---
+
+---
+
+## ✨ Fitur Utama
+
+- 🔄 Workflow otomatis berbasis status
+- 👥 Role Based Access Control (RBAC)
+- 📊 Monitoring progres provisioning secara real-time
+- 💬 Notifikasi realtime menggunakan Pusher
+- 📄 Generate dokumen PDF (BAA & Invoice)
+- 🗂️ Manajemen data pelanggan
+- 📅 Tracking proses provisioning
+
+---
+
+## 📸 Preview Sistem
+
+<p align="center">
+  <img src="public/logo/Logo MSS.png" width="500">
+</p>
+
+---
+
+## 🛠️ Tech Stack
+
+- Laravel
+- Livewire
+- Tailwind CSS
+- MySQL
+- Pusher (Realtime)
+- DomPDF (Generate PDF)
+
+---
+
+## 🧪 Metode Pengembangan
+
+Sistem ini dikembangkan menggunakan pendekatan:
+
+- Design Science Research (DSR)
+- Business Process Management (BPM)
+- State-driven Workflow
+- Role Based Access Control (RBAC)
+
+---
+
+## 👥 Role Pengguna
+
+- **Super Admin**
+- **Admin Marketing**
+- **Admin NOC**
+- **Admin Finance**
+
+---
+
+## 📌 Requirements
+
+- PHP >= 8.3
+- Laravel 12
+- Livewire
+- Tailwind CSS
+- MySQL
 
 ### 📌 Catatan
 - Pastikan database sudah dibuat sebelum migrate
