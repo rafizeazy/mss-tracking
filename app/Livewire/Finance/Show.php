@@ -41,6 +41,14 @@ class Show extends Component
 
     public function generatePreview()
     {
+        if (!$this->customer->invoice_number) {
+            $this->customer->update([
+                'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
+                'invoice_generated_at' => now()
+            ]);
+            $this->customer->refresh();
+        }
+
         $this->showInvoicePreview = true;
     }
 
@@ -53,8 +61,7 @@ class Show extends Component
         broadcast(new CustomerUpdated());
         
         $this->customer->refresh(); 
-        
-        session()->flash('success', 'Invoice Registrasi berhasil dikirim ke Dashboard Pelanggan! Menunggu pembayaran dari pelanggan.');
+        $this->dispatch('notify', type: 'success', message: 'Invoice Registrasi berhasil dikirim ke Dashboard Pelanggan! Menunggu pembayaran dari pelanggan.');
         $this->showInvoicePreview = false;
     }
 
@@ -67,8 +74,7 @@ class Show extends Component
         broadcast(new CustomerUpdated());
 
         $this->customer->refresh(); 
-        
-        session()->flash('success', 'Pembayaran berhasil dikonfirmasi. Layanan akan dilanjutkan ke tahap Instalasi oleh tim NOC.');
+        $this->dispatch('notify', type: 'success', message: 'Pembayaran berhasil dikonfirmasi. Layanan akan dilanjutkan ke tahap Instalasi oleh tim NOC.');
     }
 
     public function rejectPayment()
@@ -80,8 +86,7 @@ class Show extends Component
         broadcast(new CustomerUpdated());
 
         $this->customer->refresh(); 
-        
-        session()->flash('error', 'Bukti pembayaran ditolak. Pelanggan telah diminta untuk mengunggah ulang bukti transfer yang valid.');
+        $this->dispatch('notify', type: 'error', message: 'Bukti pembayaran ditolak. Pelanggan telah diminta untuk mengunggah ulang bukti transfer yang valid.');
     }
 
     public function render()

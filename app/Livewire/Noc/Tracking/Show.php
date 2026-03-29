@@ -56,7 +56,7 @@ class Show extends Component
         broadcast(new CustomerUpdated());
         
         $this->customer->refresh();
-        session()->flash('success', 'Instalasi fisik selesai. Silakan isi form BAA untuk aktivasi.');
+        $this->dispatch('notify', type: 'success', message: 'Instalasi fisik selesai. Silakan isi form BAA untuk aktivasi.');
     }
 
     public function editBaa()
@@ -97,8 +97,8 @@ class Show extends Component
         if ($this->noc_signature) $signaturePath = $this->noc_signature->store('baa/signatures', 'public');
         if ($this->speedtest_image) $speedtestPath = $this->speedtest_image->store('baa/speedtests', 'public');
 
-        $monthRomawi = ['01'=>'I','02'=>'II','03'=>'III','04'=>'IV','05'=>'V','06'=>'VI','07'=>'VII','08'=>'VIII','09'=>'IX','10'=>'X','11'=>'XI','12'=>'XII'];
-        $baaNumber = $this->customer->baa->baa_number ?? str_pad($this->customer->id, 3, '0', STR_PAD_LEFT) . '/BAA-MSS/' . $monthRomawi[date('m')] . '/' . date('Y');
+        // Memanggil layanan penomoran dokumen otomatis
+        $baaNumber = $this->customer->baa->baa_number ?? \App\Services\DocumentNumberService::generateBaaNumber();
 
         $this->customer->baa()->updateOrCreate(
             ['customer_id' => $this->customer->id],
@@ -125,7 +125,7 @@ class Show extends Component
 
         $this->isEditingBaa = false;
         $this->customer->refresh();
-        session()->flash('success', 'BAA berhasil di-generate! Silakan periksa PDF-nya sebelum dikirim ke pelanggan.');
+        $this->dispatch('notify', type: 'success', message: 'BAA berhasil di-generate! Silakan periksa PDF-nya sebelum dikirim ke pelanggan.');
     }
 
     public function sendBaaToCustomer()
@@ -135,7 +135,7 @@ class Show extends Component
         broadcast(new CustomerUpdated());
         
         $this->customer->refresh();
-        session()->flash('success', 'BAA berhasil dikirim ke Dashboard Pelanggan untuk ditandatangani.');
+        $this->dispatch('notify', type: 'success', message: 'BAA berhasil dikirim ke Dashboard Pelanggan untuk ditandatangani.');
     }
 
     public function render()

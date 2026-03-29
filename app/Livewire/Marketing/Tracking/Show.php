@@ -117,7 +117,7 @@ class Show extends Component
         $this->customer->refresh();
 
         $this->isEditingCustomer = false;
-        session()->flash('success', 'Seluruh data profil pelanggan berhasil diperbarui!');
+        $this->dispatch('notify', type: 'success', message: 'Seluruh data profil pelanggan berhasil diperbarui!');
     }
 
     public function cancelEdit()
@@ -148,7 +148,7 @@ class Show extends Component
 
         broadcast(new CustomerUpdated());
 
-        session()->flash('success', 'Data registrasi disetujui. Tagihan otomatis diteruskan ke Finance.');
+        $this->dispatch('notify', type: 'success', message: 'Data registrasi disetujui. Tagihan otomatis diteruskan ke Finance.');
     }
 
     public function reject()
@@ -158,8 +158,7 @@ class Show extends Component
         ]);
 
         broadcast(new CustomerUpdated());
-
-        session()->flash('error', 'Data registrasi pendaftar telah ditolak.');
+        $this->dispatch('notify', type: 'error', message: 'Data registrasi pendaftar telah ditolak.');
     }
 
     public function saveSpkData()
@@ -171,7 +170,7 @@ class Show extends Component
             'spk_notes' => 'required|string',
         ]);
 
-        $spkNumber = 'SPK-' . $this->customer->id . '/' . date('m/Y');
+        $spkNumber = $this->customer->spk->spk_number ?? \App\Services\DocumentNumberService::generateSpkNumber();
 
         $this->customer->spk()->updateOrCreate(
             ['customer_id' => $this->customer->id],
@@ -187,14 +186,13 @@ class Show extends Component
         $this->customer->refresh();
 
         broadcast(new CustomerUpdated());
-
-        session()->flash('success', 'Data SPK berhasil disimpan. Anda dapat mengecek PDF SPK sekarang.');
+        $this->dispatch('notify', type: 'success', message: 'Data SPK berhasil disimpan. Anda dapat mengecek PDF SPK sekarang.');
     }
 
     public function sendToNoc()
     {
         if (!$this->customer->spk) {
-            session()->flash('error', 'Harap simpan data SPK terlebih dahulu sebelum mengirim ke NOC.');
+            $this->dispatch('notify', type: 'error', message: 'Harap simpan data SPK terlebih dahulu sebelum mengirim ke NOC.');
             return;
         }
 
@@ -203,8 +201,7 @@ class Show extends Component
         ]);
 
         broadcast(new CustomerUpdated());
-
-        session()->flash('success', 'SPK berhasil dikirim! Status layanan kini berada di tangan tim NOC.');
+        $this->dispatch('notify', type: 'success', message: 'SPK berhasil dikirim! Status layanan kini berada di tangan tim NOC.');
     }
 
     public function approveBaa()
@@ -212,8 +209,7 @@ class Show extends Component
         $this->customer->update(['status' => 'selesai']);
 
         broadcast(new CustomerUpdated());
-
-        session()->flash('success', 'BAA disetujui! Layanan pelanggan telah resmi selesai dan aktif sepenuhnya.');
+        $this->dispatch('notify', type: 'success', message: 'BAA disetujui! Layanan pelanggan telah resmi selesai dan aktif sepenuhnya.');
     }
 
     public function rejectBaa()
@@ -222,8 +218,7 @@ class Show extends Component
         $this->customer->update(['status' => 'menunggu_baa']);
 
         broadcast(new CustomerUpdated());
-
-        session()->flash('error', 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
+        $this->dispatch('notify', type: 'error', message: 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
     }
 
     public function render()

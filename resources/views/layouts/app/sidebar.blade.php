@@ -399,5 +399,33 @@
         </div>
 
         @fluxScripts
+        <script>
+            document.addEventListener('livewire:initialized', () => {
+                Livewire.on('notify', (event) => {
+                    let data = event[0] || event;
+                    
+                    // Memanggil Event Alpine yang sudah ada di file ini
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: {
+                            type: data.type || 'success',
+                            title: data.type === 'error' ? 'Gagal' : 'Berhasil',
+                            message: data.message,
+                            duration: 5000
+                        }
+                    }));
+                });
+            });
+
+            @if(session('success'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'success', title: 'Berhasil', message: "{{ session('success') }}", duration: 5000 }
+                }));
+            @endif
+            @if(session('error'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'error', title: 'Gagal', message: "{{ session('error') }}", duration: 5000 }
+                }));
+            @endif
+        </script>
     </body>
 </html>
