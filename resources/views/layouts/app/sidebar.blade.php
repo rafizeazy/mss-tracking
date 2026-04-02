@@ -43,8 +43,8 @@
                         </a>
 
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Billing') }}</span></div>
-                        <a href="#" wire:navigate
-                            class="side-nav-link"
+                        <a href="{{ route('customer.tagihan') }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('customer.tagihan') ? 'active' : '' }}"
                             title="{{ __('Tagihan Saya') }}"
                         >
                             <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-receipt text-lg"></i></span>

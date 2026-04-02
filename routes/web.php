@@ -1,13 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InvoiceController;
 
 Route::view('/', 'welcome')->name('home');
 Route::get('register/customer', \App\Livewire\Customer\Register::class)->name('customer.register');
 
 // Route Khusus Pelanggan (tanpa 'verified' agar langsung bisa akses usai daftar)
 Route::middleware(['auth', 'role:customer'])->group(function () {
+    Route::get('/customer/tagihan', \App\Livewire\Customer\Tagihan::class)->name('customer.tagihan');
     Route::get('customer/dashboard', \App\Livewire\Customer\Dashboard::class)->name('customer.dashboard');
+    Route::get('/customer/invoice/{id}/pdf', [InvoiceController::class, 'streamInvoice'])->name('customer.invoice.pdf');
 });
 
 // ROUTE UMUM (Semua role internal)
