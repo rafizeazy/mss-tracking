@@ -25,14 +25,11 @@ class Index extends Component
         $this->resetPage(); 
     }
 
-    // Fungsi membuka modal
     public function viewDetail($id)
     {
         $this->selectedCustomer = \App\Models\Customer::with(['user', 'spk', 'baa'])->find($id);
         $this->showModal = true;
     }
-
-    // Fungsi menutup modal
     public function closeModal()
     {
         $this->showModal = false;

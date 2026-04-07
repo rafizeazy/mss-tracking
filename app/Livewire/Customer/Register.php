@@ -23,66 +23,47 @@ class Register extends Component
 
     // Data Pendaftar
     public string $name = '';
-
     public string $email = '';
-
     public string $ktp_number = '';
-
     public string $gender = '';
-
     public string $position = '';
-
     public string $phone = '';
 
     // Informasi Perusahaan
     public string $company_name = '';
-
     public string $business_type = '';
-
     public string $npwp_number = '';
-
     public string $company_address = '';
-
     public string $city = '';
-
     public string $province = '';
-
     public string $postal_code = '';
-
     public string $company_phone = '';
 
     // PIC Keuangan
     public string $finance_name = '';
-
+    public string $finance_email = '';
     public string $billing_address = '';
-
     public string $finance_phone = '';
 
     // PIC Teknis
     public string $technical_name = '';
-
+    public string $technical_email = '';
     public string $installation_address = '';
-
     public string $technical_phone = '';
 
     // Layanan & Dokumen
-    public string $service_type = '';
-
+    public string $service_type = 'Internet Dedicated 1:1'; 
+    public string $bandwidth = '';
     public string $term_of_service = '1';
 
     public $ktp_file;
-
     public $npwp_file;
-
     public $nib_file;
-
     public $certificate_file;
 
     // Kredensial
     public string $password = '';
-
     public string $password_confirmation = '';
-
     public bool $accepted_terms = false;
 
     /** @return array<string, string> */
@@ -109,14 +90,16 @@ class Register extends Component
             ],
             3 => [
                 'finance_name' => 'nullable|string|max:255',
+                'finance_email' => 'nullable|email|max:255',
                 'billing_address' => 'nullable|string',
                 'finance_phone' => 'nullable|string|max:20',
                 'technical_name' => 'nullable|string|max:255',
+                'technical_email' => 'nullable|email|max:255',
                 'installation_address' => 'nullable|string',
                 'technical_phone' => 'nullable|string|max:20',
             ],
             4 => [
-                'service_type' => 'required|string|max:255',
+                'bandwidth' => 'required|string|max:255',
                 'term_of_service' => 'required|integer|in:1,2,3',
                 'ktp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
                 'npwp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
@@ -146,13 +129,17 @@ class Register extends Component
                 'company_name.required' => 'Nama perusahaan wajib diisi.',
                 'company_address.required' => 'Alamat perusahaan wajib diisi.',
             ],
+            3 => [
+                'finance_email.email' => 'Format email keuangan tidak valid.',
+                'technical_email.email' => 'Format email teknis tidak valid.',
+            ],
             4 => [
-                'service_type.required' => 'Tipe layanan wajib diisi.',
+                'bandwidth.required' => 'Kapasitas Bandwidth wajib dipilih.',
                 'term_of_service.required' => 'Jangka waktu berlangganan wajib dipilih.',
                 'password.required' => 'Password wajib diisi.',
                 'password.min' => 'Password minimal 8 karakter.',
                 'password.confirmed' => 'Konfirmasi password tidak cocok.',
-                'accepted_terms.accepted' => 'Anda harus menyetujui pernyataan kebenaran data.',
+                'accepted_terms.accepted' => 'Anda harus membaca dan menyetujui Syarat dan Ketentuan.',
             ],
             default => [],
         };
@@ -203,6 +190,7 @@ class Register extends Component
             'gender' => $this->gender,
             'position' => $this->position,
             'phone' => $this->phone,
+            
             'company_name' => $this->company_name,
             'business_type' => $this->business_type,
             'npwp_number' => $this->npwp_number,
@@ -211,18 +199,26 @@ class Register extends Component
             'province' => $this->province,
             'postal_code' => $this->postal_code,
             'company_phone' => $this->company_phone,
+            
             'finance_name' => $this->finance_name,
+            'finance_email' => $this->finance_email,
             'billing_address' => $this->billing_address,
             'finance_phone' => $this->finance_phone,
+            
             'technical_name' => $this->technical_name,
+            'technical_email' => $this->technical_email,
             'installation_address' => $this->installation_address,
             'technical_phone' => $this->technical_phone,
-            'service_type' => $this->service_type,
+            
+            'service_type' => $this->service_type, 
+            'bandwidth' => $this->bandwidth,
             'term_of_service' => (int) $this->term_of_service,
+            
             'ktp_file_path' => $ktpPath,
             'npwp_file_path' => $npwpPath,
             'nib_file_path' => $nibPath,
             'certificate_file_path' => $certPath,
+            
             'status' => 'menunggu_verifikasi',
         ]);
 

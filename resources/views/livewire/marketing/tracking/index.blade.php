@@ -34,22 +34,31 @@
                                     <p class="text-xs text-[#8a969c]">{{ $customer->phone }}</p>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $customer->service_type }}
+                                    {{-- PERUBAHAN DI SINI: Menampilkan Bandwidth dan Tipe Layanan --}}
+                                    <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->bandwidth }}</p>
+                                    <p class="text-xs text-[#8a969c]">{{ $customer->service_type }}</p>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($customer->status === 'menunggu_verifikasi')
-                                        <span class="badge-soft-warning px-2.5 py-1 text-xs">Menunggu Form & Dokumen</span>
-                                    @elseif($customer->status === 'verifikasi_baa')
-                                        <span class="rounded bg-[#70bb63]/10 px-2.5 py-1 text-xs font-bold text-[#70bb63] ring-2 ring-[#70bb63]/50 animate-pulse">
-                                            Cek & Setujui BAA Final
-                                        </span>
-                                    @elseif($customer->status === 'ditolak')
-                                        <span class="badge-soft-danger px-2.5 py-1 text-xs">Ditolak</span>
-                                    @else
-                                        <span class="rounded bg-[#f8f9fa] border border-[#dee2e6] px-2.5 py-1 text-xs text-[#8a969c] dark:bg-[#15151b] dark:border-[#37394d]">
-                                            Proses di Dept. Lain
-                                        </span>
-                                    @endif
+                                    @php
+                                        $statusFormat = match($customer->status) {
+                                            'menunggu_verifikasi' => ['label' => 'Menunggu Verifikasi', 'class' => 'bg-[#ebb751]/10 text-[#ebb751] border-[#ebb751]/20'],
+                                            'menunggu_invoice'    => ['label' => 'Menunggu Invoice', 'class' => 'bg-[#60addf]/10 text-[#60addf] border-[#60addf]/20'],
+                                            'menunggu_pembayaran' => ['label' => 'Menunggu Pembayaran', 'class' => 'bg-[#ebb751]/10 text-[#ebb751] border-[#ebb751]/20'],
+                                            'verifikasi_pembayaran'=> ['label' => 'Verifikasi Pembayaran', 'class' => 'bg-[#60addf]/10 text-[#60addf] border-[#60addf]/20'],
+                                            'pembayaran_disetujui'=> ['label' => 'Pembayaran Disetujui', 'class' => 'bg-[#70bb63]/10 text-[#70bb63] border-[#70bb63]/20'],
+                                            'proses_instalasi'    => ['label' => 'Proses Instalasi', 'class' => 'bg-[#1e5d87]/10 text-[#1e5d87] border-[#1e5d87]/20'],
+                                            'proses_aktivasi'     => ['label' => 'Proses Aktivasi', 'class' => 'bg-[#1e5d87]/10 text-[#1e5d87] border-[#1e5d87]/20'],
+                                            'review_baa'          => ['label' => 'Review BAA (NOC)', 'class' => 'bg-[#60addf]/10 text-[#60addf] border-[#60addf]/20'],
+                                            'menunggu_baa'        => ['label' => 'Tunggu TTD Pelanggan', 'class' => 'bg-[#ebb751]/10 text-[#ebb751] border-[#ebb751]/20'],
+                                            'verifikasi_baa'      => ['label' => 'Verifikasi Akhir BAA', 'class' => 'bg-[#70bb63]/10 text-[#70bb63] border-[#70bb63]/20 ring-2 ring-[#70bb63]/50 animate-pulse'],
+                                            'selesai'             => ['label' => 'Selesai & Aktif', 'class' => 'bg-[#70bb63]/10 text-[#70bb63] border-[#70bb63]/20'],
+                                            'ditolak'             => ['label' => 'Ditolak', 'class' => 'bg-[#ed6060]/10 text-[#ed6060] border-[#ed6060]/20'],
+                                            default               => ['label' => ucwords(str_replace('_', ' ', $customer->status)), 'class' => 'bg-[#f8f9fa] text-[#8a969c] border-[#dee2e6] dark:bg-[#15151b] dark:border-[#37394d]']
+                                        };
+                                    @endphp
+                                    <span class="inline-flex rounded border px-2.5 py-1 text-[11px] font-bold uppercase {{ $statusFormat['class'] }}">
+                                        {{ $statusFormat['label'] }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('marketing.tracking.show', $customer->id) }}" wire:navigate class="btn-boron btn-boron-outline-primary !px-3 !py-1 text-xs">
@@ -68,7 +77,6 @@
                 </table>
             </div>
             
-            {{-- Pagination Links --}}
             @if($customers->hasPages())
                 <div class="border-t border-[#e7e9eb] p-4 dark:border-[#37394d]">
                     {{ $customers->links() }}

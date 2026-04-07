@@ -181,14 +181,19 @@
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Penagihan</label>
-                            <textarea rows="3" wire:model="billing_address"
-                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
+                            <label class="mb-1 block text-xs font-medium">Alamat Email Keuangan</label>
+                            <input type="email" wire:model="finance_email"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                         </div>
                         <div>
                             <label class="mb-1 block text-xs font-medium">No. Handphone</label>
                             <input type="text" wire:model="finance_phone"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-medium">Alamat Penagihan</label>
+                            <textarea rows="3" wire:model="billing_address"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
                         </div>
                     </div>
                 </div>
@@ -207,14 +212,19 @@
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Instalasi</label>
-                            <textarea rows="3" wire:model="installation_address"
-                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
+                            <label class="mb-1 block text-xs font-medium">Alamat Email Teknis</label>
+                            <input type="email" wire:model="technical_email"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                         </div>
                         <div>
                             <label class="mb-1 block text-xs font-medium">No. Handphone</label>
                             <input type="text" wire:model="technical_phone"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs font-medium">Alamat Instalasi</label>
+                            <textarea rows="3" wire:model="installation_address"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
                         </div>
                     </div>
                 </div>
@@ -224,7 +234,16 @@
 
         {{-- STEP 4: Layanan, Dokumen & Password --}}
         @if ($currentStep === 4)
-            <div class="space-y-6">
+            <div x-data="{ 
+                showTermsModal: false, 
+                scrolledToBottom: false,
+                checkScroll(e) {
+                    if (e.target.scrollHeight - e.target.scrollTop <= e.target.clientHeight + 30) {
+                        this.scrolledToBottom = true;
+                    }
+                }
+            }" class="space-y-6">
+                
                 {{-- Detail Layanan & Dokumen --}}
                 <div class="boron-card">
                     <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
@@ -234,30 +253,35 @@
                     </div>
                     <div class="boron-card-body grid gap-6 p-6 md:grid-cols-2">
                         <div class="space-y-4">
-                        <div>
-                        <label class="mb-1.5 block text-sm font-medium">Tipe Layanan &amp; Bandwidth <span class="text-[#ed6060]">*</span></label>
-                        <select wire:model="service_type"
-                            class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d] dark:bg-[#1e1e2a]">
-                            <option value="">-- Pilih Tipe & Bandwidth --</option>
-                            <option value="Internet Dedicated 1:1 100 Mbps">Internet Dedicated 1:1 100 Mbps</option>
-                            <option value="Internet Dedicated 1:1 200 Mbps">Internet Dedicated 1:1 200 Mbps</option>
-                            <option value="Internet Dedicated 1:1 300 Mbps">Internet Dedicated 1:1 300 Mbps</option>
-                            <option value="Internet Dedicated 1:1 400 Mbps">Internet Dedicated 1:1 400 Mbps</option>
-                            <option value="Internet Dedicated 1:1 500 Mbps">Internet Dedicated 1:1 500 Mbps</option>
-                            <option value="Internet Dedicated 1:1 600 Mbps">Internet Dedicated 1:1 600 Mbps</option>
-                            <option value="Internet Dedicated 1:1 700 Mbps">Internet Dedicated 1:1 700 Mbps</option>
-                            <option value="Internet Dedicated 1:1 800 Mbps">Internet Dedicated 1:1 800 Mbps</option>
-                            <option value="Internet Dedicated 1:1 900 Mbps">Internet Dedicated 1:1 900 Mbps</option>
-                            <option value="Internet Dedicated 1:1 1000 Mbps">Internet Dedicated 1:1 1000 Mbps</option>
-                            <option value="Internet Dedicated 1:1 1500 Mbps">Internet Dedicated 1:1 1500 Mbps</option>
-                            <option value="Internet Dedicated 1:1 2000 Mbps">Internet Dedicated 1:1 2000 Mbps</option>
-                            <option value="Internet Dedicated 1:1 2500 Mbps">Internet Dedicated 1:1 2500 Mbps</option>
-                            <option value="Internet Dedicated 1:1 3000 Mbps">Internet Dedicated 1:1 3000 Mbps</option>
-                            <option value="Internet Dedicated 1:1 3500 Mbps">Internet Dedicated 1:1 3500 Mbps</option>
-                            <option value="Internet Dedicated 1:1 4000 Mbps">Internet Dedicated 1:1 4000 Mbps</option>
-                        </select>
-                        @error('service_type') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
-                    </div>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium">Tipe Layanan <span class="text-[#ed6060]">*</span></label>
+                                <input type="text" value="Internet Dedicated 1:1" readonly
+                                    class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2 text-sm text-[#8a969c] cursor-not-allowed dark:border-[#37394d] dark:bg-[#15151b] dark:text-[#aab8c5]">
+                            </div>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium">Kapasitas Bandwidth <span class="text-[#ed6060]">*</span></label>
+                                <select wire:model="bandwidth"
+                                    class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                    <option value="">-- Pilih Kapasitas --</option>
+                                    <option value="100 Mbps">100 Mbps</option>
+                                    <option value="200 Mbps">200 Mbps</option>
+                                    <option value="300 Mbps">300 Mbps</option>
+                                    <option value="400 Mbps">400 Mbps</option>
+                                    <option value="500 Mbps">500 Mbps</option>
+                                    <option value="600 Mbps">600 Mbps</option>
+                                    <option value="700 Mbps">700 Mbps</option>
+                                    <option value="800 Mbps">800 Mbps</option>
+                                    <option value="900 Mbps">900 Mbps</option>
+                                    <option value="1000 Mbps">1000 Mbps</option>
+                                    <option value="1500 Mbps">1500 Mbps</option>
+                                    <option value="2000 Mbps">2000 Mbps</option>
+                                    <option value="2500 Mbps">2500 Mbps</option>
+                                    <option value="3000 Mbps">3000 Mbps</option>
+                                    <option value="3500 Mbps">3500 Mbps</option>
+                                    <option value="4000 Mbps">4000 Mbps</option>
+                                </select>
+                                @error('bandwidth') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                            </div>
                             <div>
                                 <label class="mb-1.5 block text-sm font-medium">Jangka Waktu Berlangganan <span class="text-[#ed6060]">*</span></label>
                                 <select wire:model="term_of_service"
@@ -300,7 +324,7 @@
                     </div>
                 </div>
 
-                {{-- Buat Password --}}
+                {{-- Buat Password & Modal S&K --}}
                 <div class="boron-card bg-[#669776]/5">
                     <div class="boron-card-body p-6">
                         <h5 class="mb-4 text-center font-semibold text-[#313a46] dark:text-white">
@@ -320,14 +344,53 @@
                             </div>
                         </div>
 
-                        <div class="mt-5 flex items-center justify-center gap-2 text-sm text-[#8a969c]">
-                            <input wire:model="accepted_terms" type="checkbox" id="terms"
-                                class="rounded border-[#dee2e6] text-[#669776] focus:ring-[#669776]">
-                            <label for="terms">Saya menyatakan bahwa seluruh data yang diberikan adalah benar.</label>
+                        {{-- Checkbox Persetujuan --}}
+                        <div class="mt-8 flex flex-col items-center justify-center gap-2 text-sm">
+                            <div class="flex items-center gap-2">
+                                <input wire:model="accepted_terms" type="checkbox" id="terms" :disabled="!scrolledToBottom"
+                                    class="size-4 rounded border-[#dee2e6] text-[#669776] focus:ring-[#669776] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                <label for="terms" class="text-[#313a46] dark:text-[#aab8c5] cursor-pointer">
+                                    Saya telah membaca dan menyetujui <button type="button" @click="showTermsModal = true" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Syarat dan Ketentuan Berlanganan</button>.
+                                </label>
+                            </div>
+                            <p x-show="!scrolledToBottom" class="text-xs text-[#ebb751] bg-[#ebb751]/10 px-3 py-1 rounded">
+                                <i class="ti ti-info-circle"></i> Klik teks berwarna biru di atas untuk membaca Syarat & Ketentuan.
+                            </p>
+                            @error('accepted_terms') <p class="mt-1 text-center text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
-                        @error('accepted_terms') <p class="mt-1 text-center text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                     </div>
                 </div>
+
+                {{-- MODAL SYARAT & KETENTUAN (Tampil ketika showTermsModal = true) --}}
+                <div x-show="showTermsModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-transition x-cloak>
+                    <div class="w-full max-w-3xl bg-white dark:bg-[#1e1e2a] rounded-xl shadow-2xl flex flex-col max-h-[85vh]" @click.stop>
+                        <div class="p-5 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-white/5 rounded-t-xl">
+                            <h3 class="text-base font-bold text-[#313a46] dark:text-white"><i class="ti ti-file-text text-[#1e5d87] mr-1"></i> Syarat dan Ketentuan Berlangganan</h3>
+                            <button @click="showTermsModal = false" class="text-[#8a969c] hover:text-[#ed6060]"><i class="ti ti-x text-xl"></i></button>
+                        </div>
+                        
+                        {{-- Container S&K (Harus di-scroll oleh user) --}}
+                        <div class="p-6 overflow-y-auto" @scroll="checkScroll">
+                            @include('livewire.customer.partials.terms')
+                        </div>
+                        
+                        <div class="p-5 border-t border-[#e7e9eb] dark:border-[#37394d] bg-[#f8f9fa] dark:bg-white/5 flex justify-between items-center rounded-b-xl">
+                            <div class="text-xs font-medium">
+                                <span x-show="!scrolledToBottom" class="text-[#ed6060] animate-pulse"><i class="ti ti-arrow-down-circle"></i> Silakan baca (scroll) sampai ke baris paling akhir.</span>
+                                <span x-show="scrolledToBottom" style="display: none;" class="text-[#70bb63]"><i class="ti ti-circle-check"></i> Syarat dan Ketentuan telah dibaca.</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="showTermsModal = false" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-[#e7e9eb] dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">Tutup</button>
+                                
+                                <button type="button" :disabled="!scrolledToBottom" @click="$wire.set('accepted_terms', true); showTermsModal = false;" 
+                                    class="btn-boron btn-boron-primary px-5 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                    <i class="ti ti-check"></i> Ya, Saya Setuju
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         @endif
 

@@ -38,7 +38,9 @@
                                     <p class="text-xs text-[#8a969c]">{{ $cust->installation_address ?? $cust->company_address }}</p>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $cust->service_type }}
+                                    {{-- PERUBAHAN DI SINI: Menampilkan Bandwidth dan Tipe Layanan --}}
+                                    <p class="font-medium text-[#313a46] dark:text-white">{{ $cust->bandwidth }}</p>
+                                    <p class="text-xs text-[#8a969c]">{{ $cust->service_type }}</p>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($cust->status === 'proses_instalasi')

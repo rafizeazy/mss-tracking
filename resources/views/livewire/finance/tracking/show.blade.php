@@ -33,28 +33,55 @@
                     <h5 class="font-semibold text-[#313a46] dark:text-white">Ringkasan Data (Telah Disetujui Marketing)</h5>
                 </div>
                 <div class="boron-card-body p-5 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                    <div>
+                    <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Nama Perusahaan</p>
                         <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_name }}</p>
                     </div>
-                    <div>
-                        <p class="text-xs text-[#8a969c] uppercase mb-1">PIC Keuangan</p>
-                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_name ?? '-' }} ({{ $customer->finance_phone ?? '-' }})</p>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
+                        <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
+                        <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
                     </div>
-                    <div class="col-span-2">
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">PIC Keuangan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_name ?? '-' }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">
+                            @if($customer->finance_phone) {{ $customer->finance_phone }} @endif
+                            @if($customer->finance_email) | {{ $customer->finance_email }} @endif
+                        </p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Penagihan (Invoice)</p>
                         <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->billing_address ?? $customer->company_address }}</p>
                     </div>
                 </div>
             </div>
 
-            @if($customer->status === 'verifikasi_pembayaran' && $customer->payment_proof_file_path)
-                <div class="boron-card border-2 border-[#ebb751] shadow-lg">
-                    <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
-                        <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]"><i class="ti ti-photo mr-1"></i> Lampiran Bukti Transfer Pelanggan</h5>
+            {{-- PERBAIKAN: Menghapus pengecekan status, sehingga gambar selalu muncul jika ada filenya (sebagai arsip permanen) --}}
+            @if($customer->payment_proof_file_path)
+                <div class="boron-card {{ $customer->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
+                    <div class="boron-card-header {{ $customer->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
+                        <h5 class="font-bold {{ $customer->status === 'verifikasi_pembayaran' ? 'text-[#b58c3d] dark:text-[#ebb751]' : 'text-[#313a46] dark:text-white' }}">
+                            <i class="ti ti-photo mr-1"></i> Lampiran Bukti Transfer Pelanggan
+                        </h5>
+                        @if($customer->status !== 'verifikasi_pembayaran')
+                            <span class="rounded bg-[#70bb63]/10 px-2 py-1 text-[10px] font-bold text-[#70bb63] uppercase">Arsip Disetujui</span>
+                        @endif
                     </div>
-                    <div class="boron-card-body p-5 flex justify-center bg-[#f8f9fa] dark:bg-[#15151b]">
-                        <img src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm dark:border-[#37394d]">
+                    <div class="boron-card-body p-5 bg-[#f8f9fa] dark:bg-[#15151b]">
+                        <div x-data="{ openImage: false }" class="w-full flex justify-center">
+                            {{-- Gambar Utama --}}
+                            <img @click="openImage = true" src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
+                            
+                            {{-- Modal Zoom Image (Opsional, agar user bisa melihat lebih jelas) --}}
+                            <div x-show="openImage" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" x-transition.opacity>
+                                <button @click="openImage = false" class="absolute top-4 right-4 text-white hover:text-gray-300">
+                                    <i class="ti ti-x text-4xl"></i>
+                                </button>
+                                <img src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer Zoom" @click.away="openImage = false" class="max-h-[90vh] max-w-[90vw] rounded shadow-2xl">
+                            </div>
+                        </div>
+                        <p class="text-center text-xs text-[#8a969c] mt-3"><i class="ti ti-zoom-in"></i> Klik gambar untuk memperbesar</p>
                     </div>
                 </div>
             @endif
@@ -77,6 +104,10 @@
                         <h5 class="font-bold text-[#313a46] dark:text-white">{{ $customer->company_name }}</h5>
                         <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5]">{{ $customer->billing_address ?? $customer->company_address }}</p>
                         <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5]">UP: {{ $customer->finance_name ?? $customer->user->name }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">
+                            @if($customer->finance_phone) {{ $customer->finance_phone }} @endif
+                            @if($customer->finance_email) | {{ $customer->finance_email }} @endif
+                        </p>
                     </div>
 
                     <div class="mt-8 border border-[#e7e9eb] rounded dark:border-[#37394d]">
@@ -89,8 +120,12 @@
                             </thead>
                             <tbody class="divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
                                 <tr>
-                                    <td class="p-3">Biaya Registrasi / Instalasi Awal Jaringan ({{ $customer->service_type }})</td>
-                                    <td class="p-3 text-right">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
+                                    <td class="p-3">
+                                        Biaya Registrasi / Instalasi Awal Jaringan<br>
+                                        <small class="text-[#8a969c] font-semibold">{{ $customer->bandwidth }}</small><br>
+                                        <small class="text-[#8a969c]">{{ $customer->service_type }}</small>
+                                    </td>
+                                    <td class="p-3 text-right font-medium text-[#313a46] dark:text-white">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
                                 </tr>
                             </tbody>
                         </table>

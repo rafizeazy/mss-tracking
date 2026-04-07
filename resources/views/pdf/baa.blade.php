@@ -58,7 +58,7 @@
             vertical-align: middle; 
         }
         .info-table .td-label { 
-            width: 25%; 
+            width: 30%; 
             background-color: #f8f9fa; 
             font-weight: bold; 
             color: #1e5d87; 
@@ -172,6 +172,7 @@
     <table class="info-table">
         <tr><td class="td-label">Alamat Instalasi</td><td>{{ $customer->installation_address ?? $customer->company_address }}</td></tr>
         <tr><td class="td-label">Jenis Layanan</td><td><strong>{{ strtoupper($customer->service_type) }}</strong></td></tr>
+        <tr><td class="td-label">Kapasitas Bandwidth</td><td><strong>{{ strtoupper($customer->bandwidth) }}</strong></td></tr>
         <tr><td class="td-label">Status Layanan</td><td><strong style="color: #70bb63;">AKTIF DAN TERHUBUNG</strong></td></tr>
     </table>
 

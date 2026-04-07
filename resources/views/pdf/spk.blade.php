@@ -89,6 +89,10 @@
             <td class="value" style="font-weight: bold; color: #1e5d87;">{{ strtoupper($customer->service_type) }}</td>
         </tr>
         <tr>
+            <td class="label">Kapasitas Bandwidth</td>
+            <td class="value" style="font-weight: bold; color: #ed6060;">{{ strtoupper($customer->bandwidth) }}</td>
+        </tr>
+        <tr>
             <td class="label">Jenis Pekerjaan NOC</td>
             <td class="value">{{ strtoupper($customer->spk->job_type ?? 'Aktivasi Baru') }}</td>
         </tr>

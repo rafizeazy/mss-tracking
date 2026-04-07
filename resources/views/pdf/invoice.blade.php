@@ -57,7 +57,10 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Biaya Registrasi / Instalasi Awal Jaringan ({{ $customer->service_type }})</td>
+                    <td>
+                        Biaya Registrasi / Instalasi Awal Jaringan<br>
+                        <small style="color: #8a969c;">{{ $customer->service_type }} ({{ $customer->bandwidth }})</small>
+                    </td>
                     <td class="text-right">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
                 </tr>
             </tbody>

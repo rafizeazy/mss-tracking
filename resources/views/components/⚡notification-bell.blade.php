@@ -9,6 +9,7 @@ new class extends Component
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshNotif()
     {
+        $this->dispatch('$refresh');
     }
 
     public function with(): array
@@ -16,42 +17,103 @@ new class extends Component
         $notifications = collect();
         $user = auth()->user();
         $role = $user->role;
-
         if ($role === \App\Enums\Role::Marketing || $user->isSuperAdmin()) {
-            $countVerifikasi = Customer::where('status', 'menunggu_verifikasi')->count();
-            if($countVerifikasi > 0) $notifications->push(['title' => 'Formulir Baru', 'desc' => "$countVerifikasi pelanggan menunggu verifikasi data.", 'url' => route('marketing.tracking.index'), 'icon' => 'ti-shield-check', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10']);
             
-            $countSpk = Customer::where('status', 'pembayaran_disetujui')->count();
-            if($countSpk > 0) $notifications->push(['title' => 'Kirim SPK', 'desc' => "$countSpk pelanggan menunggu penerbitan SPK ke NOC.", 'url' => route('marketing.tracking.index'), 'icon' => 'ti-file-description', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10']);
+            $verifikasi = Customer::where('status', 'menunggu_verifikasi')->latest()->get();
+            foreach($verifikasi as $c) {
+                $notifications->push([
+                    'title' => 'Persetujuan Form Registrasi', 
+                    'desc' => "Perusahaan: {$c->company_name} menunggu verifikasi data.", 
+                    'url' => route('marketing.tracking.show', $c->id), 
+                    'icon' => 'ti-shield-check', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
+                ]);
+            }
             
-            $countBaa = Customer::where('status', 'verifikasi_baa')->count();
-            if($countBaa > 0) $notifications->push(['title' => 'Verifikasi BAA', 'desc' => "$countBaa pelanggan telah mengunggah BAA final.", 'url' => route('marketing.tracking.index'), 'icon' => 'ti-file-check', 'color' => 'text-[#70bb63]', 'bg' => 'bg-[#70bb63]/10']);
+            $spk = Customer::where('status', 'pembayaran_disetujui')->latest()->get();
+            foreach($spk as $c) {
+                $notifications->push([
+                    'title' => 'Kirim SPK Baru', 
+                    'desc' => "Perusahaan: {$c->company_name} menunggu penerbitan SPK.", 
+                    'url' => route('marketing.tracking.show', $c->id), 
+                    'icon' => 'ti-file-description', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10'
+                ]);
+            }
+            
+            $baa = Customer::where('status', 'verifikasi_baa')->latest()->get();
+            foreach($baa as $c) {
+                $notifications->push([
+                    'title' => 'Verifikasi BAA Final', 
+                    'desc' => "Perusahaan: {$c->company_name} telah mengunggah BAA final.", 
+                    'url' => route('marketing.tracking.show', $c->id), 
+                    'icon' => 'ti-file-check', 'color' => 'text-[#70bb63]', 'bg' => 'bg-[#70bb63]/10'
+                ]);
+            }
         }
 
         if ($role === \App\Enums\Role::Finance || $user->isSuperAdmin()) {
-            $countInvoice = Customer::where('status', 'menunggu_invoice')->count();
-            if($countInvoice > 0) $notifications->push(['title' => 'Buat Invoice', 'desc' => "$countInvoice pelanggan menunggu penerbitan Invoice.", 'url' => route('finance.tracking.index'), 'icon' => 'ti-file-invoice', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10']);
             
-            $countPayment = Customer::where('status', 'verifikasi_pembayaran')->count();
-            if($countPayment > 0) $notifications->push(['title' => 'Cek Pembayaran', 'desc' => "$countPayment pelanggan telah mengunggah bukti bayar.", 'url' => route('finance.tracking.index'), 'icon' => 'ti-cash', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10']);
+            $invoice = Customer::where('status', 'menunggu_invoice')->latest()->get();
+            foreach($invoice as $c) {
+                $notifications->push([
+                    'title' => 'Pengiriman Invoice Baru', 
+                    'desc' => "Perusahaan: {$c->company_name} menunggu penerbitan Invoice.", 
+                    'url' => route('finance.tracking.show', $c->id), 
+                    'icon' => 'ti-file-invoice', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
+                ]);
+            }
+            
+            $payment = Customer::where('status', 'verifikasi_pembayaran')->latest()->get();
+            foreach($payment as $c) {
+                $notifications->push([
+                    'title' => 'Cek Bukti Pembayaran', 
+                    'desc' => "Perusahaan: {$c->company_name} telah melakukan transfer.", 
+                    'url' => route('finance.tracking.show', $c->id), 
+                    'icon' => 'ti-cash', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10'
+                ]);
+            }
         }
 
         if ($role === \App\Enums\Role::Noc || $user->isSuperAdmin()) {
-            $countInstalasi = Customer::where('status', 'proses_instalasi')->count();
-            if($countInstalasi > 0) $notifications->push(['title' => 'SPK Baru', 'desc' => "$countInstalasi SPK instalasi baru siap dikerjakan.", 'url' => route('noc.tracking.index'), 'icon' => 'ti-router', 'color' => 'text-[#ed6060]', 'bg' => 'bg-[#ed6060]/10']);
             
-            $countReviewBaa = Customer::where('status', 'review_baa')->count();
-            if($countReviewBaa > 0) $notifications->push(['title' => 'Review BAA', 'desc' => "$countReviewBaa pelanggan menunggu review BAA internal.", 'url' => route('noc.tracking.index'), 'icon' => 'ti-file-certificate', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10']);
+            $instalasi = Customer::where('status', 'proses_instalasi')->latest()->get();
+            foreach($instalasi as $c) {
+                $notifications->push([
+                    'title' => 'Tugas SPK Instalasi', 
+                    'desc' => "Instalasi untuk: {$c->company_name} siap dikerjakan.", 
+                    'url' => route('noc.tracking.show', $c->id), 
+                    'icon' => 'ti-router', 'color' => 'text-[#ed6060]', 'bg' => 'bg-[#ed6060]/10'
+                ]);
+            }
+            
+            $reviewBaa = Customer::where('status', 'review_baa')->latest()->get();
+            foreach($reviewBaa as $c) {
+                $notifications->push([
+                    'title' => 'Review BAA Internal', 
+                    'desc' => "Form BAA: {$c->company_name} menunggu di-review.", 
+                    'url' => route('noc.tracking.show', $c->id), 
+                    'icon' => 'ti-file-certificate', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
+                ]);
+            }
         }
 
         if ($role === \App\Enums\Role::Customer) {
             $customer = Customer::where('user_id', $user->id)->first();
             if ($customer) {
                 if ($customer->status === 'menunggu_pembayaran') {
-                    $notifications->push(['title' => 'Tagihan Menunggu', 'desc' => "Silakan lakukan pembayaran dan unggah bukti transfer.", 'url' => route('customer.dashboard'), 'icon' => 'ti-receipt', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10']);
+                    $notifications->push([
+                        'title' => 'Tagihan Menunggu', 
+                        'desc' => "{$customer->company_name}: Silakan bayar & unggah bukti transfer.", 
+                        'url' => route('customer.dashboard'), 
+                        'icon' => 'ti-receipt', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
+                    ]);
                 }
                 if ($customer->status === 'menunggu_baa') {
-                    $notifications->push(['title' => 'Tanda Tangan BAA', 'desc' => "Layanan aktif! Silakan unggah dokumen BAA final.", 'url' => route('customer.dashboard'), 'icon' => 'ti-signature', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10']);
+                    $notifications->push([
+                        'title' => 'Tanda Tangan BAA', 
+                        'desc' => "{$customer->company_name}: Layanan aktif! Unggah dokumen BAA.", 
+                        'url' => route('customer.dashboard'), 
+                        'icon' => 'ti-signature', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10'
+                    ]);
                 }
             }
         }
@@ -83,16 +145,16 @@ new class extends Component
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
         x-cloak
-        class="absolute right-0 mt-2 w-72 origin-top-right rounded-[0.5rem] border border-[#e7e9eb] bg-white shadow-xl dark:border-[#37394d] dark:bg-[#1e1f27] z-50 overflow-hidden"
+        class="absolute right-0 mt-2 w-72 sm:w-80 origin-top-right rounded-[0.5rem] border border-[#e7e9eb] bg-white shadow-xl dark:border-[#37394d] dark:bg-[#1e1f27] z-50 overflow-hidden"
     >
         <div class="border-b border-[#e7e9eb] px-4 py-3 dark:border-[#37394d] bg-[#f8f9fa] dark:bg-[#15151b] flex justify-between items-center">
-            <h6 class="text-sm font-bold text-[#313a46] dark:text-white">Notifikasi</h6>
+            <h6 class="text-sm font-bold text-[#313a46] dark:text-white">Daftar Tugas (Notifikasi)</h6>
             @if($unreadCount > 0)
-                <span class="rounded bg-[#ed6060]/10 px-2 py-0.5 text-[10px] font-bold text-[#ed6060]">{{ $unreadCount }} Baru</span>
+                <span class="rounded bg-[#ed6060]/10 px-2 py-0.5 text-[10px] font-bold text-[#ed6060]">{{ $unreadCount }} Antrean</span>
             @endif
         </div>
 
-        <div class="max-h-[300px] overflow-y-auto boron-scrollbar divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
+        <div class="max-h-[350px] overflow-y-auto boron-scrollbar divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
             @forelse($notifications as $notif)
                 <a href="{{ $notif['url'] }}" wire:navigate class="flex items-start gap-3 px-4 py-3 hover:bg-[#f6f7fb] dark:hover:bg-white/5 transition-colors group">
                     <div class="flex size-9 shrink-0 items-center justify-center rounded-full {{ $notif['bg'] }} {{ $notif['color'] }} mt-0.5">
@@ -100,7 +162,7 @@ new class extends Component
                     </div>
                     <div>
                         <p class="text-sm font-bold text-[#313a46] dark:text-white">{{ $notif['title'] }}</p>
-                        <p class="text-xs text-[#8a969c] mt-0.5 leading-relaxed">{{ $notif['desc'] }}</p>
+                        <p class="text-[11px] text-[#8a969c] mt-0.5 leading-relaxed">{{ $notif['desc'] }}</p>
                     </div>
                 </a>
             @empty

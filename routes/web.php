@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\FormController;
 
 Route::view('/', 'welcome')->name('home');
 Route::get('register/customer', \App\Livewire\Customer\Register::class)->name('customer.register');
 
 // Route Khusus Pelanggan (tanpa 'verified' agar langsung bisa akses usai daftar)
 Route::middleware(['auth', 'role:customer'])->group(function () {
-    Route::get('/customer/tagihan', \App\Livewire\Customer\Tagihan::class)->name('customer.tagihan');
     Route::get('customer/dashboard', \App\Livewire\Customer\Dashboard::class)->name('customer.dashboard');
     Route::get('/customer/invoice/{id}/pdf', [InvoiceController::class, 'streamInvoice'])->name('customer.invoice.pdf');
 });
@@ -45,6 +45,11 @@ Route::middleware(['auth', 'verified', 'role:finance,super_admin'])->group(funct
 Route::middleware(['auth', 'verified', 'role:noc,super_admin'])->group(function () {
     Route::get('noc/tracking', \App\Livewire\Noc\Tracking\Index::class)->name('noc.tracking.index');
     Route::get('noc/tracking/{id}', \App\Livewire\Noc\Tracking\Show::class)->name('noc.tracking.show');
+});
+
+// Marketing & Finance
+Route::middleware(['auth', 'verified', 'role:marketing,finance,super_admin'])->group(function () {
+    Route::get('form/formulir-berlangganan/{id}', [\App\Http\Controllers\FormController::class, 'cetakFormulir'])->name('form.formulir');
 });
 
 require __DIR__.'/settings.php';

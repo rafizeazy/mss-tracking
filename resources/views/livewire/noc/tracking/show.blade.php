@@ -30,7 +30,11 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5 border-b border-dashed border-[#e7e9eb] pb-5 dark:border-[#37394d]">
                         <div><p class="text-xs text-[#8a969c] uppercase mb-1">Nomor SPK</p><p class="font-bold text-[#313a46] dark:text-white">{{ $customer->spk->spk_number ?? '-' }}</p></div>
                         <div><p class="text-xs text-[#8a969c] uppercase mb-1">Jenis Pekerjaan</p><p class="font-bold text-[#313a46] dark:text-white">{{ $customer->spk->job_type ?? '-' }}</p></div>
-                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Layanan</p><p class="font-bold text-[#313a46] dark:text-white">{{ $customer->service_type }}</p></div>
+                        <div>
+                            <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
+                            <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
+                            <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
+                        </div>
                         <div><p class="text-xs text-[#8a969c] uppercase mb-1">Tenggat (Due)</p><p class="font-bold text-[#ed6060]">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d M Y') : '-' }}</p></div>
                     </div>
                     <div>
@@ -49,7 +53,11 @@
                 <div class="boron-card-body p-5 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
                     <div class="col-span-2"><p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Instalasi</p><p class="font-medium text-[#313a46] dark:text-white">{{ $customer->installation_address ?? $customer->company_address }}</p></div>
                     <div><p class="text-xs text-[#8a969c] uppercase mb-1">Nama PIC Teknis</p><p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_name ?? $customer->user->name }}</p></div>
-                    <div><p class="text-xs text-[#8a969c] uppercase mb-1">No. HP / WA</p><p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_phone ?? $customer->phone }}</p></div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Kontak & Email</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_phone ?? $customer->phone }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->technical_email ?? '-' }}</p>
+                    </div>
                 </div>
             </div>
 

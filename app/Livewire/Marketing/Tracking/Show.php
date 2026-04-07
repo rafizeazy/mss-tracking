@@ -15,18 +15,22 @@ class Show extends Component
 {
     public Customer $customer;
 
+    // Variabel Form Verifikasi
     public $service_type;
+    public $bandwidth; 
     public $monthly_fee;
     public $registration_fee;
     public $sla = '99.5%';
     public $marketing_name;
     public $marketing_phone;
 
+    // Variabel Form SPK
     public $job_type = 'Aktivasi Baru';
     public $customer_type = '';
     public $due_date;
     public $spk_notes = 'Tim NOC diminta untuk melakukan proses provisioning layanan sesuai detail di atas, termasuk konfigurasi perangkat jaringan, aktivasi layanan, serta memastikan konektivitas layanan berjalan dengan baik sebelum dilakukan serah terima kepada pelanggan.';
 
+    // Variabel Modal Edit Data Master
     public $isEditingCustomer = false;
     public $editData = [];
 
@@ -35,6 +39,7 @@ class Show extends Component
         $this->customer = Customer::with(['user', 'spk'])->findOrFail($id);
         
         $this->service_type = $this->customer->service_type;
+        $this->bandwidth = $this->customer->bandwidth; 
         $this->marketing_name = auth()->user()->name;
 
         if ($this->customer->spk) {
@@ -69,14 +74,17 @@ class Show extends Component
             'postal_code' => $this->customer->postal_code,
             
             'finance_name' => $this->customer->finance_name,
+            'finance_email' => $this->customer->finance_email, 
             'finance_phone' => $this->customer->finance_phone,
             'billing_address' => $this->customer->billing_address,
             
             'technical_name' => $this->customer->technical_name,
+            'technical_email' => $this->customer->technical_email, 
             'technical_phone' => $this->customer->technical_phone,
             'installation_address' => $this->customer->installation_address,
             
             'service_type' => $this->customer->service_type,
+            'bandwidth' => $this->customer->bandwidth,
             'term_of_service' => $this->customer->term_of_service,
         ];
         $this->isEditingCustomer = true;
@@ -100,14 +108,17 @@ class Show extends Component
             'editData.postal_code' => 'nullable|string',
             
             'editData.finance_name' => 'nullable|string|max:255',
+            'editData.finance_email' => 'nullable|email|max:255', 
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
             
             'editData.technical_name' => 'nullable|string|max:255',
+            'editData.technical_email' => 'nullable|email|max:255', 
             'editData.technical_phone' => 'nullable|string|max:20',
             'editData.installation_address' => 'nullable|string',
             
             'editData.service_type' => 'required|string',
+            'editData.bandwidth' => 'required|string', 
             'editData.term_of_service' => 'nullable|numeric',
         ]);
 
@@ -129,6 +140,7 @@ class Show extends Component
     {
         $this->validate([
             'service_type' => 'required|string|max:255',
+            'bandwidth' => 'required|string|max:255', 
             'monthly_fee' => 'required|numeric|min:0',
             'registration_fee' => 'required|numeric|min:0',
             'sla' => 'required|string|max:50',
@@ -138,6 +150,7 @@ class Show extends Component
 
         $this->customer->update([
             'service_type' => $this->service_type,
+            'bandwidth' => $this->bandwidth, 
             'monthly_fee' => $this->monthly_fee,
             'registration_fee' => $this->registration_fee,
             'sla' => $this->sla,

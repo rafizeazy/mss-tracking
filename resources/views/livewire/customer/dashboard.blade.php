@@ -54,8 +54,8 @@
                             </div>
                             <div>
                                 <p class="text-xs font-semibold uppercase text-[#8a969c]">Paket Layanan Aktif</p>
-                                <h6 class="text-xl font-bold text-[#313a46] dark:text-white">{{ $customer->service_type }}</h6>
-                                <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-0.5">Aktif sejak: {{ $customer->baa->activation_date->format('d M Y') }}</p>
+                                <h6 class="text-xl font-bold text-[#313a46] dark:text-white">{{ $customer->bandwidth }}</h6>
+                                <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-0.5">{{ $customer->service_type }}</p>
                             </div>
                         </div>
                         <div class="hidden sm:block text-right">
@@ -422,7 +422,8 @@
                             </div>
                             <div>
                                 <p class="text-xs font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
-                                <h6 class="text-base font-bold text-[#313a46] dark:text-white">{{ $customer->service_type ?? '-' }}</h6>
+                                <h6 class="text-base font-bold text-[#313a46] dark:text-white">{{ $customer->bandwidth }}</h6>
+                                <p class="text-xs text-[#8a969c]">{{ $customer->service_type ?? '-' }}</p>
                             </div>
                         </div>
                         
@@ -456,8 +457,9 @@
                                 <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->installation_address ?? $customer->company_address ?? '-' }}</p>
                             </li>
                             <li>
-                                <p class="text-xs text-[#8a969c]">Kontak PIC (Teknis)</p>
+                                <p class="text-xs text-[#8a969c]">Kontak & Email PIC</p>
                                 <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_name ?? '-' }} - {{ $customer->technical_phone ?? '-' }}</p>
+                                <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->technical_email ?? '-' }}</p>
                             </li>
                         </ul>
                     </div>

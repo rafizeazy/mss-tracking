@@ -58,27 +58,31 @@
                         </h6>
                         <div class="space-y-4">
                             <div>
-                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Tipe Layanan & Bandwidth <span class="text-[#ed6060]">*</span></label>
-                                <select wire:model="editData.service_type" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]">
-                                    <option value="">-- Pilih Tipe & Bandwidth --</option>
-                                    <option value="Internet Dedicated 1:1 100 Mbps">Internet Dedicated 1:1 100 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 200 Mbps">Internet Dedicated 1:1 200 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 300 Mbps">Internet Dedicated 1:1 300 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 400 Mbps">Internet Dedicated 1:1 400 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 500 Mbps">Internet Dedicated 1:1 500 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 600 Mbps">Internet Dedicated 1:1 600 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 700 Mbps">Internet Dedicated 1:1 700 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 800 Mbps">Internet Dedicated 1:1 800 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 900 Mbps">Internet Dedicated 1:1 900 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 1000 Mbps">Internet Dedicated 1:1 1000 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 1500 Mbps">Internet Dedicated 1:1 1500 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 2000 Mbps">Internet Dedicated 1:1 2000 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 2500 Mbps">Internet Dedicated 1:1 2500 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 3000 Mbps">Internet Dedicated 1:1 3000 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 3500 Mbps">Internet Dedicated 1:1 3500 Mbps</option>
-                                    <option value="Internet Dedicated 1:1 4000 Mbps">Internet Dedicated 1:1 4000 Mbps</option>
+                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Tipe Layanan <span class="text-[#ed6060]">*</span></label>
+                                <input type="text" wire:model="editData.service_type" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2 text-sm text-[#8a969c] cursor-not-allowed dark:border-[#37394d] dark:bg-[#15151b] dark:text-[#aab8c5]" readonly>
+                            </div>
+                            <div>
+                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Kapasitas Bandwidth <span class="text-[#ed6060]">*</span></label>
+                                <select wire:model="editData.bandwidth" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                    <option value="">-- Pilih Kapasitas --</option>
+                                    <option value="100 Mbps">100 Mbps</option>
+                                    <option value="200 Mbps">200 Mbps</option>
+                                    <option value="300 Mbps">300 Mbps</option>
+                                    <option value="400 Mbps">400 Mbps</option>
+                                    <option value="500 Mbps">500 Mbps</option>
+                                    <option value="600 Mbps">600 Mbps</option>
+                                    <option value="700 Mbps">700 Mbps</option>
+                                    <option value="800 Mbps">800 Mbps</option>
+                                    <option value="900 Mbps">900 Mbps</option>
+                                    <option value="1000 Mbps">1000 Mbps</option>
+                                    <option value="1500 Mbps">1500 Mbps</option>
+                                    <option value="2000 Mbps">2000 Mbps</option>
+                                    <option value="2500 Mbps">2500 Mbps</option>
+                                    <option value="3000 Mbps">3000 Mbps</option>
+                                    <option value="3500 Mbps">3500 Mbps</option>
+                                    <option value="4000 Mbps">4000 Mbps</option>
                                 </select>
-                                @error('editData.service_type') <span class="text-[10px] text-[#ed6060] mt-1 block">{{ $message }}</span> @enderror
+                                @error('editData.bandwidth') <span class="text-[10px] text-[#ed6060] mt-1 block">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Durasi Kontrak</label>
@@ -152,6 +156,10 @@
                                     <input type="text" wire:model="editData.finance_name" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
                                 </div>
                                 <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Email Finance</label>
+                                    <input type="email" wire:model="editData.finance_email" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                </div>
+                                <div>
                                     <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">No. Handphone</label>
                                     <input type="text" wire:model="editData.finance_phone" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
                                 </div>
@@ -168,6 +176,10 @@
                                 <div>
                                     <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Nama PIC Teknis</label>
                                     <input type="text" wire:model="editData.technical_name" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                </div>
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Email Teknis</label>
+                                    <input type="email" wire:model="editData.technical_email" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
                                 </div>
                                 <div>
                                     <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">No. Handphone</label>
