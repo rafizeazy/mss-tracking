@@ -1,6 +1,5 @@
 <div>
     <div class="py-6">
-        {{-- Page Title --}}
         <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">{{ __('User Management') }}</h4>
@@ -14,8 +13,6 @@
                 <span class="font-medium text-[#313a46] dark:text-white">{{ __('Users') }}</span>
             </div>
         </div>
-
-        {{-- Main Card --}}
         <div class="boron-card">
             <div class="boron-card-header">
                 <h5 class="font-semibold text-[#313a46] dark:text-white">{{ __('All Users') }}</h5>
@@ -27,7 +24,6 @@
                 </button>
             </div>
             <div class="boron-card-body">
-                {{-- Search --}}
                 <div class="mb-5 max-w-sm">
                     <div class="relative">
                         <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
@@ -38,7 +34,6 @@
                     </div>
                 </div>
 
-                {{-- Table --}}
                 <div class="overflow-x-auto">
                     <table class="boron-table w-full">
                         <thead>
@@ -113,7 +108,6 @@
         </div>
     </div>
 
-    {{-- Create Modal --}}
     <flux:modal wire:model="showCreateModal" name="create-user" class="md:w-96">
         <div class="space-y-6">
             <div>
@@ -141,7 +135,6 @@
         </div>
     </flux:modal>
 
-    {{-- Edit Modal --}}
     <flux:modal wire:model="showEditModal" name="edit-user" class="md:w-96">
         <div class="space-y-6">
             <div>
@@ -168,7 +161,6 @@
         </div>
     </flux:modal>
 
-    {{-- Delete Modal --}}
     <flux:modal wire:model="showDeleteModal" name="delete-user" class="md:w-96">
         <div class="space-y-6">
             <div>
