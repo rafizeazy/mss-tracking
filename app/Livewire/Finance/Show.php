@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Finance;
 
+use App\Events\CustomerUpdated;
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -12,13 +14,10 @@ use Livewire\Component;
 class Show extends Component
 {
     public Customer $customer;
-
     public $showInvoicePreview = false;
-
+    
     public $subtotal = 0;
-
     public $ppn = 0;
-
     public $grand_total = 0;
 
     public function mount($id)
@@ -27,45 +26,67 @@ class Show extends Component
         $this->calculateTotals();
     }
 
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+        $this->customer->refresh();
+    }
+
     public function calculateTotals()
     {
-        $this->subtotal = $this->customer->monthly_fee + $this->customer->registration_fee;
-        $this->ppn = $this->subtotal * 0.11;
-        $this->grand_total = $this->subtotal + $this->ppn;
+        $this->subtotal = $this->customer->registration_fee;
+        $this->ppn = 0;
+        $this->grand_total = $this->subtotal;
     }
 
     public function generatePreview()
     {
+        if (!$this->customer->invoice_number) {
+            $this->customer->update([
+                'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
+                'invoice_generated_at' => now()
+            ]);
+            $this->customer->refresh();
+        }
+
         $this->showInvoicePreview = true;
     }
 
-    public function sendInvoice(): void
+    public function sendInvoice()
     {
-        $invoiceNumber = 'INV-REG-'.date('Ymd').'-'.str_pad($this->customer->id, 3, '0', STR_PAD_LEFT);
-
         $this->customer->update([
-            'invoice_number' => $invoiceNumber,
-            'invoice_generated_at' => now(),
+            'status' => 'menunggu_pembayaran'
         ]);
-
-        $this->dispatch('toast', type: 'success', title: 'Invoice Terkirim', message: 'Invoice '.$invoiceNumber.' berhasil dikirim ke Dashboard Pelanggan.');
+        
+        broadcast(new CustomerUpdated());
+        
+        $this->customer->refresh(); 
+        $this->dispatch('notify', type: 'success', message: 'Invoice Registrasi berhasil dikirim ke Dashboard Pelanggan! Menunggu pembayaran dari pelanggan.');
         $this->showInvoicePreview = false;
     }
 
     public function approvePayment()
     {
         $this->customer->update([
-            'status' => 'pembayaran_disetujui',
+            'status' => 'pembayaran_disetujui'
         ]);
-        $this->dispatch('toast', type: 'success', title: 'Pembayaran Dikonfirmasi', message: 'Pembayaran valid. Layanan dilanjutkan ke tim NOC untuk proses instalasi.');
+
+        broadcast(new CustomerUpdated());
+
+        $this->customer->refresh(); 
+        $this->dispatch('notify', type: 'success', message: 'Pembayaran berhasil dikonfirmasi. Layanan akan dilanjutkan ke tahap Instalasi oleh tim NOC.');
     }
 
     public function rejectPayment()
     {
         $this->customer->update([
-            'status' => 'menunggu_pembayaran',
+            'status' => 'menunggu_pembayaran'
         ]);
-        $this->dispatch('toast', type: 'error', title: 'Pembayaran Ditolak', message: 'Bukti pembayaran ditolak. Pelanggan diminta mengunggah ulang bukti transfer yang valid.');
+
+        broadcast(new CustomerUpdated());
+
+        $this->customer->refresh(); 
+        $this->dispatch('notify', type: 'error', message: 'Bukti pembayaran ditolak. Pelanggan telah diminta untuk mengunggah ulang bukti transfer yang valid.');
     }
 
     public function render()

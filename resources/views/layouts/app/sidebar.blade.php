@@ -30,6 +30,7 @@
                     </button>
                 </div>
 
+
                 <nav class="flex-1 py-2">
                     @if (auth()->user()->role === \App\Enums\Role::Customer)
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Main') }}</span></div>
@@ -39,15 +40,6 @@
                         >
                             <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-dashboard text-lg"></i></span>
                             <span class="sidebar-label whitespace-nowrap">{{ __('Dashboard') }}</span>
-                        </a>
-
-                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Billing') }}</span></div>
-                        <a href="#" wire:navigate
-                            class="side-nav-link"
-                            title="{{ __('Tagihan Saya') }}"
-                        >
-                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-receipt text-lg"></i></span>
-                            <span class="sidebar-label whitespace-nowrap">{{ __('Tagihan Saya') }}</span>
                         </a>
 
                     @else
@@ -74,17 +66,6 @@
                             </a>
                         @endif
 
-                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
-                        <a href="{{ route('customers.index') }}" wire:navigate
-                            class="side-nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}"
-                            title="{{ __('Data Pelanggan') }}"
-                        >
-                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                                <i class="ti ti-users-group text-lg"></i>
-                            </span>
-                            <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
-                        </a>
-
                         @if (auth()->user()->role === \App\Enums\Role::Finance || auth()->user()->isSuperAdmin())
                             <div class="side-nav-title"><span class="sidebar-label">{{ __('Provisioning & Billing') }}</span></div>
 
@@ -102,16 +83,37 @@
                         @if (auth()->user()->role === \App\Enums\Role::Noc || auth()->user()->isSuperAdmin())
                             <div class="side-nav-title"><span class="sidebar-label">{{ __('Network Operations') }}</span></div>
 
-                            <a href="{{ route('noc.activations') }}" wire:navigate
-                                class="side-nav-link {{ request()->routeIs('noc.activations') ? 'active' : '' }}"
-                                title="{{ __('Aktivasi') }}"
+                            <a href="{{ route('noc.tracking.index') }}" wire:navigate
+                                class="side-nav-link {{ request()->routeIs('noc.tracking.*') ? 'active' : '' }}"
+                                title="{{ __('Tracking Registrasi') }}"
                             >
                                 <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                                    <i class="ti ti-server text-lg"></i>
+                                    <i class="ti ti-router text-lg"></i>
                                 </span>
-                                <span class="sidebar-label whitespace-nowrap">{{ __('Aktivasi') }}</span>
+                                <span class="sidebar-label whitespace-nowrap">{{ __('Tracking Registrasi') }}</span>
                             </a>
                         @endif
+
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
+                        
+                        @php
+                            $dataPelangganRoute = '#';
+                            if (auth()->user()->role === \App\Enums\Role::Marketing) $dataPelangganRoute = route('marketing.datapelanggan.index');
+                            elseif (auth()->user()->role === \App\Enums\Role::Finance) $dataPelangganRoute = route('finance.datapelanggan.index');
+                            elseif (auth()->user()->role === \App\Enums\Role::Noc) $dataPelangganRoute = route('noc.datapelanggan.index');
+                            // Jika superadmin, bisa diarahkan ke marketing sebagai default view data pelanggan
+                            elseif (auth()->user()->isSuperAdmin()) $dataPelangganRoute = route('marketing.datapelanggan.index');
+                        @endphp
+
+                        <a href="{{ $dataPelangganRoute }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('*.datapelanggan.index') ? 'active' : '' }}"
+                            title="{{ __('Data Pelanggan') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                                <i class="ti ti-users-group text-lg"></i>
+                            </span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
+                        </a>
 
                         @if (auth()->user()->isSuperAdmin())
                             <div class="side-nav-title"><span class="sidebar-label">{{ __('Administration') }}</span></div>
@@ -156,20 +158,20 @@
                         <i class="ti ti-menu-2 text-lg"></i>
                     </button>
 
-                    <div class="hidden flex-1 sm:block sm:max-w-xs">
+                    <div class="hidden flex-1 sm:block sm:max-w-xs" x-data>
                         <div class="relative">
                             <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
-                            <input type="text" placeholder="Search something..."
-                                class="w-full rounded-[0.3rem] border border-[#343a40] bg-transparent py-2 pl-9 pr-4 text-sm placeholder:text-[#a1a9b1] focus:outline-none focus:ring-2 focus:ring-[#669776]/30 dark:border-[#37394d]"
+                            <input type="text" 
+                                @input.debounce.500ms="$dispatch('trigger-search', { query: $event.target.value })"
+                                placeholder="Cari di halaman ini..."
+                                class="w-full rounded-[0.3rem] border border-[#343a40] bg-transparent py-2 pl-9 pr-4 text-sm placeholder:text-[#a1a9b1] focus:outline-none focus:ring-2 focus:ring-[#669776]/30 dark:border-[#37394d] dark:text-white"
                             >
                         </div>
                     </div>
 
                     <div class="flex flex-1 items-center justify-end gap-2">
-                        <button class="boron-topbar-btn relative">
-                            <i class="ti ti-bell animate-ring-bell text-lg"></i>
-                            <span class="absolute -right-0.5 -top-0.5 flex size-2"><span class="absolute inline-flex size-full rounded-full bg-[#ed6060]"></span></span>
-                        </button>
+                        
+                        <livewire:notification-bell />
 
                         <button x-data @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'" class="boron-topbar-btn" title="Toggle dark mode">
                             <template x-if="$flux.appearance !== 'dark'">
@@ -244,7 +246,7 @@
             x-transition:leave-end="opacity-0"
             x-cloak
         ></div>
-        {{-- Toast Modal --}}
+
         <div
             x-data="{
                 toast: null,
@@ -259,7 +261,6 @@
             @toast.window="show($event.detail)"
             x-cloak
         >
-            {{-- Backdrop --}}
             <div
                 x-show="toast !== null"
                 x-transition:enter="transition ease-out duration-200"
@@ -272,7 +273,6 @@
                 @click="close()"
             ></div>
 
-            {{-- Modal Card --}}
             <div
                 x-show="toast !== null"
                 x-transition:enter="transition ease-out duration-250"
@@ -286,7 +286,6 @@
             >
                 <div class="pointer-events-auto mx-4 w-full max-w-sm rounded-xl bg-white shadow-2xl dark:bg-[#1e1e2a] overflow-hidden">
 
-                    {{-- Colored top bar --}}
                     <div
                         :class="{
                             'bg-[#70bb63]': toast?.type === 'success',
@@ -298,7 +297,6 @@
                     ></div>
 
                     <div class="p-6">
-                        {{-- Icon + close --}}
                         <div class="flex items-start justify-between gap-3 mb-4">
                             <div
                                 :class="{
@@ -319,11 +317,9 @@
                             </button>
                         </div>
 
-                        {{-- Text --}}
                         <p x-show="toast?.title" x-text="toast?.title" class="text-base font-bold text-[#313a46] dark:text-white mb-1"></p>
                         <p x-text="toast?.message" class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed"></p>
 
-                        {{-- OK button --}}
                         <button
                             @click="close()"
                             :class="{
@@ -341,7 +337,6 @@
             </div>
         </div>
 
-        {{-- Custom Confirm Modal --}}
         <div
             x-data="{
                 show: false,
@@ -395,5 +390,33 @@
         </div>
 
         @fluxScripts
+        <script>
+            document.addEventListener('livewire:initialized', () => {
+                Livewire.on('notify', (event) => {
+                    let data = event[0] || event;
+                    
+                    // Memanggil Event Alpine yang sudah ada di file ini
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: {
+                            type: data.type || 'success',
+                            title: data.type === 'error' ? 'Gagal' : 'Berhasil',
+                            message: data.message,
+                            duration: 5000
+                        }
+                    }));
+                });
+            });
+
+            @if(session('success'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'success', title: 'Berhasil', message: @json(session('success')), duration: 5000 }
+                }));
+            @endif
+            @if(session('error'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'error', title: 'Gagal', message: @json(session('error')), duration: 5000 }
+                }));
+            @endif
+        </script>
     </body>
 </html>

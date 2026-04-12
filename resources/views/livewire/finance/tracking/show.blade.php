@@ -12,6 +12,18 @@
         </div>
     </div>
 
+    @if (session()->has('success'))
+        <div class="mb-4 rounded-[0.3rem] border border-[#70bb63]/30 bg-[#70bb63]/10 p-3 text-sm text-[#70bb63]">
+            <i class="ti ti-check mr-1"></i> {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="mb-4 rounded-[0.3rem] border border-[#ed6060]/30 bg-[#ed6060]/10 p-3 text-sm text-[#ed6060]">
+            <i class="ti ti-x mr-1"></i> {{ session('error') }}
+        </div>
+    @endif
+
     <div class="grid gap-6 xl:grid-cols-3">
         
         <div class="space-y-6 xl:col-span-2">
@@ -21,33 +33,60 @@
                     <h5 class="font-semibold text-[#313a46] dark:text-white">Ringkasan Data (Telah Disetujui Marketing)</h5>
                 </div>
                 <div class="boron-card-body p-5 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                    <div>
+                    <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Nama Perusahaan</p>
                         <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_name }}</p>
                     </div>
-                    <div>
-                        <p class="text-xs text-[#8a969c] uppercase mb-1">PIC Keuangan</p>
-                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_name ?? '-' }} ({{ $customer->finance_phone ?? '-' }})</p>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
+                        <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
+                        <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
                     </div>
-                    <div class="col-span-2">
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">PIC Keuangan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_name ?? '-' }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">
+                            @if($customer->finance_phone) {{ $customer->finance_phone }} @endif
+                            @if($customer->finance_email) | {{ $customer->finance_email }} @endif
+                        </p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Penagihan (Invoice)</p>
                         <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->billing_address ?? $customer->company_address }}</p>
                     </div>
                 </div>
             </div>
 
-            @if($customer->status === 'verifikasi_pembayaran' && $customer->payment_proof_file_path)
-                <div class="boron-card border-2 border-[#ebb751] shadow-lg">
-                    <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
-                        <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]"><i class="ti ti-photo mr-1"></i> Lampiran Bukti Transfer Pelanggan</h5>
+            {{-- PERBAIKAN: Menghapus pengecekan status, sehingga gambar selalu muncul jika ada filenya (sebagai arsip permanen) --}}
+            @if($customer->payment_proof_file_path)
+                <div class="boron-card {{ $customer->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
+                    <div class="boron-card-header {{ $customer->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
+                        <h5 class="font-bold {{ $customer->status === 'verifikasi_pembayaran' ? 'text-[#b58c3d] dark:text-[#ebb751]' : 'text-[#313a46] dark:text-white' }}">
+                            <i class="ti ti-photo mr-1"></i> Lampiran Bukti Transfer Pelanggan
+                        </h5>
+                        @if($customer->status !== 'verifikasi_pembayaran')
+                            <span class="rounded bg-[#70bb63]/10 px-2 py-1 text-[10px] font-bold text-[#70bb63] uppercase">Arsip Disetujui</span>
+                        @endif
                     </div>
-                    <div class="boron-card-body p-5 flex justify-center bg-[#f8f9fa] dark:bg-[#15151b]">
-                        <img src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm dark:border-[#37394d]">
+                    <div class="boron-card-body p-5 bg-[#f8f9fa] dark:bg-[#15151b]">
+                        <div x-data="{ openImage: false }" class="w-full flex justify-center">
+                            {{-- Gambar Utama --}}
+                            <img @click="openImage = true" src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
+                            
+                            {{-- Modal Zoom Image (Opsional, agar user bisa melihat lebih jelas) --}}
+                            <div x-show="openImage" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" x-transition.opacity>
+                                <button @click="openImage = false" class="absolute top-4 right-4 text-white hover:text-gray-300">
+                                    <i class="ti ti-x text-4xl"></i>
+                                </button>
+                                <img src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer Zoom" @click.away="openImage = false" class="max-h-[90vh] max-w-[90vw] rounded shadow-2xl">
+                            </div>
+                        </div>
+                        <p class="text-center text-xs text-[#8a969c] mt-3"><i class="ti ti-zoom-in"></i> Klik gambar untuk memperbesar</p>
                     </div>
                 </div>
             @endif
 
-            @if($showInvoicePreview && $customer->status === 'menunggu_pembayaran')
+            @if($showInvoicePreview && $customer->status === 'menunggu_invoice')
                 <div class="boron-card bg-white dark:bg-[#15151b] border-2 border-[#669776] shadow-xl p-8">
                     <div class="flex justify-between items-start border-b border-[#e7e9eb] pb-6 dark:border-[#37394d]">
                         <div>
@@ -65,6 +104,10 @@
                         <h5 class="font-bold text-[#313a46] dark:text-white">{{ $customer->company_name }}</h5>
                         <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5]">{{ $customer->billing_address ?? $customer->company_address }}</p>
                         <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5]">UP: {{ $customer->finance_name ?? $customer->user->name }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">
+                            @if($customer->finance_phone) {{ $customer->finance_phone }} @endif
+                            @if($customer->finance_email) | {{ $customer->finance_email }} @endif
+                        </p>
                     </div>
 
                     <div class="mt-8 border border-[#e7e9eb] rounded dark:border-[#37394d]">
@@ -77,12 +120,12 @@
                             </thead>
                             <tbody class="divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
                                 <tr>
-                                    <td class="p-3">Biaya Registrasi / Instalasi Awal</td>
-                                    <td class="p-3 text-right">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-3">Biaya Layanan Bulan Pertama ({{ $customer->service_type }})</td>
-                                    <td class="p-3 text-right">{{ number_format($customer->monthly_fee, 0, ',', '.') }}</td>
+                                    <td class="p-3">
+                                        Biaya Registrasi / Instalasi Awal Jaringan<br>
+                                        <small class="text-[#8a969c] font-semibold">{{ $customer->bandwidth }}</small><br>
+                                        <small class="text-[#8a969c]">{{ $customer->service_type }}</small>
+                                    </td>
+                                    <td class="p-3 text-right font-medium text-[#313a46] dark:text-white">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -95,8 +138,8 @@
                                 <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between py-2 text-sm text-[#4c4c5c] dark:text-[#aab8c5] border-b border-[#e7e9eb] dark:border-[#37394d]">
-                                <span>PPN (11%):</span>
-                                <span>Rp {{ number_format($ppn, 0, ',', '.') }}</span>
+                                <span>PPN (0%):</span>
+                                <span>Rp 0</span>
                             </div>
                             <div class="flex justify-between py-3 text-lg font-bold text-[#313a46] dark:text-white">
                                 <span>TOTAL TAGIHAN:</span>
@@ -111,7 +154,7 @@
 
         <div class="space-y-6">
             
-            @if($customer->status === 'menunggu_pembayaran')
+            @if($customer->status === 'menunggu_invoice')
                 <div class="boron-card border-2 border-[#60addf] shadow-lg">
                     <div class="boron-card-header bg-[#60addf]/10 border-b border-[#60addf]/20 pb-3">
                         <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf]"><i class="ti ti-file-invoice"></i> Aksi Penagihan</h5>
@@ -119,7 +162,7 @@
                     <div class="boron-card-body p-5">
                         @if(!$showInvoicePreview)
                             <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-5">
-                                Sistem akan mengkalkulasikan biaya registrasi dan biaya bulanan, lalu menambahkan PPN 11% secara otomatis. Silakan pratinjau invoice sebelum dikirim.
+                                Sistem akan mengkalkulasikan biaya registrasi tanpa PPN. Silakan pratinjau invoice sebelum dikirim.
                             </p>
                             <button wire:click="generatePreview" class="w-full btn-boron btn-boron-outline-primary flex justify-center gap-2 !py-2.5">
                                 <i class="ti ti-search text-lg"></i> Cek & Preview Invoice
@@ -134,6 +177,18 @@
                         @endif
                     </div>
                 </div>
+            @elseif($customer->status === 'menunggu_pembayaran')
+                <div class="boron-card border border-[#ebb751]/30 bg-[#ebb751]/10">
+                    <div class="boron-card-body p-5 text-center">
+                        <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#ebb751] text-white shadow-lg shadow-[#ebb751]/30 mb-3">
+                            <i class="ti ti-hourglass-high text-2xl animate-pulse"></i>
+                        </div>
+                        <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]">Menunggu Pembayaran</h5>
+                        <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-1">
+                            Invoice berhasil dikirim. Saat ini sedang menunggu pelanggan untuk melakukan transfer dan mengunggah bukti pembayaran.
+                        </p>
+                    </div>
+                </div>
             @elseif($customer->status === 'verifikasi_pembayaran')
                 <div class="boron-card border-2 border-[#ebb751] shadow-lg">
                     <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
@@ -145,7 +200,6 @@
                         </p>
                         <div x-data="{ confirmType: null }" class="flex flex-col gap-3">
 
-                            {{-- Initial action buttons --}}
                             <template x-if="!confirmType">
                                 <div class="flex flex-col gap-3">
                                     <button @click="confirmType = 'approve'" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 py-2.5 shadow-lg shadow-[#669776]/30">
@@ -157,13 +211,10 @@
                                 </div>
                             </template>
 
-                            {{-- Inline confirmation as Modal --}}
                             <template x-if="confirmType">
                                 <div>
-                                    {{-- Backdrop --}}
                                     <div class="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-sm" @click="confirmType = null"></div>
                                     
-                                    {{-- Modal Box --}}
                                     <div class="fixed inset-0 z-[9991] flex items-center justify-center p-4">
                                         <div class="w-full max-w-sm rounded-[0.5rem] bg-white p-6 shadow-2xl dark:bg-[#1e1e2a]">
                                             <div class="mb-4 flex items-center gap-3">
@@ -212,23 +263,28 @@
                     <h5 class="font-semibold text-[#313a46] dark:text-white">Progres Layanan</h5>
                 </div>
                 <div class="boron-card-body p-6">
-                    @php
-                        $statusOrder = [
-                            'menunggu_verifikasi', 'menunggu_pembayaran', 'verifikasi_pembayaran', 'pembayaran_disetujui', 
-                            'proses_instalasi', 'proses_aktivasi', 'menunggu_baa', 'baa_terbit', 'selesai'
-                        ];
-                        $currentIndex = array_search($customer->status, $statusOrder);
-                        
-                        $workflows = [
-                            ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
-                            ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'icon' => 'ti-receipt'],
-                            ['id' => 'verifikasi_pembayaran', 'title' => 'Verifikasi Pembayaran', 'icon' => 'ti-search'],
-                            ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
-                            ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'icon' => 'ti-router'],
-                            ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'icon' => 'ti-wifi'],
-                            ['id' => 'selesai', 'title' => 'Selesai & Aktif', 'icon' => 'ti-circle-check'],
-                        ];
-                    @endphp
+                @php
+                    $statusOrder = [
+                        'menunggu_verifikasi', 'menunggu_invoice', 'menunggu_pembayaran', 
+                        'verifikasi_pembayaran', 'pembayaran_disetujui', 'proses_instalasi', 
+                        'proses_aktivasi', 'review_baa', 'menunggu_baa', 'verifikasi_baa', 'selesai'
+                    ];
+                    $currentIndex = array_search($customer->status, $statusOrder);
+                    
+                    $workflows = [
+                        ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
+                        ['id' => 'menunggu_invoice', 'title' => 'Menunggu Invoice', 'icon' => 'ti-file-invoice'],
+                        ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'icon' => 'ti-receipt'],
+                        ['id' => 'verifikasi_pembayaran', 'title' => 'Verifikasi Pembayaran', 'icon' => 'ti-search'],
+                        ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
+                        ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'icon' => 'ti-router'],
+                        ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi', 'icon' => 'ti-wifi'],
+                        ['id' => 'review_baa', 'title' => 'Review BAA (NOC)', 'icon' => 'ti-eye'],
+                        ['id' => 'menunggu_baa', 'title' => 'Tunggu TTD Pelanggan', 'icon' => 'ti-signature'],
+                        ['id' => 'verifikasi_baa', 'title' => 'Verifikasi Akhir BAA', 'icon' => 'ti-file-check'],
+                        ['id' => 'selesai', 'title' => 'Selesai & Aktif', 'icon' => 'ti-circle-check'],
+                    ];
+                @endphp
 
                     <div class="relative ml-3 border-l-2 border-[#e7e9eb] dark:border-[#37394d]">
                         @foreach($workflows as $index => $step)
