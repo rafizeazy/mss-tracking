@@ -1,5 +1,4 @@
 <div class="py-6">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>

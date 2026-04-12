@@ -91,14 +91,15 @@ class Show extends Component
 
         $this->validate($rules);
 
-        $signaturePath = $this->customer->baa->noc_signature_path ?? null;
-        $speedtestPath = $this->customer->baa->speedtest_image_path ?? null;
+        $existingBaa = $this->customer->baa;
+        $signaturePath = $existingBaa?->noc_signature_path;
+        $speedtestPath = $existingBaa?->speedtest_image_path;
 
         if ($this->noc_signature) $signaturePath = $this->noc_signature->store('baa/signatures', 'public');
         if ($this->speedtest_image) $speedtestPath = $this->speedtest_image->store('baa/speedtests', 'public');
 
         // Memanggil layanan penomoran dokumen otomatis
-        $baaNumber = $this->customer->baa->baa_number ?? \App\Services\DocumentNumberService::generateBaaNumber();
+        $baaNumber = $existingBaa?->baa_number ?? \App\Services\DocumentNumberService::generateBaaNumber();
 
         $this->customer->baa()->updateOrCreate(
             ['customer_id' => $this->customer->id],

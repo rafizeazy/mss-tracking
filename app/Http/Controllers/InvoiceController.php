@@ -35,6 +35,15 @@ class InvoiceController extends Controller
     {
         $customer = Customer::with(['user', 'baa'])->findOrFail($id);
 
+        $user = auth()->user();
+        $isCustomer = $user->role instanceof \App\Enums\Role
+            ? $user->role === \App\Enums\Role::Customer
+            : strtolower($user->role) === 'customer';
+
+        if ($isCustomer && $customer->user_id !== $user->id) {
+            abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
+        }
+
         if (!$customer->baa) {
             abort(404, 'BAA belum tersedia, Invoice belum dapat dicetak.');
         }
@@ -64,9 +73,12 @@ class InvoiceController extends Controller
             'ppn' => $ppn,
             'grand_total' => $grandTotal,
         ];
-        $pdf = Pdf::loadView('pdf.invoice-cetak', [
+        $pdf = Pdf::loadView('customer.invoice', [
             'customer' => $customer,
-            'invoiceData' => $invoiceData
+            'subtotal' => $prorateAmount,
+            'ppn' => $ppn,
+            'grandTotal' => $grandTotal,
+            'invoiceData' => $invoiceData,
         ]);
         $namaFile = 'INV-' . str_replace('/', '-', $customer->invoice_number ?? 'DRAFT') . '.pdf';
         return $pdf->stream($namaFile);

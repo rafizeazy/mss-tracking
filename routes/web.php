@@ -13,8 +13,8 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/customer/invoice/{id}/pdf', [InvoiceController::class, 'streamInvoice'])->name('customer.invoice.pdf');
 });
 
-// ROUTE UMUM (Semua role internal)
-Route::middleware(['auth', 'verified'])->group(function () {
+// ROUTE UMUM (Semua role internal — customer dikecualikan)
+Route::middleware(['auth', 'verified', 'role:marketing,finance,noc,super_admin'])->group(function () {
     Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('marketing/spk/{id}', [\App\Http\Controllers\SpkController::class, 'streamSpk'])->name('marketing.spk');
     Route::get('noc/baa/{id}', [\App\Http\Controllers\BaaController::class, 'streamBaa'])->name('noc.baa');

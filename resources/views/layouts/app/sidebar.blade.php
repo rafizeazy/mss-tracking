@@ -409,12 +409,12 @@
 
             @if(session('success'))
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'success', title: 'Berhasil', message: "{{ session('success') }}", duration: 5000 }
+                    detail: { type: 'success', title: 'Berhasil', message: @json(session('success')), duration: 5000 }
                 }));
             @endif
             @if(session('error'))
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'error', title: 'Gagal', message: "{{ session('error') }}", duration: 5000 }
+                    detail: { type: 'error', title: 'Gagal', message: @json(session('error')), duration: 5000 }
                 }));
             @endif
         </script>

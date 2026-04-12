@@ -350,7 +350,7 @@
                                 <input wire:model="accepted_terms" type="checkbox" id="terms" :disabled="!scrolledToBottom"
                                     class="size-4 rounded border-[#dee2e6] text-[#669776] focus:ring-[#669776] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                 <label for="terms" class="text-[#313a46] dark:text-[#aab8c5] cursor-pointer">
-                                    Saya telah membaca dan menyetujui <button type="button" @click="showTermsModal = true" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Syarat dan Ketentuan Berlanganan</button>.
+                                    Saya telah membaca dan menyetujui <button type="button" @click="showTermsModal = true" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Syarat dan Ketentuan Berlangganan</button>.
                                 </label>
                             </div>
                             <p x-show="!scrolledToBottom" class="text-xs text-[#ebb751] bg-[#ebb751]/10 px-3 py-1 rounded">
