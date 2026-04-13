@@ -4,6 +4,15 @@
             <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">{{ __('Antrean SPK & Instalasi') }}</h4>
             <p class="mt-1 md:mt-0.5 text-sm text-[#8a969c]">{{ __('Daftar Surat Perintah Kerja (SPK) yang harus dikerjakan oleh tim NOC.') }}</p>
         </div>
+        <div class="relative w-full md:w-72">
+            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
+            <input
+                type="text"
+                wire:model.live.debounce.400ms="search"
+                placeholder="Cari nama perusahaan atau telepon..."
+                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white py-2 pl-9 pr-4 text-sm text-[#4c4c5c] shadow-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1f27] dark:text-[#aab8c5]"
+            >
+        </div>
     </div>
 
     <div class="boron-card">
