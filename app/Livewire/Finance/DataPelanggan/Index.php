@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\Finance\Datapelanggan;
+namespace App\Livewire\Finance\DataPelanggan;
 
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
-use Livewire\Attributes\On; 
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,15 +14,18 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+
     public $showModal = false;
+
     public $selectedCustomer = null;
 
-    public $search = ''; 
+    public $search = '';
+
     #[On('trigger-search')]
     public function updateSearch($query)
     {
         $this->search = $query;
-        $this->resetPage(); 
+        $this->resetPage();
     }
 
     public function viewDetail($id)
@@ -30,6 +33,7 @@ class Index extends Component
         $this->selectedCustomer = \App\Models\Customer::with(['user', 'spk', 'baa'])->find($id);
         $this->showModal = true;
     }
+
     public function closeModal()
     {
         $this->showModal = false;
@@ -40,17 +44,17 @@ class Index extends Component
     {
         $customers = Customer::with(['user', 'spk', 'baa'])
             ->where('status', 'selesai')
-            ->where(function($query) {
+            ->where(function ($query) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('customer_number', 'like', '%' . $this->search . '%');
+                    $query->where('company_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_number', 'like', '%'.$this->search.'%');
                 }
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.finance.datapelanggan.index', [
-            'customers' => $customers
+            'customers' => $customers,
         ]);
     }
 }

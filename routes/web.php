@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\FormController;
+use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 Route::get('register/customer', \App\Livewire\Customer\Register::class)->name('customer.register');
@@ -18,9 +17,9 @@ Route::middleware(['auth', 'verified', 'role:marketing,finance,noc,super_admin']
     Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('marketing/spk/{id}', [\App\Http\Controllers\SpkController::class, 'streamSpk'])->name('marketing.spk');
     Route::get('noc/baa/{id}', [\App\Http\Controllers\BaaController::class, 'streamBaa'])->name('noc.baa');
-    Route::get('marketing/data-pelanggan', \App\Livewire\Marketing\Datapelanggan\Index::class)->name('marketing.datapelanggan.index');
-    Route::get('finance/data-pelanggan', \App\Livewire\Finance\Datapelanggan\Index::class)->name('finance.datapelanggan.index');
-    Route::get('noc/data-pelanggan', \App\Livewire\Noc\Datapelanggan\Index::class)->name('noc.datapelanggan.index');
+    Route::get('marketing/data-pelanggan', \App\Livewire\Marketing\DataPelanggan\Index::class)->name('marketing.datapelanggan.index');
+    Route::get('finance/data-pelanggan', \App\Livewire\Finance\DataPelanggan\Index::class)->name('finance.datapelanggan.index');
+    Route::get('noc/data-pelanggan', \App\Livewire\Noc\DataPelanggan\Index::class)->name('noc.datapelanggan.index');
     Route::get('customer/invoice/{id}', [\App\Http\Controllers\InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
 });
 
