@@ -3,7 +3,9 @@
 namespace App\Livewire\Marketing\Tracking;
 
 use App\Events\CustomerUpdated;
+use App\Mail\StatusPelangganBerubah;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -17,29 +19,39 @@ class Show extends Component
 
     // Variabel Form Verifikasi
     public $service_type;
-    public $bandwidth; 
+
+    public $bandwidth;
+
     public $monthly_fee;
+
     public $registration_fee;
+
     public $sla = '99.5%';
+
     public $marketing_name;
+
     public $marketing_phone;
 
     // Variabel Form SPK
     public $job_type = 'Aktivasi Baru';
+
     public $customer_type = '';
+
     public $due_date;
+
     public $spk_notes = 'Tim NOC diminta untuk melakukan proses provisioning layanan sesuai detail di atas, termasuk konfigurasi perangkat jaringan, aktivasi layanan, serta memastikan konektivitas layanan berjalan dengan baik sebelum dilakukan serah terima kepada pelanggan.';
 
     // Variabel Modal Edit Data Master
     public $isEditingCustomer = false;
+
     public $editData = [];
 
     public function mount($id)
     {
         $this->customer = Customer::with(['user', 'spk'])->findOrFail($id);
-        
+
         $this->service_type = $this->customer->service_type;
-        $this->bandwidth = $this->customer->bandwidth; 
+        $this->bandwidth = $this->customer->bandwidth;
         $this->marketing_name = auth()->user()->name;
 
         if ($this->customer->spk) {
@@ -63,7 +75,7 @@ class Show extends Component
             'gender' => $this->customer->gender,
             'position' => $this->customer->position,
             'phone' => $this->customer->phone,
-            
+
             'company_name' => $this->customer->company_name,
             'business_type' => $this->customer->business_type,
             'npwp_number' => $this->customer->npwp_number,
@@ -72,17 +84,17 @@ class Show extends Component
             'city' => $this->customer->city,
             'province' => $this->customer->province,
             'postal_code' => $this->customer->postal_code,
-            
+
             'finance_name' => $this->customer->finance_name,
-            'finance_email' => $this->customer->finance_email, 
+            'finance_email' => $this->customer->finance_email,
             'finance_phone' => $this->customer->finance_phone,
             'billing_address' => $this->customer->billing_address,
-            
+
             'technical_name' => $this->customer->technical_name,
-            'technical_email' => $this->customer->technical_email, 
+            'technical_email' => $this->customer->technical_email,
             'technical_phone' => $this->customer->technical_phone,
             'installation_address' => $this->customer->installation_address,
-            
+
             'service_type' => $this->customer->service_type,
             'bandwidth' => $this->customer->bandwidth,
             'term_of_service' => $this->customer->term_of_service,
@@ -97,7 +109,7 @@ class Show extends Component
             'editData.gender' => 'nullable|in:L,P',
             'editData.position' => 'nullable|string',
             'editData.phone' => 'required|string|max:20',
-            
+
             'editData.company_name' => 'required|string|max:255',
             'editData.business_type' => 'nullable|string',
             'editData.npwp_number' => 'nullable|string',
@@ -106,25 +118,25 @@ class Show extends Component
             'editData.city' => 'nullable|string',
             'editData.province' => 'nullable|string',
             'editData.postal_code' => 'nullable|string',
-            
+
             'editData.finance_name' => 'nullable|string|max:255',
-            'editData.finance_email' => 'nullable|email|max:255', 
+            'editData.finance_email' => 'nullable|email|max:255',
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
-            
+
             'editData.technical_name' => 'nullable|string|max:255',
-            'editData.technical_email' => 'nullable|email|max:255', 
+            'editData.technical_email' => 'nullable|email|max:255',
             'editData.technical_phone' => 'nullable|string|max:20',
             'editData.installation_address' => 'nullable|string',
-            
+
             'editData.service_type' => 'required|string',
-            'editData.bandwidth' => 'required|string', 
+            'editData.bandwidth' => 'required|string',
             'editData.term_of_service' => 'nullable|numeric',
         ]);
 
         $this->customer->update($this->editData);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->customer->refresh();
 
         $this->isEditingCustomer = false;
@@ -140,7 +152,7 @@ class Show extends Component
     {
         $this->validate([
             'service_type' => 'required|string|max:255',
-            'bandwidth' => 'required|string|max:255', 
+            'bandwidth' => 'required|string|max:255',
             'monthly_fee' => 'required|numeric|min:0',
             'registration_fee' => 'required|numeric|min:0',
             'sla' => 'required|string|max:50',
@@ -150,16 +162,19 @@ class Show extends Component
 
         $this->customer->update([
             'service_type' => $this->service_type,
-            'bandwidth' => $this->bandwidth, 
+            'bandwidth' => $this->bandwidth,
             'monthly_fee' => $this->monthly_fee,
             'registration_fee' => $this->registration_fee,
             'sla' => $this->sla,
             'marketing_name' => $this->marketing_name,
             'marketing_phone' => $this->marketing_phone,
-            'status' => 'menunggu_invoice'
+            'status' => 'menunggu_invoice',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
+
+        Mail::to($this->customer->user->email)
+            ->queue(new StatusPelangganBerubah($this->customer, 'menunggu_invoice'));
 
         $this->dispatch('notify', type: 'success', message: 'Data registrasi disetujui. Tagihan otomatis diteruskan ke Finance.');
     }
@@ -167,10 +182,10 @@ class Show extends Component
     public function reject()
     {
         $this->customer->update([
-            'status' => 'ditolak'
+            'status' => 'ditolak',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'error', message: 'Data registrasi pendaftar telah ditolak.');
     }
 
@@ -198,22 +213,27 @@ class Show extends Component
 
         $this->customer->refresh();
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'success', message: 'Data SPK berhasil disimpan. Anda dapat mengecek PDF SPK sekarang.');
     }
 
     public function sendToNoc()
     {
-        if (!$this->customer->spk) {
+        if (! $this->customer->spk) {
             $this->dispatch('notify', type: 'error', message: 'Harap simpan data SPK terlebih dahulu sebelum mengirim ke NOC.');
+
             return;
         }
 
         $this->customer->update([
-            'status' => 'proses_instalasi'
+            'status' => 'proses_instalasi',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
+
+        Mail::to($this->customer->user->email)
+            ->queue(new StatusPelangganBerubah($this->customer, 'proses_instalasi'));
+
         $this->dispatch('notify', type: 'success', message: 'SPK berhasil dikirim! Status layanan kini berada di tangan tim NOC.');
     }
 
@@ -221,7 +241,11 @@ class Show extends Component
     {
         $this->customer->update(['status' => 'selesai']);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
+
+        Mail::to($this->customer->user->email)
+            ->queue(new StatusPelangganBerubah($this->customer, 'selesai'));
+
         $this->dispatch('notify', type: 'success', message: 'BAA disetujui! Layanan pelanggan telah resmi selesai dan aktif sepenuhnya.');
     }
 
@@ -230,7 +254,7 @@ class Show extends Component
         $this->customer->baa->update(['signed_baa_path' => null]);
         $this->customer->update(['status' => 'menunggu_baa']);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'error', message: 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
     }
 
