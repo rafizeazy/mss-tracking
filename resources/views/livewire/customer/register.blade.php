@@ -1,4 +1,4 @@
-<div class="flex min-h-screen items-center justify-center bg-[#f6f7fb] px-4 py-10 dark:bg-[#15151b]">
+<div class="flex min-h-screen items-center justify-center bg-zinc-100 px-4 py-10 dark:bg-[#15151b]">
     <div class="w-full max-w-4xl">
 
         {{-- Header Form --}}
@@ -7,7 +7,7 @@
                 <i class="ti ti-wifi text-2xl text-[#669776]"></i>
             </div>
             <h2 class="text-2xl font-bold text-[#313a46] dark:text-white">Registrasi Layanan Internet</h2>
-            <p class="mt-2 text-sm text-[#8a969c]">PT Media Solusi Sukses — Silakan lengkapi data registrasi di bawah ini.</p>
+            <p class="mt-2 text-sm text-zinc-600">PT Media Solusi Sukses — Silakan lengkapi data registrasi di bawah ini.</p>
         </div>
 
         {{-- Progress Timeline --}}
@@ -60,7 +60,7 @@
         {{-- STEP 1: Data Pendaftar --}}
         @if ($currentStep === 1)
             <div class="boron-card">
-                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                <div class="boron-card-header border-b border-zinc-300 pb-3 dark:border-[#37394d]">
                     <h5 class="font-semibold text-[#313a46] dark:text-white">
                         <i class="ti ti-user mr-2 text-[#669776]"></i>1. Data Pendaftar (Yang Diberi Wewenang)
                     </h5>
@@ -113,7 +113,7 @@
         {{-- STEP 2: Informasi Perusahaan --}}
         @if ($currentStep === 2)
             <div class="boron-card">
-                <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                <div class="boron-card-header border-b border-zinc-300 pb-3 dark:border-[#37394d]">
                     <h5 class="font-semibold text-[#313a46] dark:text-white">
                         <i class="ti ti-building mr-2 text-[#669776]"></i>2. Informasi Perusahaan / Institusi
                     </h5>
@@ -169,7 +169,7 @@
 
                 {{-- PIC Keuangan --}}
                 <div class="boron-card">
-                    <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <div class="boron-card-header border-b border-zinc-300 pb-3 dark:border-[#37394d]">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">
                             <i class="ti ti-receipt mr-2 text-[#669776]"></i>3. Penanggung Jawab Invoice/Keuangan
                         </h5>
@@ -200,7 +200,7 @@
 
                 {{-- PIC Teknis --}}
                 <div class="boron-card">
-                    <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <div class="boron-card-header border-b border-zinc-300 pb-3 dark:border-[#37394d]">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">
                             <i class="ti ti-tool mr-2 text-[#669776]"></i>4. Penanggung Jawab Teknis
                         </h5>
@@ -246,7 +246,7 @@
                 
                 {{-- Detail Layanan & Dokumen --}}
                 <div class="boron-card">
-                    <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
+                    <div class="boron-card-header border-b border-zinc-300 pb-3 dark:border-[#37394d]">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">
                             <i class="ti ti-clipboard-list mr-2 text-[#669776]"></i>5. Detail Layanan &amp; Kelengkapan Dokumen
                         </h5>
@@ -256,7 +256,7 @@
                             <div>
                                 <label class="mb-1.5 block text-sm font-medium">Tipe Layanan <span class="text-[#ed6060]">*</span></label>
                                 <input type="text" value="Internet Dedicated 1:1" readonly
-                                    class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2 text-sm text-[#8a969c] cursor-not-allowed dark:border-[#37394d] dark:bg-[#15151b] dark:text-[#aab8c5]">
+                                    class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2 text-sm text-zinc-600 cursor-not-allowed dark:border-[#37394d] dark:bg-[#15151b] dark:text-[#aab8c5]">
                             </div>
                             <div>
                                 <label class="mb-1.5 block text-sm font-medium">Kapasitas Bandwidth <span class="text-[#ed6060]">*</span></label>
@@ -295,7 +295,7 @@
                         </div>
 
                         <div class="space-y-3 rounded-[0.3rem] border border-dashed border-[#dee2e6] p-4 dark:border-[#37394d]">
-                            <p class="text-xs font-semibold uppercase text-[#8a969c]">Upload Dokumen Pendukung</p>
+                            <p class="text-xs font-semibold uppercase text-zinc-600">Upload Dokumen Pendukung</p>
                             <div class="flex items-center justify-between gap-3 text-sm">
                                 <span class="font-medium">File KTP</span>
                                 <input wire:model="ktp_file" type="file" accept=".jpg,.jpeg,.png,.pdf"
@@ -364,9 +364,9 @@
                 {{-- MODAL SYARAT & KETENTUAN (Tampil ketika showTermsModal = true) --}}
                 <div x-show="showTermsModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-transition x-cloak>
                     <div class="w-full max-w-3xl bg-white dark:bg-[#1e1e2a] rounded-xl shadow-2xl flex flex-col max-h-[85vh]" @click.stop>
-                        <div class="p-5 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-white/5 rounded-t-xl">
+                        <div class="p-5 border-b border-zinc-300 dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-white/5 rounded-t-xl">
                             <h3 class="text-base font-bold text-[#313a46] dark:text-white"><i class="ti ti-file-text text-[#1e5d87] mr-1"></i> Syarat dan Ketentuan Berlangganan</h3>
-                            <button @click="showTermsModal = false" class="text-[#8a969c] hover:text-[#ed6060]"><i class="ti ti-x text-xl"></i></button>
+                            <button @click="showTermsModal = false" class="text-zinc-600 hover:text-[#ed6060]"><i class="ti ti-x text-xl"></i></button>
                         </div>
                         
                         {{-- Container S&K (Harus di-scroll oleh user) --}}
@@ -374,13 +374,13 @@
                             @include('livewire.customer.partials.terms')
                         </div>
                         
-                        <div class="p-5 border-t border-[#e7e9eb] dark:border-[#37394d] bg-[#f8f9fa] dark:bg-white/5 flex justify-between items-center rounded-b-xl">
+                        <div class="p-5 border-t border-zinc-300 dark:border-[#37394d] bg-[#f8f9fa] dark:bg-white/5 flex justify-between items-center rounded-b-xl">
                             <div class="text-xs font-medium">
                                 <span x-show="!scrolledToBottom" class="text-[#ed6060] animate-pulse"><i class="ti ti-arrow-down-circle"></i> Silakan baca (scroll) sampai ke baris paling akhir.</span>
                                 <span x-show="scrolledToBottom" style="display: none;" class="text-[#70bb63]"><i class="ti ti-circle-check"></i> Syarat dan Ketentuan telah dibaca.</span>
                             </div>
                             <div class="flex gap-2">
-                                <button type="button" @click="showTermsModal = false" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-[#e7e9eb] dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">Tutup</button>
+                                <button type="button" @click="showTermsModal = false" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-zinc-300 dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">Tutup</button>
                                 
                                 <button type="button" :disabled="!scrolledToBottom" @click="$wire.set('accepted_terms', true); showTermsModal = false;" 
                                     class="btn-boron btn-boron-primary px-5 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
@@ -402,7 +402,7 @@
         ])>
             @if ($currentStep > 1)
                 <button type="button" wire:click="previousStep"
-                    class="btn-boron flex items-center gap-2 border border-[#dee2e6] bg-white px-6 py-2.5 text-sm font-medium text-[#313a46] hover:bg-[#f6f7fb] dark:border-[#37394d] dark:bg-[#1e1e2a] dark:text-white dark:hover:bg-[#252535]">
+                    class="btn-boron flex items-center gap-2 border border-[#dee2e6] bg-white px-6 py-2.5 text-sm font-medium text-[#313a46] hover:bg-zinc-100 dark:border-[#37394d] dark:bg-[#1e1e2a] dark:text-white dark:hover:bg-[#252535]">
                     <i class="ti ti-chevron-left"></i> Sebelumnya
                 </button>
             @endif
@@ -421,7 +421,7 @@
         </div>
 
         {{-- Login link --}}
-        <p class="mt-6 text-center text-sm text-[#8a969c]">
+        <p class="mt-6 text-center text-sm text-zinc-600">
             Sudah punya akun?
             <a href="{{ route('login') }}" class="font-medium text-[#669776] hover:underline">Login di sini</a>
         </p>
