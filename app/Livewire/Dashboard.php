@@ -3,21 +3,24 @@
 namespace App\Livewire;
 
 use App\Models\Customer;
+use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Carbon\Carbon;
 
 #[Title('Dashboard MSS')]
 #[Layout('layouts.app')]
 class Dashboard extends Component
 {
     public $filterMonth;
+
     public $filterYear;
-    
+
     public $chartData = '{"pendaftar":[], "aktif":[]}';
+
     public $stats = [];
+
     public $comparisonLabel = 'vs Bulan Lalu';
 
     public function mount()
@@ -27,8 +30,15 @@ class Dashboard extends Component
         $this->loadDashboardData();
     }
 
-    public function updatedFilterMonth() { $this->loadDashboardData(); }
-    public function updatedFilterYear() { $this->loadDashboardData(); }
+    public function updatedFilterMonth()
+    {
+        $this->loadDashboardData();
+    }
+
+    public function updatedFilterYear()
+    {
+        $this->loadDashboardData();
+    }
 
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshData()
@@ -70,24 +80,35 @@ class Dashboard extends Component
 
         $totalKeseluruhan = Customer::where('status', 'selesai')->count();
 
-        $calcChange = function($curr, $prev) {
-            if ($prev == 0) return ['val' => $curr > 0 ? 100 : 0, 'up' => true];
+        $calcChange = function ($curr, $prev) {
+            if ($prev == 0) {
+                return ['val' => $curr > 0 ? 100 : 0, 'up' => true];
+            }
             $diff = $curr - $prev;
+
             return ['val' => round(abs($diff / $prev) * 100, 1), 'up' => $diff >= 0];
         };
 
         $this->stats = [
             'pendaftar' => ['total' => $currPendaftar, 'change' => $calcChange($currPendaftar, $prevPendaftar)],
-            'aktif'     => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
-            'proses'    => ['total' => $currProses, 'change' => $calcChange($currProses, $prevProses)],
-            'total_all' => ['total' => $totalKeseluruhan]
+            'aktif' => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
+            'proses' => ['total' => $currProses, 'change' => $calcChange($currProses, $prevProses)],
+            'total_all' => ['total' => $totalKeseluruhan],
         ];
 
-        $yearlyPendaftar = Customer::selectRaw('MONTH(created_at) as month, count(*) as total')
+        $monthExpr = \DB::connection()->getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', created_at) AS INTEGER)"
+            : 'MONTH(created_at)';
+
+        $monthExprUpdated = \DB::connection()->getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', updated_at) AS INTEGER)"
+            : 'MONTH(updated_at)';
+
+        $yearlyPendaftar = Customer::selectRaw("{$monthExpr} as month, count(*) as total")
             ->whereYear('created_at', $year)
             ->groupBy('month')->pluck('total', 'month')->toArray();
 
-        $yearlyAktif = Customer::selectRaw('MONTH(updated_at) as month, count(*) as total')
+        $yearlyAktif = Customer::selectRaw("{$monthExprUpdated} as month, count(*) as total")
             ->where('status', 'selesai')
             ->whereYear('updated_at', $year)
             ->groupBy('month')->pluck('total', 'month')->toArray();
@@ -102,7 +123,7 @@ class Dashboard extends Component
 
         $this->chartData = json_encode([
             'pendaftar' => $chartPendaftar,
-            'aktif' => $chartAktif
+            'aktif' => $chartAktif,
         ]);
     }
 
