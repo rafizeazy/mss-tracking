@@ -93,7 +93,7 @@ class StatusPelangganBerubah extends Mailable
             'selesai' => [
                 'subject' => 'Selamat! Layanan Internet Anda Telah Aktif',
                 'headline' => 'Layanan Internet Anda Resmi Aktif! 🎉',
-                'body' => 'Seluruh proses aktivasi layanan internet MSS untuk perusahaan Anda telah selesai. ID pelanggan Anda adalah <strong>'.($this->customer->customer_number ?? '-').'</strong>. Simpan ID ini untuk keperluan komunikasi dengan tim support kami.',
+                'body' => 'Seluruh proses aktivasi layanan internet MSS untuk perusahaan Anda telah selesai. ID pelanggan Anda adalah '.e($this->customer->customer_number ?? '-').'. Simpan ID ini untuk keperluan komunikasi dengan tim support kami.',
                 'cta_label' => 'Lihat Detail Layanan',
                 'color' => '#70bb63',
                 'icon' => '🌐',

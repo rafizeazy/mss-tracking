@@ -17,6 +17,11 @@ class Index extends Component
 
     public $search = '';
 
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
     #[On('trigger-search')]
     public function updateSearch($query): void
     {
