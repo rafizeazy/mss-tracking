@@ -46,8 +46,8 @@
                     Halo, <strong>{{ $customer->user->name }}</strong>
                 </p>
 
-                <p class="message">
-                    {!! $statusConfig['body'] !!}
+                <p class="message" style="white-space: pre-line;">
+                    {{ $statusConfig['body'] }}
                 </p>
 
                 {{-- Detail Layanan --}}
