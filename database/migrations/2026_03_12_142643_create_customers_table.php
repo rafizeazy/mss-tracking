@@ -57,6 +57,8 @@ return new class extends Migration
             $table->decimal('monthly_fee', 15, 2)->nullable();
             $table->decimal('registration_fee', 15, 2)->nullable();
             $table->string('sla')->default('99.5%');
+            
+            $table->string('jalur_metro')->nullable(); 
             $table->string('marketing_name')->nullable();
             $table->string('marketing_phone')->nullable();
             $table->string('payment_proof_file_path')->nullable();
@@ -68,6 +70,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('customers');

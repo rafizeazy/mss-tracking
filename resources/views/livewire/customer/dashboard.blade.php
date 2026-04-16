@@ -249,7 +249,13 @@
                     <div class="bg-white/50 dark:bg-black/20 p-3 rounded-full shrink-0 self-start sm:self-center"><i class="ti ti-settings text-2xl md:text-3xl text-[#70bb63] animate-spin-slow"></i></div>
                     <div>
                         <h5 class="text-sm md:text-base font-bold text-[#4a8a3f] dark:text-[#70bb63]">Layanan Sedang Diproses NOC</h5>
-                        <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">Pembayaran Anda telah sukses dikonfirmasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.</p>
+                        <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">
+                            @if($customer->registration_fee == 0)
+                                Pendaftaran Anda mendapatkan promo Gratis Biaya Registrasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.
+                            @else
+                                Pembayaran Anda telah sukses dikonfirmasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
@@ -273,9 +279,9 @@
                         $workflows = [
                             ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'desc' => 'Tim kami sedang memverifikasi data dan layanan Anda.', 'icon' => 'ti-shield-check'],
                             ['id' => 'menunggu_invoice', 'title' => 'Pembuatan Invoice', 'desc' => 'Pembuatan invoice registrasi/instalasi oleh tim Finance.', 'icon' => 'ti-file-invoice'],
-                            ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => 'Penerbitan tagihan awal dan menunggu pembayaran Anda.', 'icon' => 'ti-receipt'],
-                            ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => 'Tim Finance memverifikasi keabsahan pembayaran Anda.', 'icon' => 'ti-search'],
-                            ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
+                            ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => $customer->registration_fee == 0 ? 'Biaya instalasi/registrasi digratiskan (Free). Tahap pembayaran dilewati.' : 'Penerbitan tagihan awal dan menunggu pembayaran Anda.', 'icon' => 'ti-receipt'],
+                            ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => $customer->registration_fee == 0 ? 'Otomatis terverifikasi karena program registrasi gratis.' : 'Tim Finance memverifikasi keabsahan pembayaran Anda.', 'icon' => 'ti-search'],
+                            ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => $customer->registration_fee == 0 ? 'Layanan langsung diteruskan ke tim Instalasi NOC.' : 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
                             ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'desc' => 'Pemasangan perangkat fisik di lokasi Anda oleh tim NOC.', 'icon' => 'ti-router'],
                             ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi & Setting', 'desc' => 'Konfigurasi jaringan dan aktivasi bandwidth internet Anda.', 'icon' => 'ti-wifi'],
                             ['id' => 'review_baa', 'title' => 'Pembuatan Dokumen', 'desc' => 'Pembuatan Berita Acara Aktivasi (BAA) oleh tim kami.', 'icon' => 'ti-file-description'],
@@ -368,10 +374,13 @@
                                     <div class="w-full">
                                         <h5 class="text-base md:text-lg font-bold {{ $state === 'active' ? 'text-[#313a46] dark:text-white' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#a1a9b1] dark:text-[#6c757d]') }}">
                                             {{ $step['title'] }}
+                                            @if($step['id'] === 'menunggu_pembayaran' && $customer->registration_fee == 0)
+                                                <span class="ml-2 inline-block shrink-0 text-[10px] font-bold text-[#70bb63] bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded-full align-middle uppercase tracking-wider">Registrasi Gratis</span>
+                                            @endif
                                         </h5>
                                         <p class="text-[13px] md:text-sm mt-0.5 md:mt-1 {{ $state === 'active' ? 'text-[#313a46] dark:text-white font-medium' : ($state === 'completed' ? 'text-[#8a969c]' : 'text-[#a1a9b1]/70 dark:text-[#6c757d]/70') }}">{{ $step['desc'] }}</p>
 
-                                        @if($state === 'active' && $step['id'] === 'menunggu_pembayaran')
+                                        @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && $customer->registration_fee != 0)
                                             <div class="mt-5 w-full">
                                                 <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
                                                     <i class="ti ti-file-invoice text-lg"></i> Lihat Tagihan Invoice

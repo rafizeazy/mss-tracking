@@ -3,17 +3,35 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="boron-body min-h-screen font-sans antialiased"
-        x-data="{ sidebarMobileOpen: false, sidebarHovered: false }"
+    <!-- TAMBAHAN: overflow-x-hidden di tag body -->
+    <body class="boron-body min-h-screen font-sans antialiased overflow-x-hidden"
+        x-data="{ 
+            sidebarMobileOpen: false, 
+            sidebarHovered: false,
+            sidebarPinned: localStorage.getItem('sidebarPinned') === 'true',
+            toggleSidebar() {
+                if (window.innerWidth >= 1024) {
+                    this.sidebarPinned = !this.sidebarPinned;
+                    localStorage.setItem('sidebarPinned', this.sidebarPinned);
+                    
+                    // PERBAIKAN GRAFIK: Paksa ApexChart untuk render ulang ukurannya 
+                    // setelah animasi CSS sidebar selesai (310ms)
+                    setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 310);
+                } else {
+                    this.sidebarMobileOpen = !this.sidebarMobileOpen;
+                }
+            }
+        }"
+        @toggle-sidebar.window="toggleSidebar()"
     >
-        <div class="flex min-h-screen">
+        <div class="flex min-h-screen w-full">
             <aside
-                class="boron-sidebar boron-scrollbar fixed inset-y-0 left-0 z-40 flex flex-col overflow-y-auto overflow-x-hidden sidebar-collapsed"
+                class="boron-sidebar boron-scrollbar fixed inset-y-0 left-0 z-40 flex flex-col overflow-y-auto overflow-x-hidden transition-all duration-300"
                 :class="{
                     '-translate-x-full lg:translate-x-0': !sidebarMobileOpen,
                     'translate-x-0': sidebarMobileOpen,
-                    'sidebar-expanded': sidebarHovered,
-                    'sidebar-collapsed': !sidebarHovered
+                    'sidebar-expanded': sidebarHovered || sidebarPinned,
+                    'sidebar-collapsed': !sidebarHovered && !sidebarPinned
                 }"
                 @mouseenter="sidebarHovered = true"
                 @mouseleave="sidebarHovered = false"
@@ -29,7 +47,6 @@
                         <i class="ti ti-x text-lg"></i>
                     </button>
                 </div>
-
 
                 <nav class="flex-1 py-2">
                     @if (auth()->user()->role === \App\Enums\Role::Customer)
@@ -101,7 +118,6 @@
                             if (auth()->user()->role === \App\Enums\Role::Marketing) $dataPelangganRoute = route('marketing.datapelanggan.index');
                             elseif (auth()->user()->role === \App\Enums\Role::Finance) $dataPelangganRoute = route('finance.datapelanggan.index');
                             elseif (auth()->user()->role === \App\Enums\Role::Noc) $dataPelangganRoute = route('noc.datapelanggan.index');
-                            // Jika superadmin, bisa diarahkan ke marketing sebagai default view data pelanggan
                             elseif (auth()->user()->isSuperAdmin()) $dataPelangganRoute = route('marketing.datapelanggan.index');
                         @endphp
 
@@ -152,9 +168,11 @@
                 </div>
             </aside>
 
-            <div class="flex min-h-screen flex-1 flex-col transition-all duration-200 lg:ml-[70px]">
+            <!-- TAMBAHAN: min-w-0 agar kolom konten bisa mengecil -->
+            <div class="flex min-h-screen w-full flex-1 flex-col transition-all duration-300 min-w-0" :class="sidebarPinned ? 'lg:ml-[250px]' : 'lg:ml-[70px]'">
                 <header class="boron-topbar sticky top-0 z-30 flex items-center gap-4 px-4 sm:px-6">
-                    <button @click="sidebarMobileOpen = !sidebarMobileOpen" class="boron-topbar-btn lg:hidden" data-test="sidebar-toggle">
+                    
+                    <button @click="$dispatch('toggle-sidebar')" class="cursor-pointer flex h-[38px] w-[42px] shrink-0 items-center justify-center rounded-[0.3rem] border border-[#dee2e6] bg-transparent text-[#313a46] hover:bg-[#f6f7fb] dark:border-[#37394d] dark:text-[#aab8c5] dark:hover:bg-white/5" data-test="sidebar-toggle">
                         <i class="ti ti-menu-2 text-lg"></i>
                     </button>
 
@@ -164,7 +182,7 @@
                             <input type="text" 
                                 @input.debounce.500ms="$dispatch('trigger-search', { query: $event.target.value })"
                                 placeholder="Cari di halaman ini..."
-                                class="w-full rounded-[0.3rem] border border-[#343a40] bg-transparent py-2 pl-9 pr-4 text-sm placeholder:text-[#a1a9b1] focus:outline-none focus:ring-2 focus:ring-[#669776]/30 dark:border-[#37394d] dark:text-white"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent py-2 pl-9 pr-4 text-sm placeholder:text-[#a1a9b1] focus:outline-none focus:ring-2 focus:ring-[#669776]/30 dark:border-[#37394d] dark:text-white"
                             >
                         </div>
                     </div>
@@ -183,7 +201,7 @@
                         </button>
 
                         <div class="relative ml-1" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center gap-2 rounded-[0.3rem] border border-[#343a40] bg-white px-3 py-1.5 text-sm transition-all hover:bg-[#f6f7fb] dark:border-[#37394d] dark:bg-[#1e1f27] dark:hover:bg-[#252630]" data-test="sidebar-menu-button">
+                            <button @click="open = !open" class="flex items-center gap-2 rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm transition-all hover:bg-[#f6f7fb] dark:border-[#37394d] dark:bg-[#1e1f27] dark:hover:bg-[#252630]" data-test="sidebar-menu-button">
                                 <span class="flex size-7 items-center justify-center rounded-full bg-[#669776]/20 text-xs font-bold text-[#669776]">
                                     {{ auth()->user()->initials() }}
                                 </span>
@@ -199,7 +217,7 @@
                                 x-transition:leave-start="opacity-100 scale-100"
                                 x-transition:leave-end="opacity-0 scale-95"
                                 x-cloak
-                                class="absolute right-0 mt-2 w-52 origin-top-right rounded-[0.3rem] border border-[#343a40] bg-white py-1 shadow-lg dark:border-[#37394d] dark:bg-[#1e1f27]"
+                                class="absolute right-0 mt-2 w-52 origin-top-right rounded-[0.3rem] border border-[#dee2e6] bg-white py-1 shadow-lg dark:border-[#37394d] dark:bg-[#1e1f27]"
                                 style="box-shadow: 5px 7px 0 #6c757d;"
                             >
                                 <div class="border-b border-dashed border-[#e7e9eb] px-4 py-3 dark:border-[#37394d]">
@@ -226,7 +244,7 @@
                     </div>
                 </header>
 
-                <div class="flex-1 px-4 sm:px-6">
+                <div class="flex-1 px-4 sm:px-6 w-full">
                     {{ $slot }}
                 </div>
 
@@ -247,6 +265,7 @@
             x-cloak
         ></div>
 
+        <!-- System Toasts & Confirmations -->
         <div
             x-data="{
                 toast: null,
@@ -395,7 +414,6 @@
                 Livewire.on('notify', (event) => {
                     let data = event[0] || event;
                     
-                    // Memanggil Event Alpine yang sudah ada di file ini
                     window.dispatchEvent(new CustomEvent('toast', {
                         detail: {
                             type: data.type || 'success',

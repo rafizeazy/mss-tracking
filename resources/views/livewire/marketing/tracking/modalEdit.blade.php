@@ -61,37 +61,74 @@
                                 <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Tipe Layanan <span class="text-[#ed6060]">*</span></label>
                                 <input type="text" wire:model="editData.service_type" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-[#f8f9fa] px-3 py-2 text-sm text-[#8a969c] cursor-not-allowed dark:border-[#37394d] dark:bg-[#15151b] dark:text-[#aab8c5]" readonly>
                             </div>
-                            <div>
-                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Kapasitas Bandwidth <span class="text-[#ed6060]">*</span></label>
-                                <select wire:model="editData.bandwidth" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]">
-                                    <option value="">-- Pilih Kapasitas --</option>
-                                    <option value="100 Mbps">100 Mbps</option>
-                                    <option value="200 Mbps">200 Mbps</option>
-                                    <option value="300 Mbps">300 Mbps</option>
-                                    <option value="400 Mbps">400 Mbps</option>
-                                    <option value="500 Mbps">500 Mbps</option>
-                                    <option value="600 Mbps">600 Mbps</option>
-                                    <option value="700 Mbps">700 Mbps</option>
-                                    <option value="800 Mbps">800 Mbps</option>
-                                    <option value="900 Mbps">900 Mbps</option>
-                                    <option value="1000 Mbps">1000 Mbps</option>
-                                    <option value="1500 Mbps">1500 Mbps</option>
-                                    <option value="2000 Mbps">2000 Mbps</option>
-                                    <option value="2500 Mbps">2500 Mbps</option>
-                                    <option value="3000 Mbps">3000 Mbps</option>
-                                    <option value="3500 Mbps">3500 Mbps</option>
-                                    <option value="4000 Mbps">4000 Mbps</option>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Kapasitas <span class="text-[#ed6060]">*</span></label>
+                                    <select wire:model="editData.bandwidth" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="100 Mbps">100 Mbps</option>
+                                        <option value="200 Mbps">200 Mbps</option>
+                                        <option value="300 Mbps">300 Mbps</option>
+                                        <option value="400 Mbps">400 Mbps</option>
+                                        <option value="500 Mbps">500 Mbps</option>
+                                        <option value="600 Mbps">600 Mbps</option>
+                                        <option value="700 Mbps">700 Mbps</option>
+                                        <option value="800 Mbps">800 Mbps</option>
+                                        <option value="900 Mbps">900 Mbps</option>
+                                        <option value="1000 Mbps">1000 Mbps</option>
+                                        <option value="1500 Mbps">1500 Mbps</option>
+                                        <option value="2000 Mbps">2000 Mbps</option>
+                                        <option value="2500 Mbps">2500 Mbps</option>
+                                        <option value="3000 Mbps">3000 Mbps</option>
+                                        <option value="3500 Mbps">3500 Mbps</option>
+                                        <option value="4000 Mbps">4000 Mbps</option>
+                                    </select>
+                                    @error('editData.bandwidth') <span class="text-[10px] text-[#ed6060] mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Kontrak</label>
+                                    <select wire:model="editData.term_of_service" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="1">1 Tahun</option>
+                                        <option value="2">2 Tahun</option>
+                                        <option value="3">3 Tahun</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div x-data="{ isCustomMetro: false }">
+                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Vendor Jalur Metro</label>
+                                <select 
+                                    wire:model="editData.jalur_metro" 
+                                    x-show="!isCustomMetro" 
+                                    @change="$event.target.value === 'Lainnya' ? (isCustomMetro = true, $wire.set('editData.jalur_metro', '')) : isCustomMetro = false"
+                                    class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]"
+                                >
+                                    <option value="">Pilih Jalur Metro...</option>
+                                    <option value="Lokal Link">Lokal Link</option>
+                                    <option value="Telkom">Telkom</option>
+                                    <option value="Lintas Arta">Lintas Arta</option>
+                                    <option value="Indosat">Indosat</option>
+                                    <option value="MV. Net Telkom">MV. Net Telkom</option>
+                                    <option value="Fiber Star">Fiber Star</option>
+                                    <option value="Iforte">Iforte</option>
+                                    <option value="Lainnya">Lainnya...</option>
                                 </select>
-                                @error('editData.bandwidth') <span class="text-[10px] text-[#ed6060] mt-1 block">{{ $message }}</span> @enderror
+                                
+                                <div x-show="isCustomMetro" style="display: none;" class="flex gap-2">
+                                    <input type="text" wire:model="editData.jalur_metro" placeholder="Ketik nama vendor jalur metro..." class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d]">
+                                    <button type="button" @click="isCustomMetro = false; $wire.set('editData.jalur_metro', '')" class="px-2 text-[#ed6060] hover:bg-[#ed6060]/10 rounded" title="Batal isi manual">
+                                        <i class="ti ti-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-[#e7e9eb] pt-3 mt-1 dark:border-[#37394d]">
+                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Biaya Registrasi (Rp)</label>
+                                <input type="number" wire:model="editData.registration_fee" placeholder="0" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d]">
                             </div>
                             <div>
-                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Durasi Kontrak</label>
-                                <select wire:model="editData.term_of_service" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d] dark:bg-[#1e1e2a]">
-                                    <option value="">-- Pilih Durasi --</option>
-                                    <option value="1">1 Tahun (12 Bulan)</option>
-                                    <option value="2">2 Tahun (24 Bulan)</option>
-                                    <option value="3">3 Tahun (36 Bulan)</option>
-                                </select>
+                                <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Biaya Bulanan (Rp)</label>
+                                <input type="number" wire:model="editData.monthly_fee" placeholder="0" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#1e5d87] focus:outline-none focus:ring-1 focus:ring-[#1e5d87] dark:border-[#37394d]">
                             </div>
                         </div>
                     </div>
@@ -191,6 +228,21 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="rounded-lg border border-[#e7e9eb] p-4 bg-[#fcfcfd] dark:bg-[#15151b] dark:border-[#37394d]">
+                            <p class="text-xs font-extrabold text-[#313a46] dark:text-white border-b border-[#e7e9eb] pb-2.5 mb-3 dark:border-[#37394d] flex items-center gap-1.5"><i class="ti ti-briefcase text-[#ebb751]"></i> Data Sales / Marketing</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Nama Sales / Marketing</label>
+                                    <input type="text" wire:model="editData.marketing_name" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                </div>
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">No. Handphone Marketing</label>
+                                    <input type="text" wire:model="editData.marketing_phone" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:outline-none focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

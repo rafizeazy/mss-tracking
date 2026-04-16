@@ -15,22 +15,20 @@ class Show extends Component
 {
     public Customer $customer;
 
-    // Variabel Form Verifikasi
     public $service_type;
     public $bandwidth; 
     public $monthly_fee;
     public $registration_fee;
     public $sla = '99.5%';
+    public $jalur_metro; 
     public $marketing_name;
     public $marketing_phone;
 
-    // Variabel Form SPK
     public $job_type = 'Aktivasi Baru';
     public $customer_type = '';
     public $due_date;
     public $spk_notes = 'Tim NOC diminta untuk melakukan proses provisioning layanan sesuai detail di atas, termasuk konfigurasi perangkat jaringan, aktivasi layanan, serta memastikan konektivitas layanan berjalan dengan baik sebelum dilakukan serah terima kepada pelanggan.';
 
-    // Variabel Modal Edit Data Master
     public $isEditingCustomer = false;
     public $editData = [];
 
@@ -40,6 +38,7 @@ class Show extends Component
         
         $this->service_type = $this->customer->service_type;
         $this->bandwidth = $this->customer->bandwidth; 
+        $this->jalur_metro = $this->customer->jalur_metro; 
         $this->marketing_name = auth()->user()->name;
 
         if ($this->customer->spk) {
@@ -86,6 +85,13 @@ class Show extends Component
             'service_type' => $this->customer->service_type,
             'bandwidth' => $this->customer->bandwidth,
             'term_of_service' => $this->customer->term_of_service,
+            
+            'jalur_metro' => $this->customer->jalur_metro,
+            
+            'registration_fee' => $this->customer->registration_fee,
+            'monthly_fee' => $this->customer->monthly_fee,
+            'marketing_name' => $this->customer->marketing_name,
+            'marketing_phone' => $this->customer->marketing_phone,
         ];
         $this->isEditingCustomer = true;
     }
@@ -120,6 +126,14 @@ class Show extends Component
             'editData.service_type' => 'required|string',
             'editData.bandwidth' => 'required|string', 
             'editData.term_of_service' => 'nullable|numeric',
+            
+            'editData.jalur_metro' => 'nullable|string',
+            
+            // TAMBAHAN: Validasi data komersial saat di Edit
+            'editData.registration_fee' => 'nullable|numeric',
+            'editData.monthly_fee' => 'nullable|numeric',
+            'editData.marketing_name' => 'nullable|string|max:255',
+            'editData.marketing_phone' => 'nullable|string|max:20',
         ]);
 
         $this->customer->update($this->editData);
@@ -144,6 +158,7 @@ class Show extends Component
             'monthly_fee' => 'required|numeric|min:0',
             'registration_fee' => 'required|numeric|min:0',
             'sla' => 'required|string|max:50',
+            'jalur_metro' => 'required|string|max:255', 
             'marketing_name' => 'required|string|max:255',
             'marketing_phone' => 'required|string|max:20',
         ]);
@@ -154,6 +169,7 @@ class Show extends Component
             'monthly_fee' => $this->monthly_fee,
             'registration_fee' => $this->registration_fee,
             'sla' => $this->sla,
+            'jalur_metro' => $this->jalur_metro, 
             'marketing_name' => $this->marketing_name,
             'marketing_phone' => $this->marketing_phone,
             'status' => 'menunggu_invoice'

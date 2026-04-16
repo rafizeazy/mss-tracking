@@ -65,6 +65,21 @@ class Show extends Component
         $this->showInvoicePreview = false;
     }
 
+    public function markAsFree()
+    {
+        $this->customer->update([
+            'registration_fee' => 0,
+            'status' => 'pembayaran_disetujui'
+        ]);
+
+        broadcast(new CustomerUpdated());
+
+        $this->customer->refresh();
+        $this->calculateTotals();
+        
+        $this->dispatch('notify', type: 'success', message: 'Biaya registrasi berhasil digratiskan. Layanan otomatis diteruskan ke tim NOC untuk proses instalasi.');
+    }
+
     public function approvePayment()
     {
         $this->customer->update([

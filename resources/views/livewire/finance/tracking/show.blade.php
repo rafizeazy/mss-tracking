@@ -6,6 +6,9 @@
             </h4>
         </div>
         <div class="flex gap-2">
+            <a href="{{ route('form.formulir', $customer->id) }}" target="_blank" class="btn-boron !py-1.5 flex items-center gap-1 bg-[#1e5d87]/10 text-[#1e5d87] hover:bg-[#1e5d87]/20 border border-[#1e5d87]/20 transition-colors font-medium dark:bg-[#60addf]/10 dark:text-[#60addf] dark:border-[#60addf]/20">
+                <i class="ti ti-file-text"></i> Cetak Formulir
+            </a>
             <a href="{{ route('finance.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
                 <i class="ti ti-arrow-left"></i> Kembali
             </a>
@@ -56,8 +59,7 @@
                     </div>
                 </div>
             </div>
-
-            {{-- PERBAIKAN: Menghapus pengecekan status, sehingga gambar selalu muncul jika ada filenya (sebagai arsip permanen) --}}
+            
             @if($customer->payment_proof_file_path)
                 <div class="boron-card {{ $customer->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
                     <div class="boron-card-header {{ $customer->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
@@ -73,7 +75,7 @@
                             {{-- Gambar Utama --}}
                             <img @click="openImage = true" src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
                             
-                            {{-- Modal Zoom Image (Opsional, agar user bisa melihat lebih jelas) --}}
+                            {{-- Modal Zoom Image --}}
                             <div x-show="openImage" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" x-transition.opacity>
                                 <button @click="openImage = false" class="absolute top-4 right-4 text-white hover:text-gray-300">
                                     <i class="ti ti-x text-4xl"></i>
@@ -162,18 +164,33 @@
                     <div class="boron-card-body p-5">
                         @if(!$showInvoicePreview)
                             <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-5">
-                                Sistem akan mengkalkulasikan biaya registrasi tanpa PPN. Silakan pratinjau invoice sebelum dikirim.
+                                Sistem akan mengkalkulasikan biaya registrasi. Silakan pratinjau invoice sebelum dikirim. Anda juga dapat menggratiskan (Free) biaya registrasi jika diperlukan.
                             </p>
-                            <button wire:click="generatePreview" class="w-full btn-boron btn-boron-outline-primary flex justify-center gap-2 !py-2.5">
-                                <i class="ti ti-search text-lg"></i> Cek & Preview Invoice
-                            </button>
+                            
+                            <div class="flex flex-col gap-3">
+                                <button wire:click="generatePreview" class="w-full btn-boron btn-boron-outline-primary flex justify-center gap-2 !py-2.5">
+                                    <i class="ti ti-search text-lg"></i> Cek & Preview Invoice
+                                </button>
+                                
+                                <button 
+                            onclick="if(confirm('Apakah Anda yakin ingin menggratiskan biaya registrasi ini? Status pelanggan akan langsung dilempar ke tim Instalasi (NOC) tanpa harus menunggu proses pembayaran.')) { @this.call('markAsFree') }"
+                            class="w-full btn-boron bg-transparent text-[#70bb63] border border-[#70bb63] hover:bg-[#70bb63]/10 flex justify-center gap-2 !py-2.5 transition-colors"
+                        >
+                            <i class="ti ti-gift text-lg"></i> Registrasi Free (Skip Tagihan)
+                        </button>
+                            </div>
                         @else
                             <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-5">
                                 Jika angka yang tertera pada pratinjau invoice di sebelah kiri sudah benar, Anda dapat langsung mengirimkannya ke Dashboard Pelanggan.
                             </p>
-                            <button wire:click="sendInvoice" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
-                                <i class="ti ti-send text-lg"></i> Kirim Invoice ke Pelanggan
-                            </button>
+                            <div class="flex flex-col gap-3">
+                                <button wire:click="sendInvoice" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
+                                    <i class="ti ti-send text-lg"></i> Kirim Invoice ke Pelanggan
+                                </button>
+                                <button wire:click="$set('showInvoicePreview', false)" class="w-full btn-boron btn-boron-outline-secondary flex justify-center gap-2 !py-2.5">
+                                    <i class="ti ti-arrow-left text-lg"></i> Batal / Kembali
+                                </button>
+                            </div>
                         @endif
                     </div>
                 </div>

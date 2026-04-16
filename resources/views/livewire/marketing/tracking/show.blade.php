@@ -229,6 +229,34 @@
                                     <input type="text" wire:model="sla" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     @error('sla') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
+                                
+                                <div class="col-span-2" x-data="{ isCustom: false }">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Vendor Jalur Metro</label>
+                                    <select 
+                                        wire:model="jalur_metro" 
+                                        x-show="!isCustom" 
+                                        @change="$event.target.value === 'Lainnya' ? (isCustom = true, $wire.set('jalur_metro', '')) : isCustom = false"
+                                        class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]"
+                                    >
+                                        <option value="">Pilih Jalur Metro...</option>
+                                        <option value="Lokal Link">Lokal Link</option>
+                                        <option value="Telkom">Telkom</option>
+                                        <option value="Lintas Arta">Lintas Arta</option>
+                                        <option value="Indosat">Indosat</option>
+                                        <option value="MV. Net Telkom">MV. Net Telkom</option>
+                                        <option value="Fiber Star">Fiber Star</option>
+                                        <option value="Iforte">Iforte</option>
+                                        <option value="Lainnya">Lainnya...</option>
+                                    </select>
+                                    
+                                    <div x-show="isCustom" style="display: none;" class="flex gap-2">
+                                        <input type="text" wire:model="jalur_metro" placeholder="Ketik nama vendor jalur metro..." class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                        <button type="button" @click="isCustom = false; $wire.set('jalur_metro', '')" class="px-2 text-[#ed6060] hover:bg-[#ed6060]/10 rounded" title="Batal isi manual">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                    @error('jalur_metro') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
@@ -288,8 +316,6 @@
                                 <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Jenis Pekerjaan</label>
                                 <select wire:model="job_type" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b]">
                                     <option value="Aktivasi Baru">Aktivasi Baru</option>
-                                    <option value="Upgrade">Upgrade</option>
-                                    <option value="Downgrade">Downgrade</option>
                                 </select>
                                 @error('job_type') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                             </div>

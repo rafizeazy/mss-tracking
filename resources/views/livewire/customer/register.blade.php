@@ -207,7 +207,7 @@
                     </div>
                     <div class="boron-card-body space-y-4 p-6">
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Kontak Teknis (Nama)</label>
+                            <label class="mb-1 block text-xs font-medium">Nama Penanggung Jawab Teknis</label>
                             <input type="text" wire:model="technical_name"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                         </div>

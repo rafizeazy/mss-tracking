@@ -4,36 +4,174 @@
     <meta charset="utf-8">
     <title>SPK - {{ $customer->company_name }}</title>
     <style>
+        /* Reset & Base Typography */
         @page { margin: 40px 50px; }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #313a46; font-size: 12px; line-height: 1.5; }
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            color: #1f2937; /* Dark Gray / Almost Black for better print contrast */
+            font-size: 12px; 
+            line-height: 1.5; 
+        }
         
-        .header-table { width: 100%; border-bottom: 3px solid #1e5d87; padding-bottom: 15px; margin-bottom: 25px; }
-        .header-logo { height: 55px; width: auto; }
-        .header-info { text-align: right; font-size: 11px; color: #8a969c; line-height: 1.4; }
-        .header-info strong { color: #1e5d87; font-size: 15px; display: block; margin-bottom: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
+        /* Typography Scale */
+        h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
         
-        .doc-title { text-align: center; font-size: 20px; font-weight: 900; color: #1e5d87; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; text-decoration: underline; }
-        .doc-subtitle { text-align: center; font-size: 12px; font-weight: bold; color: #669776; letter-spacing: 1px; margin-bottom: 30px; }
+        /* Header Section */
+        .header-table { 
+            width: 100%; 
+            border-bottom: 2px solid #1e5d87; /* Corporate Blue Accent */
+            padding-bottom: 15px; 
+            margin-bottom: 25px; 
+        }
+        .header-logo { height: 50px; width: auto; }
+        .header-info { 
+            text-align: right; 
+            font-size: 10px; 
+            color: #4b5563; 
+            line-height: 1.4; 
+        }
+        .header-info strong { 
+            color: #1e5d87; 
+            font-size: 14px; 
+            display: block; 
+            margin-bottom: 4px; 
+            letter-spacing: 0.5px; 
+            text-transform: uppercase; 
+        }
+        
+        /* Document Titles */
+        .doc-title-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .doc-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #111827; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            text-decoration: underline;
+            margin-bottom: 4px;
+        }
+        .doc-subtitle { 
+            font-size: 11px; 
+            font-weight: 600; 
+            color: #4b5563; 
+            letter-spacing: 0.5px; 
+            text-transform: uppercase;
+        }
 
-        .meta-table { width: 100%; margin-bottom: 25px; border-collapse: collapse; }
-        .meta-table td { padding: 8px 12px; border: 1px solid #e7e9eb; font-size: 12px; }
-        .meta-table .meta-label { background-color: #f8f9fa; font-weight: bold; color: #1e5d87; width: 18%; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
-        .meta-table .meta-value { color: #313a46; width: 32%; font-weight: 600; }
+        /* Meta Information Table (Top Box) */
+        .meta-table { 
+            width: 100%; 
+            margin-bottom: 30px; 
+            border-collapse: collapse; 
+        }
+        .meta-table td { 
+            padding: 8px 12px; 
+            border: 1px solid #e5e7eb; 
+            font-size: 11px; 
+        }
+        .meta-table .meta-label { 
+            background-color: #f9fafb; 
+            font-weight: bold; 
+            color: #4b5563; 
+            width: 18%; 
+            text-transform: uppercase; 
+        }
+        .meta-table .meta-value { 
+            color: #111827; 
+            width: 32%; 
+            font-weight: bold; 
+        }
 
-        .section-title { font-size: 13px; font-weight: bold; color: #1e5d87; margin-bottom: 10px; border-left: 4px solid #669776; padding-left: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-        .content-table td { padding: 10px 12px; border: 1px solid #e7e9eb; vertical-align: top; font-size: 12px; }
-        .content-table .label { width: 35%; background-color: #f8f9fa; font-weight: bold; color: #4c4c5c; }
-        .content-table .value { color: #313a46; }
+        /* Section Titles */
+        .section-title { 
+            font-size: 12px; 
+            font-weight: bold; 
+            color: #1e5d87; /* Corporate Blue */
+            margin-bottom: 10px; 
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
 
-        .instructions-box { background-color: rgba(102, 151, 118, 0.05); border: 1px solid rgba(102, 151, 118, 0.2); padding: 15px; border-radius: 4px; color: #313a46; line-height: 1.6; margin-bottom: 40px; font-style: italic; }
+        /* Main Content Tables */
+        .content-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 25px; 
+        }
+        .content-table td { 
+            padding: 9px 12px; 
+            border: 1px solid #e5e7eb; 
+            vertical-align: top; 
+            font-size: 12px; 
+        }
+        .content-table .label { 
+            width: 35%; 
+            background-color: #f9fafb; 
+            font-weight: bold; 
+            color: #4b5563; 
+        }
+        .content-table .value { 
+            color: #111827; 
+            font-weight: 500;
+        }
 
-        .signature-table { width: 100%; text-align: center; page-break-inside: avoid; margin-top: 50px; }
-        .signature-table td { width: 50%; vertical-align: bottom; position: relative; }
-        .sign-title { font-weight: bold; color: #313a46; font-size: 12px; margin-bottom: 70px; }
-        .sign-name { font-weight: bold; text-decoration: underline; text-transform: uppercase; font-size: 13px; color: #1e5d87; }
-        .sign-role { font-size: 11px; color: #8a969c; margin-top: 4px; font-weight: 600; }
-        .fake-sign { font-family: "Brush Script MT", "Lucida Handwriting", cursive, sans-serif; font-size: 34px; color: #669776; opacity: 0.6; transform: rotate(-10deg); position: absolute; top: 30px; left: 50%; margin-left: -50px; z-index: -1; }
+        /* Special Values Emphasis (Clean) */
+        .val-highlight { font-weight: bold; text-transform: uppercase; }
+        .val-sub { font-weight: normal; color: #6b7280; font-size: 11px; }
+
+        /* Instructions Box */
+        .instructions-box { 
+            background-color: #f9fafb; 
+            border: 1px solid #e5e7eb; 
+            padding: 12px 15px; 
+            border-radius: 4px; 
+            color: #374151; 
+            line-height: 1.6; 
+            margin-bottom: 50px; 
+            font-size: 11px;
+        }
+
+        /* Signatures */
+        .signature-table { 
+            width: 100%; 
+            text-align: center; 
+            page-break-inside: avoid; 
+            margin-top: 40px; 
+        }
+        .signature-table td { 
+            width: 50%; 
+            vertical-align: bottom; 
+        }
+        .sign-title { 
+            color: #111827; 
+            font-size: 11px; 
+            margin-bottom: 15px; 
+        }
+        .sign-space { 
+            height: 65px; 
+            margin-bottom: 5px; 
+        }
+        .sign-img { 
+            max-height: 65px; 
+            width: auto; 
+        }
+        .sign-name { 
+            font-weight: bold; 
+            text-decoration: underline; 
+            text-transform: uppercase; 
+            font-size: 12px; 
+            color: #111827; 
+        }
+        .sign-role { 
+            font-size: 10px; 
+            color: #4b5563; 
+            margin-top: 3px; 
+        }
     </style>
 </head>
 <body>
@@ -52,19 +190,21 @@
         </tr>
     </table>
 
-    <div class="doc-title">SURAT PERINTAH KERJA (SPK)</div>
-    <div class="doc-subtitle">DOKUMEN INSTALASI & AKTIVASI JARINGAN</div>
+    <div class="doc-title-container">
+        <div class="doc-title">Surat Perintah Kerja (SPK)</div>
+        <div class="doc-subtitle">Dokumen Instalasi & Aktivasi Jaringan</div>
+    </div>
 
     <table class="meta-table">
         <tr>
             <td class="meta-label">Nomor SPK</td>
-            <td class="meta-value" style="color: #1e5d87;">{{ $customer->spk->spk_number ?? '-' }}</td>
+            <td class="meta-value">{{ $customer->spk->spk_number ?? '-' }}</td>
             <td class="meta-label">Tanggal Terbit</td>
             <td class="meta-value">{{ $customer->spk->created_at ? $customer->spk->created_at->format('d F Y') : date('d F Y') }}</td>
         </tr>
         <tr>
             <td class="meta-label">Target Selesai</td>
-            <td class="meta-value" style="color: #ed6060;">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d F Y') : '-' }}</td>
+            <td class="meta-value">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d F Y') : '-' }}</td>
             <td class="meta-label">Diterbitkan Oleh</td>
             <td class="meta-value">{{ strtoupper($customer->marketing_name ?? 'Administration') }}</td>
         </tr>
@@ -74,11 +214,11 @@
     <table class="content-table">
         <tr>
             <td class="label">Nama Usaha / Instansi</td>
-            <td class="value" style="font-weight: 800; font-size: 14px; text-transform: uppercase;">{{ $customer->company_name }}</td>
+            <td class="value val-highlight">{{ $customer->company_name }}</td>
         </tr>
         <tr>
             <td class="label">ID Pelanggan</td>
-            <td class="value" style="font-weight: bold;">{{ $customer->customer_number ?? 'DI ISI SETELAH AKTIF' }}</td>
+            <td class="value">{{ $customer->customer_number ?? 'DI ISI SETELAH AKTIF' }}</td>
         </tr>
         <tr>
             <td class="label">Tipe Pelanggan</td>
@@ -86,11 +226,15 @@
         </tr>
         <tr>
             <td class="label">Jenis Layanan</td>
-            <td class="value" style="font-weight: bold; color: #1e5d87;">{{ strtoupper($customer->service_type) }}</td>
+            <td class="value">{{ strtoupper($customer->service_type) }}</td>
         </tr>
         <tr>
             <td class="label">Kapasitas Bandwidth</td>
-            <td class="value" style="font-weight: bold; color: #ed6060;">{{ strtoupper($customer->bandwidth) }}</td>
+            <td class="value val-highlight">{{ strtoupper($customer->bandwidth) }}</td>
+        </tr>
+        <tr>
+            <td class="label">Vendor Jalur Metro</td>
+            <td class="value">{{ strtoupper($customer->jalur_metro ?? '-') }}</td>
         </tr>
         <tr>
             <td class="label">Jenis Pekerjaan NOC</td>
@@ -114,7 +258,10 @@
         </tr>
         <tr>
             <td class="label">Tim Sales / Marketing</td>
-            <td class="value" style="font-weight: bold;">{{ strtoupper($customer->marketing_name ?? '-') }} <span style="font-weight: normal; color:#8a969c;">( {{ $customer->marketing_phone ?? '-' }} )</span></td>
+            <td class="value">
+                {{ strtoupper($customer->marketing_name ?? '-') }} 
+                <span class="val-sub">( {{ $customer->marketing_phone ?? '-' }} )</span>
+            </td>
         </tr>
     </table>
 
@@ -127,14 +274,17 @@
         <tr>
             <td>
                 <div class="sign-title">Mengetahui & Menjalankan,<br>Tim Operation</div>
+                <div class="sign-space"></div>
                 <div class="sign-name">( .................................................... )</div>
                 <div class="sign-role">Network Operation Center (NOC)</div>
             </td>
             <td>
                 <div class="sign-title">Hormat Kami,<br>PT Media Solusi Sukses</div>
-                <div class="fake-sign">Approved</div>
+                <div class="sign-space">
+                    <img src="{{ public_path('ttd/marketing/ttdmarketing.png') }}" class="sign-img" alt="TTD Marketing" onerror="this.style.display='none';">
+                </div>
                 <div class="sign-name">{{ strtoupper($customer->marketing_name ?? 'Administration') }}</div>
-                <div class="sign-role">Sales / Marketing</div>
+                <div class="sign-role">Admin Marketing</div>
             </td>
         </tr>
     </table>
