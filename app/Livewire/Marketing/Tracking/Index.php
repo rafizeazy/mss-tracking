@@ -32,7 +32,7 @@ class Index extends Component
     public function render()
     {
         $customers = Customer::with('user')
-            ->where('status', '!=', 'selesai') 
+            ->whereNotIn('status', ['selesai', 'berhenti']) 
             ->where(function($query) {
                 if ($this->search) {
                     $query->where('company_name', 'like', '%' . $this->search . '%')

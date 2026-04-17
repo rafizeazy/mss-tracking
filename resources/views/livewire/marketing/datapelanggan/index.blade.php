@@ -1,8 +1,15 @@
 <div class="py-6">
-    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">Arsip Data Pelanggan Aktif</h4>
             <p class="mt-1 md:mt-0.5 text-sm text-[#8a969c]">Basis data pelanggan yang layanannya telah beroperasi (100% Selesai).</p>
+        </div>
+        
+        {{-- TOMBOL PELANGGAN BERHENTI --}}
+        <div class="flex gap-2">
+            <a href="{{ route('marketing.berhenti') }}" class="btn-boron bg-[#ed6060]/10 text-[#ed6060] border border-[#ed6060]/20 hover:bg-[#ed6060] hover:text-white shadow-sm !py-2 !px-4 text-sm font-bold flex items-center justify-center gap-2 rounded-lg transition-all w-full md:w-auto">
+                <i class="ti ti-user-off text-lg"></i> Pelanggan Berhenti
+            </a>
         </div>
     </div>
 
@@ -22,6 +29,12 @@
                     
                     <tbody class="block md:table-row-group divide-y-0 md:divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
                         @forelse ($customers as $cust)
+                            @php
+                                // Cek apakah pelanggan ini memiliki pengajuan yang statusnya BUKAN selesai atau ditolak
+                                $hasActiveRequest = \App\Models\ServiceRequest::where('customer_id', $cust->id)
+                                    ->whereNotIn('status', ['selesai', 'ditolak'])
+                                    ->exists();
+                            @endphp
                             <tr class="flex flex-col md:table-row border-b border-[#e7e9eb] md:border-none dark:border-[#37394d] p-5 md:p-0 gap-3 md:gap-0 hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors">
                                 
                                 <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
@@ -46,16 +59,26 @@
                                 </td>
                                 
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
-                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-2 flex-wrap">
                                         <button wire:click="viewDetail({{ $cust->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
                                             <i class="ti ti-list-details text-base text-[#60addf]"></i> Detail
                                         </button>
                                         <button wire:click="editCustomer({{ $cust->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
                                             <i class="ti ti-edit text-base text-[#ebb751]"></i> Edit Data
                                         </button>
-                                        <button wire:click="openArsip({{ $cust->id }})" class="w-full sm:w-auto btn-boron btn-boron-primary !py-1.5 !px-4 text-xs shadow-sm flex justify-center items-center gap-1.5">
-                                            <i class="ti ti-folder text-base"></i> Arsip Dok.
+                                        <button wire:click="openArsip({{ $cust->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
+                                            <i class="ti ti-folder text-base text-[#1e5d87]"></i> Arsip Dok.
                                         </button>
+                                        <div class="w-full sm:w-auto flex flex-col items-center">
+                                            <button 
+                                                @if(!$hasActiveRequest) wire:click="openRequestModal({{ $cust->id }})" @endif
+                                                @if($hasActiveRequest) disabled title="Sedang ada proses pengajuan berjalan!" @endif
+                                                class="w-full btn-boron !py-1.5 !px-4 text-xs flex justify-center items-center gap-1.5 transition-all 
+                                                       {{ $hasActiveRequest ? 'bg-gray-200 text-[#a1a9b1] border-gray-200 cursor-not-allowed shadow-none dark:bg-[#252630] dark:border-[#37394d] dark:text-[#6c757d]' : 'btn-boron-primary shadow-sm !bg-[#70bb63] !border-[#70bb63] hover:!bg-[#5da352] text-white' }}">
+                                                <i class="ti {{ $hasActiveRequest ? 'ti-loader animate-spin' : 'ti-send' }} text-base"></i> 
+                                                {{ $hasActiveRequest ? 'Diproses' : 'Permintaan' }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -319,7 +342,7 @@
                 
                 <div class="px-6 py-5 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-[#15151b]">
                     <div class="flex items-center gap-3">
-                        <div class="flex size-10 items-center justify-center rounded-full bg-[#70bb63]/10 text-[#70bb63]">
+                        <div class="flex size-10 items-center justify-center rounded-full bg-[#1e5d87]/10 text-[#1e5d87]">
                             <i class="ti ti-folder-open text-xl"></i>
                         </div>
                         <div>
@@ -407,6 +430,41 @@
                         @endif
 
                     </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($showRequestModal && $customerForRequest)
+        <div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" wire:transition.opacity>
+            <div class="bg-white dark:bg-[#1e1f27] rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden" @click.stop>
+                <div class="px-6 py-4 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-[#15151b]">
+                    <h3 class="font-bold text-lg text-[#313a46] dark:text-white flex items-center gap-2">
+                        <i class="ti ti-send text-[#70bb63] text-xl"></i> Kirim Form Pengajuan
+                    </h3>
+                    <button wire:click="closeRequestModal" class="text-[#8a969c] hover:text-[#ed6060] transition-colors"><i class="ti ti-x text-xl"></i></button>
+                </div>
+                
+                <div class="p-6">
+                    <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5] mb-5">Silakan pilih jenis pengajuan yang akan dikirimkan ke dashboard <span class="font-bold text-[#313a46] dark:text-white">{{ $customerForRequest->company_name }}</span> untuk dilengkapi.</p>
+                    
+                    <div>
+                        <label class="mb-1.5 block text-xs font-bold text-[#8a969c] uppercase tracking-wider">Jenis Pengajuan <span class="text-[#ed6060]">*</span></label>
+                        <select wire:model="requestType" class="w-full rounded-lg border border-[#dee2e6] bg-transparent px-3 py-2.5 text-sm focus:border-[#70bb63] focus:outline-none focus:ring-1 focus:ring-[#70bb63] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                            <option value="">-- Pilih Jenis Pengajuan --</option>
+                            <option value="Upgrade">Upgrade Kapasitas</option>
+                            <option value="Downgrade">Downgrade Kapasitas</option>
+                            <option value="Terminate">Terminate (Berhenti Berlangganan)</option>
+                        </select>
+                        @error('requestType') <span class="text-xs text-[#ed6060] mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-[#f8f9fa] dark:bg-[#15151b] border-t border-[#e7e9eb] dark:border-[#37394d] flex justify-end gap-2">
+                    <button wire:click="closeRequestModal" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-[#e7e9eb] dark:border-[#37394d] dark:text-white dark:hover:bg-white/5 rounded-lg">Batal</button>
+                    <button wire:click="sendRequest" class="btn-boron bg-[#70bb63] text-white hover:bg-[#5da352] px-5 py-2 text-sm flex items-center gap-2 shadow-md rounded-lg">
+                        <i class="ti ti-paper-plane"></i> Kirim Form
+                    </button>
                 </div>
             </div>
         </div>

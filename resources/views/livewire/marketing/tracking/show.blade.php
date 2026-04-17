@@ -349,11 +349,9 @@
 
                         @if($customer->spk)
                             <div class="mt-5 pt-5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] space-y-3">
-                                
                                 <a href="{{ route('marketing.spk', $customer->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 text-sm dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
                                     <i class="ti ti-file-pdf text-[#ed6060]"></i> Lihat / Cetak PDF SPK
                                 </a>
-                                
                                 <button wire:click="sendToNoc" wire:confirm="Pastikan PDF SPK sudah sesuai. Lanjutkan kirim ke Dashboard NOC?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
                                     <i class="ti ti-send text-lg"></i> Kirim SPK ke NOC
                                 </button>

@@ -3,7 +3,6 @@
     <head>
         @include('partials.head')
     </head>
-    <!-- TAMBAHAN: overflow-x-hidden di tag body -->
     <body class="boron-body min-h-screen font-sans antialiased overflow-x-hidden"
         x-data="{ 
             sidebarMobileOpen: false, 
@@ -14,8 +13,6 @@
                     this.sidebarPinned = !this.sidebarPinned;
                     localStorage.setItem('sidebarPinned', this.sidebarPinned);
                     
-                    // PERBAIKAN GRAFIK: Paksa ApexChart untuk render ulang ukurannya 
-                    // setelah animasi CSS sidebar selesai (310ms)
                     setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 310);
                 } else {
                     this.sidebarMobileOpen = !this.sidebarMobileOpen;
@@ -111,6 +108,26 @@
                             </a>
                         @endif
 
+                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Service Requests') }}</span></div>
+                        
+                        @php
+                            $trackingPengajuanRoute = '#';
+                            if (auth()->user()->role === \App\Enums\Role::Marketing) $trackingPengajuanRoute = route('marketing.request.index');
+                            elseif (auth()->user()->role === \App\Enums\Role::Finance) $trackingPengajuanRoute = route('finance.request.index');
+                            elseif (auth()->user()->role === \App\Enums\Role::Noc) $trackingPengajuanRoute = route('noc.request.index');
+                            elseif (auth()->user()->isSuperAdmin()) $trackingPengajuanRoute = route('marketing.request.index');
+                        @endphp
+
+                        <a href="{{ $trackingPengajuanRoute }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('*.request.index') ? 'active' : '' }}"
+                            title="{{ __('Tracking Pengajuan') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                                <i class="ti ti-arrows-up-down text-lg"></i>
+                            </span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Tracking Pengajuan') }}</span>
+                        </a>
+
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
                         
                         @php
@@ -129,6 +146,26 @@
                                 <i class="ti ti-users-group text-lg"></i>
                             </span>
                             <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
+                        </a>
+
+                        {{-- MENU BARU: RIWAYAT --}}
+                        @php
+                            $riwayatRoute = '#';
+                            // Kita gunakan Route::has untuk mencegah error jika route belum Anda buat
+                            if (auth()->user()->role === \App\Enums\Role::Marketing && Route::has('marketing.riwayat.index')) $riwayatRoute = route('marketing.riwayat.index');
+                            elseif (auth()->user()->role === \App\Enums\Role::Finance && Route::has('finance.riwayat.index')) $riwayatRoute = route('finance.riwayat.index');
+                            elseif (auth()->user()->role === \App\Enums\Role::Noc && Route::has('noc.riwayat.index')) $riwayatRoute = route('noc.riwayat.index');
+                            elseif (auth()->user()->isSuperAdmin() && Route::has('marketing.riwayat.index')) $riwayatRoute = route('marketing.riwayat.index');
+                        @endphp
+
+                        <a href="{{ $riwayatRoute }}" wire:navigate
+                            class="side-nav-link {{ request()->routeIs('*.riwayat.*') ? 'active' : '' }}"
+                            title="{{ __('Riwayat') }}"
+                        >
+                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
+                                <i class="ti ti-history text-lg"></i>
+                            </span>
+                            <span class="sidebar-label whitespace-nowrap">{{ __('Riwayat') }}</span>
                         </a>
 
                         @if (auth()->user()->isSuperAdmin())
@@ -168,7 +205,6 @@
                 </div>
             </aside>
 
-            <!-- TAMBAHAN: min-w-0 agar kolom konten bisa mengecil -->
             <div class="flex min-h-screen w-full flex-1 flex-col transition-all duration-300 min-w-0" :class="sidebarPinned ? 'lg:ml-[250px]' : 'lg:ml-[70px]'">
                 <header class="boron-topbar sticky top-0 z-30 flex items-center gap-4 px-4 sm:px-6">
                     
@@ -265,7 +301,6 @@
             x-cloak
         ></div>
 
-        <!-- System Toasts & Confirmations -->
         <div
             x-data="{
                 toast: null,

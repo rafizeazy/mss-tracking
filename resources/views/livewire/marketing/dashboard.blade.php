@@ -1,5 +1,4 @@
 <div class="py-6">
-    {{-- Page Title --}}
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
             <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">{{ __('Dashboard Marketing') }}</h4>
@@ -8,13 +7,10 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
-        {{-- Card Generate / Copy Link --}}
         <div class="boron-card">
             <div class="boron-card-header">
                 <h5 class="font-semibold text-[#313a46] dark:text-white">{{ __('Link Registrasi Pelanggan') }}</h5>
             </div>
-            
-            {{-- Menggunakan Alpine.js untuk fitur Copy --}}
             <div class="boron-card-body" x-data="{ 
                 link: '{{ route('customer.register') }}', 
                 copied: false,
@@ -45,8 +41,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- Tempat untuk Card Statistik Marketing Lainnya (Dummy) --}}
         <div class="boron-card flex items-center justify-center border-dashed border-[#dee2e6] bg-transparent shadow-none dark:border-[#37394d]">
             <p class="text-sm text-[#8a969c]">Statistik Prospek (Coming Soon)</p>
         </div>

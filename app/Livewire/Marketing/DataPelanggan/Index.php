@@ -3,7 +3,9 @@
 namespace App\Livewire\Marketing\Datapelanggan;
 
 use App\Models\Customer;
+use App\Models\ServiceRequest;
 use App\Events\CustomerUpdated;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
@@ -27,6 +29,10 @@ class Index extends Component
     public $showArsipModal = false;
     public $customerForArsip = null;
 
+    public $showRequestModal = false;
+    public $customerForRequest = null;
+    public $requestType = '';
+
     #[On('trigger-search')]
     public function updateSearch($query)
     {
@@ -46,7 +52,6 @@ class Index extends Component
         $this->selectedCustomer = null;
     }
 
-    // --- LOGIC MODAL ARSIP ---
     public function openArsip($id)
     {
         $this->customerForArsip = Customer::with(['spk', 'baa'])->find($id);
@@ -57,6 +62,44 @@ class Index extends Component
     {
         $this->showArsipModal = false;
         $this->customerForArsip = null;
+    }
+
+    public function openRequestModal($id)
+    {
+        $this->customerForRequest = Customer::find($id);
+        $this->requestType = '';
+        $this->showRequestModal = true;
+    }
+
+    public function closeRequestModal()
+    {
+        $this->showRequestModal = false;
+        $this->customerForRequest = null;
+        $this->requestType = '';
+    }
+
+    public function sendRequest()
+    {
+        $this->validate([
+            'requestType' => 'required|in:Upgrade,Downgrade,Terminate',
+        ], [
+            'requestType.required' => 'Jenis pengajuan wajib dipilih.',
+            'requestType.in' => 'Jenis pengajuan tidak valid.',
+        ]);
+
+        if (!$this->customerForRequest) return;
+
+        $requestNumber = 'REQ-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+
+        ServiceRequest::create([
+            'customer_id' => $this->customerForRequest->id,
+            'request_number' => $requestNumber,
+            'request_type' => $this->requestType,
+            'status' => 'menunggu_pelanggan',
+        ]);
+
+        $this->closeRequestModal();
+        $this->dispatch('notify', type: 'success', message: 'Form pengajuan berhasil dikirim ke dashboard pelanggan!');
     }
 
     public function editCustomer($id)

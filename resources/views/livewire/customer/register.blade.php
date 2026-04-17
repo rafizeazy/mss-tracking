@@ -1,7 +1,6 @@
 <div class="flex min-h-screen items-center justify-center bg-[#f6f7fb] px-4 py-10 dark:bg-[#15151b]">
     <div class="w-full max-w-4xl">
 
-        {{-- Header Form --}}
         <div class="mb-8 text-center">
             <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[#669776]/20">
                 <i class="ti ti-wifi text-2xl text-[#669776]"></i>
@@ -10,7 +9,6 @@
             <p class="mt-2 text-sm text-[#8a969c]">PT Media Solusi Sukses — Silakan lengkapi data registrasi di bawah ini.</p>
         </div>
 
-        {{-- Progress Timeline --}}
         <div class="mb-8">
             <div class="flex items-center">
                 @php
@@ -57,7 +55,6 @@
             </div>
         </div>
 
-        {{-- STEP 1: Data Pendaftar --}}
         @if ($currentStep === 1)
             <div class="boron-card">
                 <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
@@ -110,7 +107,6 @@
             </div>
         @endif
 
-        {{-- STEP 2: Informasi Perusahaan --}}
         @if ($currentStep === 2)
             <div class="boron-card">
                 <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
@@ -142,13 +138,27 @@
                         @error('company_address') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium">Kota &amp; Provinsi</label>
+                        <label class="mb-1.5 block text-sm font-medium">Provinsi &amp; Kota/Kabupaten <span class="text-[#ed6060]">*</span></label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" wire:model="city" placeholder="Kota"
-                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none dark:border-[#37394d]">
-                            <input type="text" wire:model="province" placeholder="Provinsi"
-                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none dark:border-[#37394d]">
+                            <select wire:model.live="province_id"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d] dark:bg-[#1e1e2a]">
+                                <option value="">-- Pilih Provinsi --</option>
+                                @foreach($provinces as $prov)
+                                    <option value="{{ $prov->id }}">{{ $prov->name }}</option>
+                                @endforeach
+                            </select>
+                    
+                            <select wire:model="city_id"
+                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d] dark:bg-[#1e1e2a]"
+                                {{ empty($cities) ? 'disabled' : '' }}>
+                                <option value="">-- Pilih Kota --</option>
+                                @foreach($cities as $cit)
+                                    <option value="{{ $cit->id }}">{{ $cit->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
+                        @error('province_id') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                        @error('city_id') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium">Kode Pos &amp; No. Telepon</label>
@@ -163,11 +173,9 @@
             </div>
         @endif
 
-        {{-- STEP 3: Penanggung Jawab Keuangan & Teknis --}}
         @if ($currentStep === 3)
             <div class="grid gap-6 md:grid-cols-2">
 
-                {{-- PIC Keuangan --}}
                 <div class="boron-card">
                     <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">
@@ -176,29 +184,32 @@
                     </div>
                     <div class="boron-card-body space-y-4 p-6">
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Nama Bagian Keuangan</label>
+                            <label class="mb-1 block text-xs font-medium">Nama Bagian Keuangan <span class="text-[#ed6060]">*</span></label>
                             <input type="text" wire:model="finance_name"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                            @error('finance_name') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Email Keuangan</label>
+                            <label class="mb-1 block text-xs font-medium">Alamat Email Keuangan <span class="text-[#ed6060]">*</span></label>
                             <input type="email" wire:model="finance_email"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                            @error('finance_email') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">No. Handphone</label>
+                            <label class="mb-1 block text-xs font-medium">No. Handphone <span class="text-[#ed6060]">*</span></label>
                             <input type="text" wire:model="finance_phone"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                            @error('finance_phone') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Penagihan</label>
+                            <label class="mb-1 block text-xs font-medium">Alamat Penagihan <span class="text-[#ed6060]">*</span></label>
                             <textarea rows="3" wire:model="billing_address"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
+                            @error('billing_address') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
 
-                {{-- PIC Teknis --}}
                 <div class="boron-card">
                     <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">
@@ -207,24 +218,28 @@
                     </div>
                     <div class="boron-card-body space-y-4 p-6">
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Nama Penanggung Jawab Teknis</label>
+                            <label class="mb-1 block text-xs font-medium">Nama Penanggung Jawab Teknis <span class="text-[#ed6060]">*</span></label>
                             <input type="text" wire:model="technical_name"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                            @error('technical_name') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Email Teknis</label>
+                            <label class="mb-1 block text-xs font-medium">Alamat Email Teknis <span class="text-[#ed6060]">*</span></label>
                             <input type="email" wire:model="technical_email"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                            @error('technical_email') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">No. Handphone</label>
+                            <label class="mb-1 block text-xs font-medium">No. Handphone <span class="text-[#ed6060]">*</span></label>
                             <input type="text" wire:model="technical_phone"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
+                            @error('technical_phone') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Instalasi</label>
+                            <label class="mb-1 block text-xs font-medium">Alamat Instalasi <span class="text-[#ed6060]">*</span></label>
                             <textarea rows="3" wire:model="installation_address"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
+                            @error('installation_address') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
@@ -232,7 +247,6 @@
             </div>
         @endif
 
-        {{-- STEP 4: Layanan, Dokumen & Password --}}
         @if ($currentStep === 4)
             <div x-data="{ 
                 showTermsModal: false, 
@@ -244,7 +258,6 @@
                 }
             }" class="space-y-6">
                 
-                {{-- Detail Layanan & Dokumen --}}
                 <div class="boron-card">
                     <div class="boron-card-header border-b border-[#e7e9eb] pb-3 dark:border-[#37394d]">
                         <h5 class="font-semibold text-[#313a46] dark:text-white">
@@ -297,7 +310,7 @@
                         <div class="space-y-3 rounded-[0.3rem] border border-dashed border-[#dee2e6] p-4 dark:border-[#37394d]">
                             <p class="text-xs font-semibold uppercase text-[#8a969c]">Upload Dokumen Pendukung</p>
                             <div class="flex items-center justify-between gap-3 text-sm">
-                                <span class="font-medium">File KTP</span>
+                                <span class="font-medium">File KTP <span class="text-[#ed6060]">*</span></span>
                                 <input wire:model="ktp_file" type="file" accept=".jpg,.jpeg,.png,.pdf"
                                     class="block w-full max-w-[200px] text-xs file:mr-2 file:rounded file:border-0 file:bg-[#669776]/10 file:px-2 file:py-1 file:font-medium file:text-[#669776]">
                             </div>
@@ -324,7 +337,6 @@
                     </div>
                 </div>
 
-                {{-- Buat Password & Modal S&K --}}
                 <div class="boron-card bg-[#669776]/5">
                     <div class="boron-card-body p-6">
                         <h5 class="mb-4 text-center font-semibold text-[#313a46] dark:text-white">
@@ -344,7 +356,6 @@
                             </div>
                         </div>
 
-                        {{-- Checkbox Persetujuan --}}
                         <div class="mt-8 flex flex-col items-center justify-center gap-2 text-sm">
                             <div class="flex items-center gap-2">
                                 <input wire:model="accepted_terms" type="checkbox" id="terms" :disabled="!scrolledToBottom"
@@ -361,7 +372,6 @@
                     </div>
                 </div>
 
-                {{-- MODAL SYARAT & KETENTUAN (Tampil ketika showTermsModal = true) --}}
                 <div x-show="showTermsModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-transition x-cloak>
                     <div class="w-full max-w-3xl bg-white dark:bg-[#1e1e2a] rounded-xl shadow-2xl flex flex-col max-h-[85vh]" @click.stop>
                         <div class="p-5 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-white/5 rounded-t-xl">
@@ -369,7 +379,6 @@
                             <button @click="showTermsModal = false" class="text-[#8a969c] hover:text-[#ed6060]"><i class="ti ti-x text-xl"></i></button>
                         </div>
                         
-                        {{-- Container S&K (Harus di-scroll oleh user) --}}
                         <div class="p-6 overflow-y-auto" @scroll="checkScroll">
                             @include('livewire.customer.partials.terms')
                         </div>
@@ -394,7 +403,6 @@
             </div>
         @endif
 
-        {{-- Navigation Buttons --}}
         <div @class([
             'mt-6 flex items-center',
             'justify-between' => $currentStep > 1,
@@ -420,7 +428,6 @@
             @endif
         </div>
 
-        {{-- Login link --}}
         <p class="mt-6 text-center text-sm text-[#8a969c]">
             Sudah punya akun?
             <a href="{{ route('login') }}" class="font-medium text-[#669776] hover:underline">Login di sini</a>

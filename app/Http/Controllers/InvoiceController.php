@@ -13,7 +13,6 @@ class InvoiceController extends Controller
     {
         $customer = Customer::with('user')->findOrFail($id);
         $user = auth()->user();
-
         $isCustomer = false;
         
         if ($user->role instanceof \App\Enums\Role) {

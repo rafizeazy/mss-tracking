@@ -72,10 +72,7 @@
                     </div>
                     <div class="boron-card-body p-5 bg-[#f8f9fa] dark:bg-[#15151b]">
                         <div x-data="{ openImage: false }" class="w-full flex justify-center">
-                            {{-- Gambar Utama --}}
                             <img @click="openImage = true" src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
-                            
-                            {{-- Modal Zoom Image --}}
                             <div x-show="openImage" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" x-transition.opacity>
                                 <button @click="openImage = false" class="absolute top-4 right-4 text-white hover:text-gray-300">
                                     <i class="ti ti-x text-4xl"></i>

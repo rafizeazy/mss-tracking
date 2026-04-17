@@ -26,7 +26,29 @@
             <span class="flex-1">{{ session('info') }}</span>
         </div>
     @endif
+    @if($pendingRequest && $customer->status !== 'berhenti')
+        <div class="mb-6 md:mb-8 rounded-2xl border border-[#ebb751]/30 bg-[#ebb751]/10 p-5 md:p-6 shadow-sm relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/20 overflow-hidden pointer-events-none">
+                <div class="h-full w-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite]"></div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                <div class="flex items-start md:items-center gap-4">
+                    <div class="bg-white dark:bg-black/20 p-3 md:p-4 rounded-full shrink-0 shadow-sm"><i class="ti ti-mail-fast text-3xl md:text-4xl text-[#ebb751] animate-bounce"></i></div>
+                    <div>
+                        <h5 class="text-base md:text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">Formulir Pengajuan {{ $pendingRequest->request_type }}</h5>
+                        <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">Tim kami telah membuka akses formulir pengajuan untuk Anda. Silakan lengkapi data yang dibutuhkan agar proses {{ strtolower($pendingRequest->request_type) }} dapat segera diproses.</p>
+                    </div>
+                </div>
+                <button wire:click="openRequestModal" class="w-full md:w-auto shrink-0 bg-[#ebb751] hover:bg-[#d4a03c] text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    <i class="ti ti-edit-circle text-lg"></i> Lengkapi Form Sekarang
+                </button>
+            </div>
+        </div>
+    @endif
 
+
+    {{-- TAMPILAN JIKA STATUS PELANGGAN AKTIF (SELESAI) --}}
     @if($customer->status === 'selesai')
         
         <div class="boron-card rounded-2xl bg-gradient-to-r from-[#1e5d87] to-[#60addf] border-0 mb-6 md:mb-8 text-white overflow-hidden relative shadow-lg shadow-[#60addf]/20">
@@ -61,10 +83,50 @@
                             </div>
                         </div>
                         <div class="w-full sm:w-auto mt-2 sm:mt-0 text-left sm:text-right border-t border-[#e7e9eb] sm:border-0 pt-4 sm:pt-0 dark:border-[#37394d]">
-                            <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="w-full sm:w-auto flex justify-center items-center btn-boron btn-boron-outline-primary !py-2.5 sm:!py-2 !px-5 sm:!px-4 text-sm shadow-sm rounded-full">
-                                <i class="ti ti-file-certificate mr-1.5 sm:mr-1 text-lg"></i> Lihat Dokumen BAA
-                            </a>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#70bb63]/10 text-[#70bb63] font-bold text-sm">
+                                <i class="ti ti-circle-check"></i> Status: Aktif Beroperasi
+                            </span>
                         </div>
+                    </div>
+                </div>
+
+                <div class="boron-card bg-white dark:bg-[#15151b] border border-[#e7e9eb] dark:border-[#37394d] shadow-sm rounded-2xl">
+                    <div class="boron-card-header pb-3 pt-5 px-5 md:px-6 border-b border-[#e7e9eb] dark:border-[#37394d]">
+                        <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf] flex items-center gap-2 text-base md:text-lg">
+                            <i class="ti ti-folder text-xl"></i> Arsip Dokumen Legal
+                        </h5>
+                    </div>
+                    <div class="boron-card-body p-5 md:p-6 grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                            <i class="ti ti-file-certificate text-3xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-2 transition-colors dark:group-hover:text-[#60addf]"></i>
+                            <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Original</h6>
+                            <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">Format Kosong</span>
+                        </a>
+
+                        @if($customer->baa && $customer->baa->signed_baa_path)
+                            <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#70bb63]/50 bg-[#70bb63]/5 hover:bg-[#70bb63]/10 hover:shadow-md transition-all group dark:border-[#70bb63]/30 dark:bg-[#1e1f27]">
+                                <i class="ti ti-file-check text-3xl text-[#70bb63] mb-2"></i>
+                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA (Signed)</h6>
+                                <span class="text-[10px] text-[#70bb63] font-bold mt-1 bg-[#70bb63]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
+                            </a>
+                        @endif
+                        @php
+                            $signedBaus = \App\Models\ServiceRequest::with('bau')
+                                ->where('customer_id', $customer->id)
+                                ->where('status', 'selesai')
+                                ->whereHas('bau', function($q) {
+                                    $q->whereNotNull('signed_bau_path');
+                                })->get();
+                        @endphp
+                        
+                        @foreach($signedBaus as $reqBau)
+                            <a href="{{ asset('storage/' . $reqBau->bau->signed_bau_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#ebb751]/50 bg-[#ebb751]/5 hover:bg-[#ebb751]/10 hover:shadow-md transition-all group dark:border-[#ebb751]/30 dark:bg-[#1e1f27]">
+                                <i class="ti ti-file-check text-3xl text-[#ebb751] mb-2"></i>
+                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Berita Acara ({{ $reqBau->request_type }})</h6>
+                                <span class="text-[10px] text-[#b58c3d] font-bold mt-1 bg-[#ebb751]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
+                            </a>
+                        @endforeach
+                        
                     </div>
                 </div>
 
@@ -170,7 +232,114 @@
                 </div>
             </div>
         </div>
+        
+        @include('livewire.customer.trackingupgrade')
 
+    {{-- TAMPILAN JIKA STATUS PELANGGAN BERHENTI (TERMINATE) --}}
+    @elseif($customer->status === 'berhenti')
+        
+        <div class="mb-8 rounded-3xl border border-[#ed6060]/30 bg-[#ed6060]/5 p-8 md:p-10 text-center shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 size-40 rounded-full bg-[#ed6060]/10 blur-2xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-10 -ml-10 size-32 rounded-full bg-[#ed6060]/10 blur-xl"></div>
+            
+            <div class="relative z-10 flex flex-col items-center">
+                <div class="size-20 rounded-full bg-[#ed6060]/10 text-[#ed6060] flex items-center justify-center mb-5 shadow-[0_0_0_8px_rgba(237,96,96,0.05)]">
+                    <i class="ti ti-power text-4xl"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl text-[#313a46] dark:text-white font-extrabold mb-3">Layanan Telah Dihentikan</h2>
+                <p class="text-[#8a969c] text-sm md:text-base max-w-2xl leading-relaxed">Sesuai dengan permintaan penghentian berlangganan, seluruh layanan internet dan konektivitas untuk perusahaan Anda telah diputus secara permanen pada sistem kami.</p>
+            </div>
+        </div>
+
+        <div class="grid gap-6 md:gap-8 lg:grid-cols-3">
+            <div class="lg:col-span-2 space-y-6 md:space-y-8">
+                
+                <div class="boron-card bg-white dark:bg-[#15151b] border border-[#e7e9eb] dark:border-[#37394d] shadow-sm rounded-2xl">
+                    <div class="boron-card-header pb-3 pt-5 px-5 md:px-6 border-b border-[#e7e9eb] dark:border-[#37394d]">
+                        <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf] flex items-center gap-2 text-base md:text-lg">
+                            <i class="ti ti-folder text-xl"></i> Arsip Dokumen Pemutusan
+                        </h5>
+                    </div>
+                    <div class="boron-card-body p-5 md:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        @php
+                            $terminateReq = \App\Models\ServiceRequest::with('bau')
+                                ->where('customer_id', $customer->id)
+                                ->where('request_type', 'Terminate')
+                                ->where('status', 'selesai')
+                                ->first();
+                        @endphp
+
+                        @if($terminateReq && $terminateReq->bau && $terminateReq->bau->signed_bau_path)
+                            <a href="{{ asset('storage/' . $terminateReq->bau->signed_bau_path) }}" target="_blank" class="flex flex-col items-center justify-center p-6 rounded-xl border border-[#ed6060]/50 bg-[#ed6060]/5 hover:bg-[#ed6060]/10 hover:shadow-md transition-all group dark:border-[#ed6060]/30 dark:bg-[#1e1f27]">
+                                <i class="ti ti-file-check text-4xl text-[#ed6060] mb-3"></i>
+                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Berita Acara Pemutusan</h6>
+                                <span class="text-[10px] text-[#ed6060] font-bold mt-1 bg-[#ed6060]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
+                            </a>
+                        @else
+                            <div class="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-file-x text-4xl text-[#dee2e6] mb-3 dark:text-[#37394d]"></i>
+                                <h6 class="font-bold text-sm text-[#8a969c] text-center">Dokumen Tidak Ditemukan</h6>
+                            </div>
+                        @endif
+
+                        @if($customer->baa && $customer->baa->signed_baa_path)
+                            <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-6 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                                <i class="ti ti-file-certificate text-4xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-3 transition-colors dark:group-hover:text-[#60addf]"></i>
+                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Registrasi Awal</h6>
+                                <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">History Aktivasi</span>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-2xl border border-[#60addf]/30 bg-[#60addf]/5 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
+                    <div>
+                        <h5 class="text-base font-bold text-[#1e5d87] dark:text-[#60addf] mb-1">Ingin Berlangganan Kembali?</h5>
+                        <p class="text-sm text-[#4c4c5c] dark:text-[#aab8c5]">Anda dapat mengaktifkan kembali layanan internet kami kapan saja dengan menghubungi tim sales/marketing kami.</p>
+                    </div>
+                    <a href="https://wa.me/62812xxxxxx" target="_blank" class="shrink-0 btn-boron bg-[#60addf] text-white hover:bg-[#1e5d87] !py-3 !px-6 rounded-xl shadow-md flex items-center gap-2">
+                        <i class="ti ti-messages text-lg"></i> Hubungi Tim Sales
+                    </a>
+                </div>
+            </div>
+
+            <div class="space-y-6 md:space-y-8 mt-2 lg:mt-0">
+                
+                <div class="boron-card shadow-sm rounded-2xl">
+                    <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d]">
+                        <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Data Registrasi (Nonaktif)') }}</h5>
+                    </div>
+                    <div class="boron-card-body p-5">
+                        <ul class="space-y-4 md:space-y-5 text-sm md:text-[13px]">
+                            <li>
+                                <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">PT / Instansi</p>
+                                <p class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->company_name ?? '-' }}</p>
+                            </li>
+                            <li>
+                                <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">ID Pelanggan Lama</p>
+                                <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->customer_number ?? '-' }}</p>
+                            </li>
+                            <li>
+                                <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">Alamat Instalasi Terakhir</p>
+                                <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->installation_address ?? $customer->company_address ?? '-' }}</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="boron-card shadow-sm rounded-2xl">
+                    <div class="boron-card-body p-5">
+                        <ul class="space-y-4 text-xs md:text-sm">
+                            <li class="flex items-center gap-3 text-[#4c4c5c] dark:text-[#aab8c5]"><i class="ti ti-phone text-lg text-[#8a969c]"></i> 021-397 00 444</li>
+                            <li class="flex items-center gap-3 text-[#4c4c5c] dark:text-[#aab8c5]"><i class="ti ti-mail text-lg text-[#8a969c]"></i> admin.office@mediasolusisukses.co.id</li>
+                            <li class="flex items-center gap-3 text-[#4c4c5c] dark:text-[#aab8c5]"><i class="ti ti-world text-lg text-[#8a969c]"></i> www.mediasolusisukses.co.id</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {{-- TAMPILAN JIKA STATUS MASIH PROSES REGISTRASI AWAL --}}
     @else
 
         @if($customer->status === 'menunggu_verifikasi')
@@ -523,6 +692,7 @@
             </div>
         </div>
     @endif
+
     <style>
         @keyframes shimmer {
             100% { transform: translateX(100%); }

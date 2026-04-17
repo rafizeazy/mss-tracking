@@ -128,8 +128,6 @@ class Show extends Component
             'editData.term_of_service' => 'nullable|numeric',
             
             'editData.jalur_metro' => 'nullable|string',
-            
-            // TAMBAHAN: Validasi data komersial saat di Edit
             'editData.registration_fee' => 'nullable|numeric',
             'editData.monthly_fee' => 'nullable|numeric',
             'editData.marketing_name' => 'nullable|string|max:255',
