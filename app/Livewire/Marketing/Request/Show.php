@@ -5,6 +5,7 @@ namespace App\Livewire\Marketing\Request;
 use App\Models\ServiceRequest;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -27,10 +28,7 @@ class Show extends Component
     public function mount($id)
     {
         $this->request = ServiceRequest::with(['customer.user', 'bau'])->findOrFail($id);
-        
-        // Pemisahan load data berdasarkan jenis pengajuan
         if ($this->request->request_type === 'Terminate') {
-            // Gunakan deadline_date untuk menyimpan tanggal pemutusan
             $this->terminate_date = $this->request->deadline_date ? $this->request->deadline_date->format('Y-m-d') : now()->addDays(7)->format('Y-m-d');
         } else {
             $this->edit_bandwidth = $this->request->new_bandwidth;
@@ -43,6 +41,12 @@ class Show extends Component
         }
     }
 
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+        $this->request->refresh();
+    }
+
     public function saveSpkDraft()
     {
         $this->request->update([
@@ -53,14 +57,13 @@ class Show extends Component
 
     public function approve()
     {
-        // Pemisahan validasi dan penyimpanan berdasarkan jenis pengajuan
         if ($this->request->request_type === 'Terminate') {
             $this->validate([
                 'terminate_date' => 'required|date',
             ]);
 
             $this->request->update([
-                'deadline_date' => $this->terminate_date, // Simpan tanggal pemutusan ke kolom deadline_date
+                'deadline_date' => $this->terminate_date,
                 'status'        => 'form_disetujui',
             ]);
         } else {
@@ -121,7 +124,6 @@ class Show extends Component
                 'monthly_fee' => $this->request->new_monthly_fee,
             ]);
         } elseif ($this->request->request_type === 'Terminate') {
-            // MENGUBAH STATUS MENJADI 'berhenti' ALIAS TERMINATED
             $this->request->customer->update([
                 'status' => 'berhenti', 
             ]);

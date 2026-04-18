@@ -1,4 +1,4 @@
-<div class="py-6" wire:poll.10s="loadCustomer">
+<div class="py-6">
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
             <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">{{ __('Dashboard Pelanggan') }}</h4>
@@ -26,6 +26,7 @@
             <span class="flex-1">{{ session('info') }}</span>
         </div>
     @endif
+
     @if($pendingRequest && $customer->status !== 'berhenti')
         <div class="mb-6 md:mb-8 rounded-2xl border border-[#ebb751]/30 bg-[#ebb751]/10 p-5 md:p-6 shadow-sm relative overflow-hidden">
             <div class="absolute inset-0 bg-white/20 overflow-hidden pointer-events-none">
@@ -47,18 +48,15 @@
         </div>
     @endif
 
-
-    {{-- TAMPILAN JIKA STATUS PELANGGAN AKTIF (SELESAI) --}}
     @if($customer->status === 'selesai')
-        
         <div class="boron-card rounded-2xl bg-gradient-to-r from-[#1e5d87] to-[#60addf] border-0 mb-6 md:mb-8 text-white overflow-hidden relative shadow-lg shadow-[#60addf]/20">
             <div class="absolute top-0 right-0 -mt-10 -mr-10 size-40 rounded-full bg-white/10 blur-2xl"></div>
             <div class="absolute bottom-0 right-20 -mb-10 size-32 rounded-full bg-black/10 blur-xl"></div>
             
             <div class="boron-card-body p-6 md:p-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="text-center md:text-left">
-                    <h2 class="text-xl md:text-2xl text-black/80 font-bold mb-3 md:mb-2">Selamat Bergabung Bersama Kami! 🎉</h2>
-                    <p class="text-black/80 text-sm md:text-base max-w-2xl leading-relaxed">Layanan internet Anda telah aktif sepenuhnya. Terima kasih telah mempercayakan kebutuhan konektivitas perusahaan Anda kepada PT Media Solusi Sukses. Kami berkomitmen memberikan layanan terbaik untuk Anda.</p>
+                    <h2 class="text-xl md:text-2xl text-black/80 font-bold mb-3 md:mb-2 dark:text-white">Selamat Bergabung Bersama Kami! 🎉</h2>
+                    <p class="text-black/80 text-sm md:text-base max-w-2xl leading-relaxed dark:text-white">Layanan internet Anda telah aktif sepenuhnya. Terima kasih telah mempercayakan kebutuhan konektivitas perusahaan Anda kepada PT Media Solusi Sukses. Kami berkomitmen memberikan layanan terbaik untuk Anda.</p>
                 </div>
                 <div class="w-full md:w-auto shrink-0 text-center md:text-right bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
                     <p class="text-[11px] md:text-xs uppercase tracking-wider text-black/80 font-semibold mb-1">ID Pelanggan Anda</p>
@@ -233,8 +231,6 @@
             </div>
         </div>
         
-        @include('livewire.customer.trackingupgrade')
-
     {{-- TAMPILAN JIKA STATUS PELANGGAN BERHENTI (TERMINATE) --}}
     @elseif($customer->status === 'berhenti')
         
@@ -338,10 +334,7 @@
                 </div>
             </div>
         </div>
-
-    {{-- TAMPILAN JIKA STATUS MASIH PROSES REGISTRASI AWAL --}}
-    @else
-
+        @else
         @if($customer->status === 'menunggu_verifikasi')
             <div class="mb-6 rounded-2xl border border-[#60addf]/30 bg-[#60addf]/10 p-4 md:p-5 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -692,6 +685,9 @@
             </div>
         </div>
     @endif
+
+    @include('livewire.customer.modal.formupgrade')
+    @include('livewire.customer.trackingupgrade')
 
     <style>
         @keyframes shimmer {

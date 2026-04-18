@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Events\CustomerUpdated; 
 
 class ServiceRequest extends Model
 {
@@ -32,6 +33,17 @@ class ServiceRequest extends Model
         'stop_date' => 'date',
         'deadline_date' => 'date', 
     ];
+    protected $touches = ['customer'];
+    protected static function booted()
+    {
+        static::saved(function ($serviceRequest) {
+            event(new CustomerUpdated());
+        });
+
+        static::deleted(function ($serviceRequest) {
+            event(new CustomerUpdated());
+        });
+    }
 
     public function customer(): BelongsTo
     {

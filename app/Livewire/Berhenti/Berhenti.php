@@ -4,6 +4,7 @@ namespace App\Livewire\Berhenti;
 
 use App\Models\Customer;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,16 +16,16 @@ class Berhenti extends Component
     use WithPagination;
 
     public $search = '';
-    
-    // Properti untuk Modal Detail
     public $showModal = false;
     public $selectedCustomer = null;
-    
-    // Properti untuk Modal Arsip
     public $showArsipModal = false;
     public $customerForArsip = null;
 
-    // Reset pagination saat pencarian
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+    }
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -56,7 +57,6 @@ class Berhenti extends Component
 
     public function render()
     {
-        // 1. Ambil HANYA pelanggan yang statusnya 'berhenti'
         $customers = Customer::with('user')
             ->where('status', 'berhenti')
             ->where(function($query) {
@@ -65,14 +65,12 @@ class Berhenti extends Component
                           ->orWhere('customer_number', 'like', '%' . $this->search . '%');
                 }
             })
-            ->latest('updated_at') // Urutkan berdasarkan tanggal berhenti terbaru
+            ->latest('updated_at') 
             ->paginate(10);
 
-        // 2. Dinamisasi Route Tombol Kembali (Agar sesuai dengan Divisi yang login)
         $role = auth()->user()->role;
-        $roleValue = is_object($role) ? $role->value : $role; // Support untuk Enum
+        $roleValue = is_object($role) ? $role->value : $role; 
         
-        // Contoh: Jika yang login 'marketing', maka jadi 'marketing.datapelanggan.index'
         $backRoute = $roleValue . '.datapelanggan.index';
 
         return view('livewire.berhenti.berhenti', [

@@ -4,6 +4,7 @@ namespace App\Livewire\Noc\Request;
 
 use App\Models\ServiceRequest;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -28,6 +29,16 @@ class Show extends Component
         
         $this->upgrade_date = $this->request->bau?->upgrade_date ? $this->request->bau->upgrade_date->format('Y-m-d') : Carbon::now()->format('Y-m-d');
         $this->noc_pic_name = $this->request->bau?->noc_pic_name ?? auth()->user()->name;
+    }
+
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+        $this->request->refresh();
+        
+        if ($this->request->bau) {
+            $this->upgrade_date = $this->request->bau->upgrade_date ? $this->request->bau->upgrade_date->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+        }
     }
 
     public function markAsDone()

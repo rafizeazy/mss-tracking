@@ -24,6 +24,11 @@ class Index extends Component
         $this->resetPage();
     }
 
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+    }
+
     public function render()
     {
         $requests = ServiceRequest::with('customer')

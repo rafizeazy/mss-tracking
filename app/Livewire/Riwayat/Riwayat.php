@@ -5,6 +5,7 @@ namespace App\Livewire\Riwayat;
 use App\Models\Customer;
 use App\Models\ServiceRequest;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Carbon\Carbon;
@@ -15,9 +16,15 @@ class Riwayat extends Component
 {
     public $search = '';
 
+    #[On('echo:mss-updates,CustomerUpdated')]
+    public function refreshData()
+    {
+    }
+
     public function render()
     {
         $searchQuery = '%' . $this->search . '%';
+        
         $activations = Customer::with('user')
             ->whereNotNull('customer_number') 
             ->when($this->search, function ($query) use ($searchQuery) {
@@ -39,6 +46,7 @@ class Riwayat extends Component
                     'new_monthly_fee' => $customer->monthly_fee,
                 ];
             });
+            
         $requests = ServiceRequest::with(['customer.user', 'bau'])
             ->where('status', 'selesai')
             ->when($this->search, function ($query) use ($searchQuery) {
@@ -62,6 +70,7 @@ class Riwayat extends Component
                     'new_monthly_fee' => $req->new_monthly_fee,
                 ];
             });
+            
         $riwayatMerged = $activations->concat($requests)
             ->sortByDesc(function ($item) {
                 return Carbon::parse($item['completed_date'])->timestamp;

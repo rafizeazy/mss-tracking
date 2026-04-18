@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Events\CustomerUpdated;
 
 class Bau extends Model
 {
@@ -23,6 +24,17 @@ class Bau extends Model
     protected $casts = [
         'upgrade_date' => 'date',
     ];
+
+    protected static function booted()
+    {
+        static::saved(function ($bau) {
+            event(new CustomerUpdated());
+        });
+
+        static::deleted(function ($bau) {
+            event(new CustomerUpdated());
+        });
+    }
 
     public function serviceRequest(): BelongsTo
     {

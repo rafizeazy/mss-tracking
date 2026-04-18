@@ -25,6 +25,18 @@
                                 <p class="text-sm font-bold text-[#ed6060] mb-2"><i class="ti ti-power"></i> Pengajuan Berhenti Berlangganan</p>
                                 <p class="text-xs text-[#8a969c]">Tentukan tanggal efektif penghentian layanan. Sistem akan men-generate form pemutusan setelah Anda menyetujui tanggal ini.</p>
                             </div>
+
+                            <div class="grid sm:grid-cols-2 gap-5 mb-5">
+                                <div class="flex items-center justify-between bg-[#f8f9fa] dark:bg-[#15151b] p-3.5 rounded-xl border border-[#dee2e6] dark:border-[#37394d]">
+                                    <span class="text-[11px] font-bold text-[#8a969c] uppercase">Kapasitas Berjalan</span>
+                                    <span class="text-sm font-bold text-[#ed6060]">{{ $request->old_bandwidth }}</span>
+                                </div>
+                                <div class="flex items-center justify-between bg-[#f8f9fa] dark:bg-[#15151b] p-3.5 rounded-xl border border-[#dee2e6] dark:border-[#37394d]">
+                                    <span class="text-[11px] font-bold text-[#8a969c] uppercase">Tagihan Berjalan</span>
+                                    <span class="text-sm font-bold text-[#ed6060]">Rp {{ number_format($request->customer->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+
                             <div>
                                 <label class="block text-xs font-bold text-[#8a969c] uppercase mb-2">Tanggal Terminate / Pemutusan <span class="text-[#ed6060]">*</span></label>
                                 <input type="date" wire:model="terminate_date" class="w-full rounded-lg border border-[#dee2e6] bg-[#f8f9fa] px-4 py-2.5 text-sm focus:border-[#1e5d87] focus:ring-1 focus:ring-[#1e5d87] dark:bg-[#15151b] dark:border-[#37394d] dark:text-white">
@@ -35,37 +47,50 @@
                             
                             {{-- FORM KHUSUS UPGRADE / DOWNGRADE --}}
                             <div class="grid sm:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold text-[#8a969c] uppercase mb-2">Kapasitas Baru <span class="text-[#ed6060]">*</span></label>
-                                    <select wire:model="edit_bandwidth" class="w-full rounded-lg border-[#dee2e6] bg-white py-3 text-sm font-bold text-[#313a46] focus:border-[#ebb751] focus:ring-[#ebb751]/20 dark:bg-[#1e1f27] dark:border-[#37394d] dark:text-white transition-all shadow-sm">
-                                        <option value="100 Mbps">100 Mbps</option>
-                                        <option value="200 Mbps">200 Mbps</option>
-                                        <option value="300 Mbps">300 Mbps</option>
-                                        <option value="400 Mbps">400 Mbps</option>
-                                        <option value="500 Mbps">500 Mbps</option>
-                                        <option value="600 Mbps">600 Mbps</option>
-                                        <option value="700 Mbps">700 Mbps</option>
-                                        <option value="800 Mbps">800 Mbps</option>
-                                        <option value="900 Mbps">900 Mbps</option>
-                                        <option value="1000 Mbps">1000 Mbps</option>
-                                        <option value="1500 Mbps">1500 Mbps</option>
-                                        <option value="2000 Mbps">2000 Mbps</option>
-                                    </select>
-                                    @error('edit_bandwidth') <span class="text-xs text-[#ed6060] mt-1">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-[#8a969c] uppercase mb-2">Biaya Bulanan Baru (Rp) <span class="text-[#ed6060]">*</span></label>
-                                    <div class="relative">
-                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[#8a969c]">Rp</span>
-                                        <input type="number" wire:model="edit_monthly_fee" class="w-full rounded-lg border-[#dee2e6] bg-white pl-11 pr-4 py-3 text-sm font-bold text-[#313a46] focus:border-[#ebb751] focus:ring-[#ebb751]/20 dark:bg-[#1e1f27] dark:border-[#37394d] dark:text-white transition-all shadow-sm">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between bg-[#f8f9fa] dark:bg-[#15151b] p-3.5 rounded-xl border border-[#dee2e6] dark:border-[#37394d]">
+                                        <span class="text-[11px] font-bold text-[#8a969c] uppercase">Kapasitas Saat Ini</span>
+                                        <span class="text-sm font-bold text-[#ed6060] line-through decoration-[#ed6060]/50">{{ $request->old_bandwidth }}</span>
                                     </div>
-                                    @error('edit_monthly_fee') <span class="text-xs text-[#ed6060] mt-1">{{ $message }}</span> @enderror
+                                    <div>
+                                        <label class="block text-xs font-bold text-[#1e5d87] dark:text-[#60addf] uppercase mb-2">Pilih Kapasitas Baru <span class="text-[#ed6060]">*</span></label>
+                                        <select wire:model="edit_bandwidth" class="w-full rounded-lg border-[#dee2e6] bg-white py-3 text-sm font-bold text-[#313a46] focus:border-[#ebb751] focus:ring-[#ebb751]/20 dark:bg-[#1e1f27] dark:border-[#37394d] dark:text-white transition-all shadow-sm">
+                                            <option value="100 Mbps">100 Mbps</option>
+                                            <option value="200 Mbps">200 Mbps</option>
+                                            <option value="300 Mbps">300 Mbps</option>
+                                            <option value="400 Mbps">400 Mbps</option>
+                                            <option value="500 Mbps">500 Mbps</option>
+                                            <option value="600 Mbps">600 Mbps</option>
+                                            <option value="700 Mbps">700 Mbps</option>
+                                            <option value="800 Mbps">800 Mbps</option>
+                                            <option value="900 Mbps">900 Mbps</option>
+                                            <option value="1000 Mbps">1000 Mbps</option>
+                                            <option value="1500 Mbps">1500 Mbps</option>
+                                            <option value="2000 Mbps">2000 Mbps</option>
+                                        </select>
+                                        @error('edit_bandwidth') <span class="text-xs text-[#ed6060] mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between bg-[#f8f9fa] dark:bg-[#15151b] p-3.5 rounded-xl border border-[#dee2e6] dark:border-[#37394d]">
+                                        <span class="text-[11px] font-bold text-[#8a969c] uppercase">Biaya Saat Ini</span>
+                                        <span class="text-sm font-bold text-[#ed6060] line-through decoration-[#ed6060]/50">Rp {{ number_format($request->customer->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-[#1e5d87] dark:text-[#60addf] uppercase mb-2">Input Biaya Baru (Rp) <span class="text-[#ed6060]">*</span></label>
+                                        <div class="relative">
+                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[#8a969c]">Rp</span>
+                                            <input type="number" wire:model="edit_monthly_fee" class="w-full rounded-lg border-[#dee2e6] bg-white pl-11 pr-4 py-3 text-sm font-bold text-[#313a46] focus:border-[#ebb751] focus:ring-[#ebb751]/20 dark:bg-[#1e1f27] dark:border-[#37394d] dark:text-white transition-all shadow-sm">
+                                        </div>
+                                        @error('edit_monthly_fee') <span class="text-xs text-[#ed6060] mt-1">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
                             </div>
 
                         @endif
 
-                        <div class="mt-6 flex justify-end">
+                        <div class="mt-8 flex justify-end pt-5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d]">
                             <button wire:click="approve" wire:loading.attr="disabled" class="btn-boron bg-[#1e5d87] text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:bg-[#164a6d] transition-colors flex items-center gap-2 w-full sm:w-auto justify-center">
                                 <span wire:loading.remove wire:target="approve"><i class="ti ti-check text-xl"></i> Setujui & Generate Form</span>
                                 <span wire:loading wire:target="approve"><i class="ti ti-loader animate-spin"></i> Memproses...</span>
