@@ -30,7 +30,7 @@
                 </td>
                 <td style="width: 50%; text-align: right; color: #1e5d87;">
                     <strong style="font-size: 14px;">PT MEDIA SOLUSI SUKSES</strong><br>
-                    <span style="font-size: 10px; color: #666;">Dedicated Internet Provider<br>Jl. Bumi Karawang Residence Blk. G12 No.7, Karawang</span>
+                    <span style="font-size: 10px; color: #666;">Internet Service Provider<br>Jl. Bumi Karawang Residence Blk. G12 No.7, Karawang</span>
                 </td>
             </tr>
         </table>

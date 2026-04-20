@@ -154,13 +154,20 @@
                     <i class="ti ti-file-text text-5xl text-[#60addf] mb-4"></i>
                     <h5 class="text-lg font-bold text-[#1e5d87]">Form Siap Dikirim</h5>
                     <p class="text-sm text-[#8a969c] max-w-md mx-auto mt-2">Data pengajuan sudah valid. Silakan review file PDF (opsional) atau langsung kirim ke pelanggan untuk proses tanda tangan.</p>
-                    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+                    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-3 flex-wrap">
                         <a href="{{ route('marketing.request.pdf', $request->id) }}" target="_blank" class="btn-boron border border-[#60addf] text-[#60addf] px-6 py-2.5 rounded-xl font-bold hover:bg-[#60addf] hover:text-white transition-all flex items-center justify-center gap-2">
                             <i class="ti ti-eye"></i> Review PDF
                         </a>
                         <button wire:click="sendToCustomer" class="btn-boron bg-[#60addf] text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-[#60addf]/30 hover:bg-[#1e5d87] transition-all flex items-center justify-center gap-2">
                             <i class="ti ti-send"></i> Kirim ke Pelanggan
                         </button>
+
+                        {{-- TOMBOL BYPASS UNTUK TERMINATE --}}
+                        @if($request->request_type === 'Terminate')
+                            <button wire:click="forceTerminate" wire:confirm="Anda yakin ingin langsung memutus layanan ini tanpa menunggu TTD pelanggan?" class="btn-boron bg-[#ed6060] text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-[#ed6060]/30 hover:bg-[#c84d4d] transition-all flex items-center justify-center gap-2">
+                                <i class="ti ti-power"></i> Putus Langsung (Bypass TTD)
+                            </button>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -245,6 +252,16 @@
                     <i class="ti ti-clock-hour-4 text-5xl text-[#ebb751] mb-4"></i>
                     <h5 class="text-lg font-bold text-[#b58c3d]">Menunggu Pelanggan</h5>
                     <p class="text-sm text-[#8a969c] max-w-md mx-auto mt-2">Menunggu pelanggan untuk mengunduh, menandatangani, dan mengunggah kembali dokumen.</p>
+
+                    {{-- TOMBOL BYPASS UNTUK TERMINATE --}}
+                    @if($request->request_type === 'Terminate')
+                        <div class="mt-6 border-t border-dashed border-[#ebb751]/30 pt-6">
+                            <p class="text-xs text-[#b58c3d] mb-3">Pelanggan tidak merespon? Anda dapat memutus layanan secara paksa.</p>
+                            <button wire:click="forceTerminate" wire:confirm="Anda yakin ingin menyelesaikan pemutusan tanpa menunggu TTD pelanggan?" class="btn-boron bg-[#ed6060] text-white px-6 py-2.5 rounded-xl font-bold shadow-md shadow-[#ed6060]/30 hover:bg-[#c84d4d] transition-all inline-flex items-center justify-center gap-2">
+                                <i class="ti ti-power"></i> Putus Langsung (Bypass TTD)
+                            </button>
+                        </div>
+                    @endif
                 </div>
             @endif
 

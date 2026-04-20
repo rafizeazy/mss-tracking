@@ -141,6 +141,18 @@ class Show extends Component
         $this->dispatch('notify', type: 'error', message: 'Tanda tangan Berita Acara ditolak. Pelanggan telah diminta untuk mengunggah ulang.');
     }
 
+    public function forceTerminate()
+    {
+        if ($this->request->request_type !== 'Terminate') {
+            return;
+        }
+
+        $this->request->update(['status' => 'selesai']);
+        $this->request->customer->update(['status' => 'berhenti']);
+
+        $this->dispatch('notify', type: 'success', message: 'Layanan pelanggan berhasil diputus secara langsung (Bypass).');
+    }
+
     public function render()
     {
         return view('livewire.marketing.request.show');

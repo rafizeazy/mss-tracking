@@ -49,7 +49,7 @@
                     <img src="{{ asset('logo/Logo MSS.png') }}" alt="Logo MSS" class="h-10 w-auto object-contain" onerror="this.src='https://ui-avatars.com/api/?name=MSS&color=1e5d87&background=eef2ff'">
                     <div class="hidden sm:block">
                         <h1 class="text-lg font-extrabold text-brand-blue leading-tight tracking-tight">PT Media Solusi Sukses</h1>
-                        <p class="text-[10px] font-semibold text-brand-gray uppercase tracking-wider">Dedicated Internet Provider</p>
+                        <p class="text-[10px] font-semibold text-brand-gray uppercase tracking-wider">Internet Servive Provider</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-6">

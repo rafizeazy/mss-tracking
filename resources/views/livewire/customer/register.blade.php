@@ -116,7 +116,7 @@
                 </div>
                 <div class="boron-card-body grid gap-5 p-6 md:grid-cols-2">
                     <div class="md:col-span-2">
-                        <label class="mb-1.5 block text-sm font-medium">Nama Perusahaan / Institusi <span class="text-[#ed6060]">*</span></label>
+                        <label class="mb-1.5 block text-sm font-medium">Nama Perusahaan / Institusi / Nama Usaha<span class="text-[#ed6060]">*</span></label>
                         <input type="text" wire:model="company_name"
                             class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d]">
                         @error('company_name') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror

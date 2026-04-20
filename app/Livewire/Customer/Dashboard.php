@@ -18,7 +18,7 @@ class Dashboard extends Component
     use WithFileUploads;
 
     public $signed_baa;
-    public Customer $customer;
+    public ?Customer $customer = null;
     public $payment_proof;
 
     public $pendingRequest = null;
@@ -54,6 +54,9 @@ class Dashboard extends Component
                 ->where('status', '!=', 'selesai')
                 ->latest()
                 ->first();
+        } else {
+            $this->pendingRequest = null;
+            $this->activeRequest = null;
         }
     }
 

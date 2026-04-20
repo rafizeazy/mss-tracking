@@ -58,6 +58,12 @@
                                         <button wire:click="openArsip({{ $cust->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
                                             <i class="ti ti-folder text-base text-[#1e5d87]"></i> Arsip Dok.
                                         </button>
+                                        <button wire:click="confirmReactivate({{ $cust->id }})" class="w-full sm:w-auto btn-boron bg-[#70bb63]/10 text-[#70bb63] border border-[#70bb63]/30 hover:bg-[#70bb63] hover:text-white transition-all !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5">
+                                            <i class="ti ti-power text-base"></i> Aktivasi Ulang
+                                        </button>
+                                        <button wire:click="confirmDelete({{ $cust->id }})" class="w-full sm:w-auto btn-boron bg-[#ed6060]/10 text-[#ed6060] border border-[#ed6060]/30 hover:bg-[#ed6060] hover:text-white transition-all !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5">
+                                            <i class="ti ti-trash text-base"></i> Hapus Permanen
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -84,6 +90,54 @@
             @endif
         </div>
     </div>
+
+    {{-- MODAL KONFIRMASI AKTIVASI ULANG --}}
+    @if($showReactivateModal && $customerToReactivate)
+        <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" wire:transition.opacity>
+            <div class="bg-white dark:bg-[#1e1f27] rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden border border-[#e7e9eb] dark:border-[#37394d]" @click.stop>
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#70bb63]/10 mb-4">
+                        <i class="ti ti-power text-3xl text-[#70bb63]"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-[#313a46] dark:text-white mb-2">Aktivasi Ulang Layanan?</h3>
+                    <p class="text-sm text-[#8a969c] mb-6">
+                        Anda yakin ingin mengaktifkan kembali layanan internet untuk perusahaan <strong>{{ $customerToReactivate->company_name }}</strong>? Statusnya akan dikembalikan menjadi Aktif (Selesai).
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 justify-center">
+                        <button wire:click="$set('showReactivateModal', false)" class="w-full sm:w-auto btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] px-6 py-2.5 rounded-xl font-semibold dark:bg-[#15151b] dark:text-white dark:border-[#37394d]">Batal</button>
+                        <button wire:click="reactivateCustomer" class="w-full sm:w-auto btn-boron bg-[#70bb63] text-white hover:bg-[#5da352] px-6 py-2.5 rounded-xl font-bold shadow-md shadow-[#70bb63]/20 flex items-center justify-center gap-2" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="reactivateCustomer">Ya, Aktifkan Sekarang</span>
+                            <span wire:loading wire:target="reactivateCustomer"><i class="ti ti-loader animate-spin text-lg"></i> Memproses...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- MODAL KONFIRMASI HAPUS PERMANEN --}}
+    @if($showDeleteModal && $customerToDelete)
+        <div class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" wire:transition.opacity>
+            <div class="bg-white dark:bg-[#1e1f27] rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden border border-[#e7e9eb] dark:border-[#37394d]" @click.stop>
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#ed6060]/10 mb-4">
+                        <i class="ti ti-alert-triangle text-3xl text-[#ed6060]"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-[#313a46] dark:text-white mb-2">Hapus Data Permanen?</h3>
+                    <p class="text-sm text-[#8a969c] mb-6">
+                        Anda yakin ingin menghapus seluruh data pelanggan <strong>{{ $customerToDelete->company_name }}</strong>? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua riwayat pengajuan serta dokumen terkait.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 justify-center">
+                        <button wire:click="$set('showDeleteModal', false)" class="w-full sm:w-auto btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] px-6 py-2.5 rounded-xl font-semibold dark:bg-[#15151b] dark:text-white dark:border-[#37394d]">Batal</button>
+                        <button wire:click="deleteCustomer" class="w-full sm:w-auto btn-boron bg-[#ed6060] text-white hover:bg-[#c84d4d] px-6 py-2.5 rounded-xl font-bold shadow-md shadow-[#ed6060]/20 flex items-center justify-center gap-2" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="deleteCustomer">Ya, Hapus Permanen</span>
+                            <span wire:loading wire:target="deleteCustomer"><i class="ti ti-loader animate-spin text-lg"></i> Menghapus...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- MODAL DETAIL PELANGGAN --}}
     @if($showModal && $selectedCustomer)

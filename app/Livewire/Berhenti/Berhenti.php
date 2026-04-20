@@ -21,6 +21,12 @@ class Berhenti extends Component
     public $showArsipModal = false;
     public $customerForArsip = null;
 
+    public $showReactivateModal = false;
+    public $customerToReactivate = null;
+
+    public $showDeleteModal = false;
+    public $customerToDelete = null;
+
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshData()
     {
@@ -53,6 +59,46 @@ class Berhenti extends Component
     {
         $this->showArsipModal = false;
         $this->customerForArsip = null;
+    }
+
+    public function confirmReactivate($id)
+    {
+        $this->customerToReactivate = Customer::findOrFail($id);
+        $this->showReactivateModal = true;
+    }
+
+    public function reactivateCustomer()
+    {
+        if ($this->customerToReactivate) {
+            $this->customerToReactivate->update([
+                'status' => 'selesai'
+            ]);
+            
+            $this->dispatch('notify', type: 'success', message: 'Layanan pelanggan berhasil diaktifkan kembali!');
+            
+            $this->showReactivateModal = false;
+            $this->customerToReactivate = null;
+        }
+    }
+
+    // Fungsi untuk membuka modal konfirmasi hapus
+    public function confirmDelete($id)
+    {
+        $this->customerToDelete = Customer::findOrFail($id);
+        $this->showDeleteModal = true;
+    }
+
+    // Fungsi untuk mengeksekusi penghapusan
+    public function deleteCustomer()
+    {
+        if ($this->customerToDelete) {
+            $this->customerToDelete->delete();
+            
+            $this->dispatch('notify', type: 'success', message: 'Data pelanggan berhasil dihapus secara permanen!');
+            
+            $this->showDeleteModal = false;
+            $this->customerToDelete = null;
+        }
     }
 
     public function render()
