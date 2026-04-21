@@ -4,7 +4,9 @@
             <i class="ti ti-arrow-left text-xl"></i>
         </a>
         <div>
-            <h4 class="text-xl font-bold text-[#313a46] dark:text-white">Review Pengajuan: {{ $request->request_number }}</h4>
+            <h4 class="text-xl font-bold text-[#313a46] dark:text-white">
+                Review Pengajuan: {{ \App\Services\PerubahanLayananNumberService::generate($request) }}
+            </h4>
             <p class="text-sm text-[#8a969c]">Kelola detail kapasitas, harga, dan alur dokumen pelanggan.</p>
         </div>
     </div>

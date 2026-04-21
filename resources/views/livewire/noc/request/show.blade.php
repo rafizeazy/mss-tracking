@@ -4,7 +4,9 @@
             <i class="ti ti-arrow-left text-xl"></i>
         </a>
         <div>
-            <h4 class="text-xl font-bold text-[#313a46] dark:text-white">Eksekusi SPK: {{ $request->request_number }}</h4>
+            <h4 class="text-xl font-bold text-[#313a46] dark:text-white">
+                Eksekusi SPK: {{ \App\Services\PerubahanLayananNumberService::generateSpk($request) }}
+            </h4>
             <p class="text-sm text-[#8a969c]">Detail instruksi teknis jaringan dan penerbitan Berita Acara.</p>
         </div>
     </div>

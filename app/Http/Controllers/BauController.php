@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceRequest;
+use App\Services\BauNumberService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class BauController extends Controller
@@ -11,7 +12,12 @@ class BauController extends Controller
     {
         $request = ServiceRequest::with(['customer.user', 'bau'])->findOrFail($id);
         
-        $pdf = Pdf::loadView('pdf.bau', ['request' => $request]);
+        $bauNumber = $request->bau ? BauNumberService::generate($request->bau) : '-';
+        
+        $pdf = Pdf::loadView('pdf.bau', [
+            'request' => $request,
+            'bauNumber' => $bauNumber
+        ]);
         
         return $pdf->stream('BAU_' . $request->request_number . '.pdf');
     }

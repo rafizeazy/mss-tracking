@@ -13,10 +13,8 @@ class InvoiceNumberService
         $customerNumber = $customer->customer_number ?? 'C000';
         $template = 'INV-MSS';
 
-        $month = date('n'); // Format angka 1-12 (tanpa 0 di depan)
-        $year = date('Y');  // Format 4 digit tahun
-
-        // 5. Rangkai menjadi satu kesatuan
+        $month = date('n');
+        $year = date('Y');
         $invoiceNumber = "{$urutan}/{$customerNumber}/{$template}/{$month}/{$year}";
 
         return $invoiceNumber;

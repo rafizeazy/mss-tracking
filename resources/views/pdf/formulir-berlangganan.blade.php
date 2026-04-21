@@ -224,10 +224,12 @@
                 </div>
             </td>
             <td>
-                <div class="signature-box"></div>
-                <div class="signature-name">{{ strtoupper($customer->marketing_name ?? 'Tegar Setya Anggara') }}</div>
+                <div class="signature-box">
+                    <img src="{{ public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Sendy" style="max-height: 80px; width: auto; margin: 0 auto; display: block;">
+                </div>
+                <div class="signature-name">SENDY IRAWAN</div>
                 <div class="signature-meta">
-                    Account Manager<br>
+                    Marketing<br>
                     Tanggal: {{ now()->format('d M Y') }}
                 </div>
             </td>
