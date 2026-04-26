@@ -320,7 +320,7 @@
                     </div>
                 </div>
 
-                <div class="flex-none px-5 md:px-6 py-4 md:py-5 border-t border-[#e7e9eb] dark:border-[#37394d] bg-white dark:bg-[#1e1e2a]">
+                <div class="flex-none px-5 md:px-6 py-4 md:py-5 border-t border-[#e7e9eb] dark:border-[#37394d] bg-white dark:bg-[#1e1e2a] text-right">
                     <button wire:click="closeModal" class="w-full md:w-auto md:float-right btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-3 md:!py-2 text-[13px] md:text-sm px-6 font-bold tracking-wide rounded-xl md:rounded-lg shadow-sm dark:!bg-[#15151b] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">Tutup Detail Data</button>
                     <div class="clear-both"></div>
                 </div>

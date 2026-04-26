@@ -64,7 +64,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 md:gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
         
         <div class="boron-card rounded-xl sm:rounded-lg">
             <div class="boron-card-body p-5 md:p-6">
@@ -118,25 +118,6 @@
                 <div class="mt-4 flex items-center gap-1.5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] pt-3">
                     <i class="ti {{ $stats['proses']['change']['up'] ? 'ti-trending-up text-[#ed6060]' : 'ti-trending-down text-[#70bb63]' }} text-sm"></i>
                     <span class="text-xs font-bold {{ $stats['proses']['change']['up'] ? 'text-[#ed6060]' : 'text-[#70bb63]' }}">{{ $stats['proses']['change']['val'] }}%</span>
-                    <span class="text-[10px] text-[#8a969c] ml-1">{{ $comparisonLabel }}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="boron-card rounded-xl sm:rounded-lg">
-            <div class="boron-card-body p-5 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="mb-1 text-[11px] md:text-[10px] font-semibold text-[#8a969c] uppercase">Pelanggan Berhenti</p>
-                        <h3 class="text-2xl md:text-3xl font-bold text-[#313a46] dark:text-white">{{ $stats['berhenti']['total'] }}</h3>
-                    </div>
-                    <span class="flex size-10 items-center justify-center rounded-full bg-[#ed6060]/20 shrink-0">
-                        <i class="ti ti-power text-lg text-[#ed6060]"></i>
-                    </span>
-                </div>
-                <div class="mt-4 flex items-center gap-1.5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] pt-3">
-                    <i class="ti {{ $stats['berhenti']['change']['up'] ? 'ti-trending-up text-[#ed6060]' : 'ti-trending-down text-[#70bb63]' }} text-sm"></i>
-                    <span class="text-xs font-bold {{ $stats['berhenti']['change']['up'] ? 'text-[#ed6060]' : 'text-[#70bb63]' }}">{{ $stats['berhenti']['change']['val'] }}%</span>
                     <span class="text-[10px] text-[#8a969c] ml-1">{{ $comparisonLabel }}</span>
                 </div>
             </div>

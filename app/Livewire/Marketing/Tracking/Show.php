@@ -4,15 +4,19 @@ namespace App\Livewire\Marketing\Tracking;
 
 use App\Events\CustomerUpdated;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Title('Detail Tracking Registrasi')]
 #[Layout('layouts.app')]
 class Show extends Component
 {
+    use WithFileUploads;
+
     public Customer $customer;
 
     public $service_type;
@@ -31,6 +35,11 @@ class Show extends Component
 
     public $isEditingCustomer = false;
     public $editData = [];
+    
+    public $new_ktp_path;
+    public $new_npwp_path;
+    public $new_nib_path;
+    public $new_certificate_path;
 
     public function mount($id)
     {
@@ -62,7 +71,6 @@ class Show extends Component
             'gender' => $this->customer->gender,
             'position' => $this->customer->position,
             'phone' => $this->customer->phone,
-            
             'company_name' => $this->customer->company_name,
             'business_type' => $this->customer->business_type,
             'npwp_number' => $this->customer->npwp_number,
@@ -71,28 +79,25 @@ class Show extends Component
             'city' => $this->customer->city,
             'province' => $this->customer->province,
             'postal_code' => $this->customer->postal_code,
-            
             'finance_name' => $this->customer->finance_name,
             'finance_email' => $this->customer->finance_email, 
             'finance_phone' => $this->customer->finance_phone,
             'billing_address' => $this->customer->billing_address,
-            
             'technical_name' => $this->customer->technical_name,
             'technical_email' => $this->customer->technical_email, 
             'technical_phone' => $this->customer->technical_phone,
             'installation_address' => $this->customer->installation_address,
-            
             'service_type' => $this->customer->service_type,
             'bandwidth' => $this->customer->bandwidth,
             'term_of_service' => $this->customer->term_of_service,
-            
             'jalur_metro' => $this->customer->jalur_metro,
-            
             'registration_fee' => $this->customer->registration_fee,
             'monthly_fee' => $this->customer->monthly_fee,
             'marketing_name' => $this->customer->marketing_name,
             'marketing_phone' => $this->customer->marketing_phone,
         ];
+        
+        $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
         $this->isEditingCustomer = true;
     }
 
@@ -103,7 +108,6 @@ class Show extends Component
             'editData.gender' => 'nullable|in:L,P',
             'editData.position' => 'nullable|string',
             'editData.phone' => 'required|string|max:20',
-            
             'editData.company_name' => 'required|string|max:255',
             'editData.business_type' => 'nullable|string',
             'editData.npwp_number' => 'nullable|string',
@@ -112,40 +116,64 @@ class Show extends Component
             'editData.city' => 'nullable|string',
             'editData.province' => 'nullable|string',
             'editData.postal_code' => 'nullable|string',
-            
             'editData.finance_name' => 'nullable|string|max:255',
             'editData.finance_email' => 'nullable|email|max:255', 
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
-            
             'editData.technical_name' => 'nullable|string|max:255',
             'editData.technical_email' => 'nullable|email|max:255', 
             'editData.technical_phone' => 'nullable|string|max:20',
             'editData.installation_address' => 'nullable|string',
-            
             'editData.service_type' => 'required|string',
             'editData.bandwidth' => 'required|string', 
             'editData.term_of_service' => 'nullable|numeric',
-            
             'editData.jalur_metro' => 'nullable|string',
             'editData.registration_fee' => 'nullable|numeric',
             'editData.monthly_fee' => 'nullable|numeric',
             'editData.marketing_name' => 'nullable|string|max:255',
             'editData.marketing_phone' => 'nullable|string|max:20',
+            'new_ktp_path' => 'nullable|file|max:5120',
+            'new_npwp_path' => 'nullable|file|max:5120',
+            'new_nib_path' => 'nullable|file|max:5120',
+            'new_certificate_path' => 'nullable|file|max:5120',
         ]);
 
-        $this->customer->update($this->editData);
+        $updateData = $this->editData;
+
+        if ($this->new_ktp_path) {
+            if ($this->customer->ktp_file_path) Storage::disk('public')->delete($this->customer->ktp_file_path);
+            $updateData['ktp_file_path'] = $this->new_ktp_path->store('customer_documents', 'public');
+        }
+        
+        if ($this->new_npwp_path) {
+            if ($this->customer->npwp_file_path) Storage::disk('public')->delete($this->customer->npwp_file_path);
+            $updateData['npwp_file_path'] = $this->new_npwp_path->store('customer_documents', 'public');
+        }
+        
+        if ($this->new_nib_path) {
+            if ($this->customer->nib_file_path) Storage::disk('public')->delete($this->customer->nib_file_path);
+            $updateData['nib_file_path'] = $this->new_nib_path->store('customer_documents', 'public');
+        }
+        
+        if ($this->new_certificate_path) {
+            if ($this->customer->certificate_file_path) Storage::disk('public')->delete($this->customer->certificate_file_path);
+            $updateData['certificate_file_path'] = $this->new_certificate_path->store('customer_documents', 'public');
+        }
+
+        $this->customer->update($updateData);
 
         broadcast(new CustomerUpdated());
         $this->customer->refresh();
 
         $this->isEditingCustomer = false;
-        $this->dispatch('notify', type: 'success', message: 'Seluruh data profil pelanggan berhasil diperbarui!');
+        $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
+        $this->dispatch('notify', type: 'success', message: 'Seluruh data profil & lampiran pelanggan berhasil diperbarui!');
     }
 
     public function cancelEdit()
     {
         $this->isEditingCustomer = false;
+        $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
     }
 
     public function approve()
@@ -246,6 +274,17 @@ class Show extends Component
 
         broadcast(new CustomerUpdated());
         $this->dispatch('notify', type: 'error', message: 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
+    }
+
+    public function cancelRegistration()
+    {
+        $this->customer->update([
+            'status' => 'dibatalkan'
+        ]);
+
+        broadcast(new CustomerUpdated());
+        session()->flash('success', 'Pengajuan berhasil dibatalkan dan dihapus dari antrean.');
+        return $this->redirect(route('marketing.tracking.index'), navigate: true);
     }
 
     public function render()

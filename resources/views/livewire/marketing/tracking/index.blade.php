@@ -1,8 +1,23 @@
 <div class="py-6">
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-            <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">{{ __('Tracking Antrean Registrasi') }}</h4>
-            <p class="mt-1 md:mt-0.5 text-sm text-[#8a969c]">{{ __('Daftar pelanggan baru yang menunggu verifikasi data dan dokumen.') }}</p>
+            <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">
+                {{ $showCancelled ? __('Data Registrasi Batal / Ditolak') : __('Tracking Antrean Registrasi') }}
+            </h4>
+            <p class="mt-1 md:mt-0.5 text-sm text-[#8a969c]">
+                {{ $showCancelled ? __('Daftar pelanggan yang pengajuannya telah dibatalkan atau ditolak.') : __('Daftar pelanggan baru yang menunggu verifikasi data dan dokumen.') }}
+            </p>
+        </div>
+        
+        {{-- TOMBOL TOGGLE REGISTRASI BATAL --}}
+        <div class="flex items-center gap-2">
+            <button wire:click="toggleCancelled" class="btn-boron !py-2 text-sm font-medium transition-colors border {{ $showCancelled ? 'bg-[#1e5d87]/10 text-[#1e5d87] border-[#1e5d87]/20 hover:bg-[#1e5d87]/20' : 'bg-[#ed6060]/10 text-[#ed6060] border-[#ed6060]/20 hover:bg-[#ed6060]/20' }}">
+                @if($showCancelled)
+                    <i class="ti ti-arrow-left mr-1"></i> Kembali ke Antrean Aktif
+                @else
+                    <i class="ti ti-ban mr-1"></i> Lihat Registrasi Batal
+                @endif
+            </button>
         </div>
     </div>
 
@@ -61,6 +76,7 @@
                                             'menunggu_baa'        => ['label' => 'Tunggu TTD Pelanggan', 'class' => 'bg-[#ebb751]/10 text-[#ebb751] border-[#ebb751]/20'],
                                             'verifikasi_baa'      => ['label' => 'Verifikasi Akhir BAA', 'class' => 'bg-[#70bb63]/10 text-[#70bb63] border-[#70bb63]/20 ring-2 ring-[#70bb63]/50 animate-pulse'],
                                             'selesai'             => ['label' => 'Selesai & Aktif', 'class' => 'bg-[#70bb63]/10 text-[#70bb63] border-[#70bb63]/20'],
+                                            'dibatalkan'          => ['label' => 'Dibatalkan', 'class' => 'bg-[#ed6060]/10 text-[#ed6060] border-[#ed6060]/20'],
                                             'ditolak'             => ['label' => 'Ditolak', 'class' => 'bg-[#ed6060]/10 text-[#ed6060] border-[#ed6060]/20'],
                                             default               => ['label' => ucwords(str_replace('_', ' ', $customer->status)), 'class' => 'bg-[#f8f9fa] text-[#8a969c] border-[#dee2e6] dark:bg-[#15151b] dark:border-[#37394d]']
                                         };
@@ -71,7 +87,8 @@
                                 </td>
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
                                     <a href="{{ route('marketing.tracking.show', $customer->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
-                                        <i class="ti ti-arrow-right md:hidden mr-1 text-lg"></i> Detail & Proses
+                                        <i class="ti ti-arrow-right md:hidden mr-1 text-lg"></i> 
+                                        {{ $showCancelled ? 'Lihat Detail' : 'Detail & Proses' }}
                                     </a>
                                 </td>
                             </tr>
@@ -80,7 +97,7 @@
                                 <td colspan="6" class="block md:table-cell px-6 py-12 text-center text-[#8a969c]">
                                     <div class="flex flex-col items-center justify-center">
                                         <i class="ti ti-inbox text-4xl mb-2 opacity-50"></i>
-                                        <p>Belum ada data pendaftar layanan internet.</p>
+                                        <p>{{ $showCancelled ? 'Tidak ada data registrasi yang dibatalkan atau ditolak.' : 'Belum ada data pendaftar layanan internet baru.' }}</p>
                                     </div>
                                 </td>
                             </tr>

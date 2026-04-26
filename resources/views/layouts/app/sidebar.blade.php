@@ -108,26 +108,6 @@
                             </a>
                         @endif
 
-                        <div class="side-nav-title"><span class="sidebar-label">{{ __('Service Requests') }}</span></div>
-                        
-                        @php
-                            $trackingPengajuanRoute = '#';
-                            if (auth()->user()->role === \App\Enums\Role::Marketing) $trackingPengajuanRoute = route('marketing.request.index');
-                            elseif (auth()->user()->role === \App\Enums\Role::Finance) $trackingPengajuanRoute = route('finance.request.index');
-                            elseif (auth()->user()->role === \App\Enums\Role::Noc) $trackingPengajuanRoute = route('noc.request.index');
-                            elseif (auth()->user()->isSuperAdmin()) $trackingPengajuanRoute = route('marketing.request.index');
-                        @endphp
-
-                        <a href="{{ $trackingPengajuanRoute }}" wire:navigate
-                            class="side-nav-link {{ request()->routeIs('*.request.index') ? 'active' : '' }}"
-                            title="{{ __('Tracking Pengajuan') }}"
-                        >
-                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                                <i class="ti ti-arrows-up-down text-lg"></i>
-                            </span>
-                            <span class="sidebar-label whitespace-nowrap">{{ __('Tracking Pengajuan') }}</span>
-                        </a>
-
                         <div class="side-nav-title"><span class="sidebar-label">{{ __('Customers') }}</span></div>
                         
                         @php
@@ -146,26 +126,6 @@
                                 <i class="ti ti-users-group text-lg"></i>
                             </span>
                             <span class="sidebar-label whitespace-nowrap">{{ __('Data Pelanggan') }}</span>
-                        </a>
-
-                        {{-- MENU BARU: RIWAYAT --}}
-                        @php
-                            $riwayatRoute = '#';
-                            // Kita gunakan Route::has untuk mencegah error jika route belum Anda buat
-                            if (auth()->user()->role === \App\Enums\Role::Marketing && Route::has('marketing.riwayat.index')) $riwayatRoute = route('marketing.riwayat.index');
-                            elseif (auth()->user()->role === \App\Enums\Role::Finance && Route::has('finance.riwayat.index')) $riwayatRoute = route('finance.riwayat.index');
-                            elseif (auth()->user()->role === \App\Enums\Role::Noc && Route::has('noc.riwayat.index')) $riwayatRoute = route('noc.riwayat.index');
-                            elseif (auth()->user()->isSuperAdmin() && Route::has('marketing.riwayat.index')) $riwayatRoute = route('marketing.riwayat.index');
-                        @endphp
-
-                        <a href="{{ $riwayatRoute }}" wire:navigate
-                            class="side-nav-link {{ request()->routeIs('*.riwayat.*') ? 'active' : '' }}"
-                            title="{{ __('Riwayat') }}"
-                        >
-                            <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
-                                <i class="ti ti-history text-lg"></i>
-                            </span>
-                            <span class="sidebar-label whitespace-nowrap">{{ __('Riwayat') }}</span>
                         </a>
 
                         @if (auth()->user()->isSuperAdmin())

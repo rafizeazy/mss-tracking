@@ -29,6 +29,7 @@ class Index extends Component
         $this->search = $query;
         $this->resetPage();
     }
+
     public function viewDetail($id)
     {
         $this->selectedCustomer = Customer::with(['user', 'spk', 'baa'])->find($id);
@@ -40,6 +41,7 @@ class Index extends Component
         $this->showModal = false;
         $this->selectedCustomer = null;
     }
+
     public function openArsip($id)
     {
         $this->customerForArsip = Customer::with(['spk', 'baa'])->find($id);

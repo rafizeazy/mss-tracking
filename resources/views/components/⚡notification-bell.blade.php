@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Customer;
-use App\Models\ServiceRequest;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -49,30 +48,6 @@ new class extends Component
                     'desc' => "Perusahaan: {$c->company_name} telah mengunggah BAA final.", 
                     'url' => route('marketing.tracking.show', $c->id), 
                     'icon' => 'ti-file-check', 'color' => 'text-[#70bb63]', 'bg' => 'bg-[#70bb63]/10'
-                ]);
-            }
-
-            $pendingRequests = ServiceRequest::whereIn('status', ['menunggu_approval', 'verifikasi_ttd_pelanggan', 'verifikasi_ttd_bau'])->with('customer')->latest()->get();
-            foreach($pendingRequests as $r) {
-                $title = ''; $desc = ''; $icon = ''; $color = ''; $bg = '';
-                
-                if($r->status === 'menunggu_approval') {
-                    $title = 'Review Pengajuan ' . $r->request_type;
-                    $desc = "Perusahaan: {$r->customer->company_name} mengajukan perubahan.";
-                    $icon = 'ti-edit-circle'; $color = 'text-[#ebb751]'; $bg = 'bg-[#ebb751]/10';
-                } elseif($r->status === 'verifikasi_ttd_pelanggan') {
-                    $title = 'Verifikasi TTD Form ' . $r->request_type;
-                    $desc = "Perusahaan: {$r->customer->company_name} mengunggah TTD.";
-                    $icon = 'ti-file-search'; $color = 'text-[#60addf]'; $bg = 'bg-[#60addf]/10';
-                } elseif($r->status === 'verifikasi_ttd_bau') {
-                    $title = 'Verifikasi Berita Acara';
-                    $desc = "Perusahaan: {$r->customer->company_name} mengunggah BA final.";
-                    $icon = 'ti-file-check'; $color = 'text-[#70bb63]'; $bg = 'bg-[#70bb63]/10';
-                }
-
-                $notifications->push([
-                    'title' => $title, 'desc' => $desc, 'url' => route('marketing.request.show', $r->id),
-                    'icon' => $icon, 'color' => $color, 'bg' => $bg
                 ]);
             }
         }
@@ -124,28 +99,6 @@ new class extends Component
                     'icon' => 'ti-file-certificate', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
                 ]);
             }
-
-            //  Tugas Pengajuan Perubahan Layanan
-            $nocRequests = ServiceRequest::whereIn('status', ['proses_upgrade', 'pembuatan_bau'])->with('customer')->latest()->get();
-            foreach($nocRequests as $r) {
-                $title = ''; $desc = ''; $icon = ''; $color = ''; $bg = '';
-                
-                if($r->status === 'proses_upgrade') {
-                    $title = 'Eksekusi ' . ($r->request_type === 'Terminate' ? 'Pemutusan' : 'Jaringan');
-                    $desc = "Tugas SPK untuk: {$r->customer->company_name}.";
-                    $icon = $r->request_type === 'Terminate' ? 'ti-power' : 'ti-router'; 
-                    $color = 'text-[#ed6060]'; $bg = 'bg-[#ed6060]/10';
-                } elseif($r->status === 'pembuatan_bau') {
-                    $title = 'Pembuatan Berita Acara';
-                    $desc = "Pekerjaan selesai, buat BA untuk: {$r->customer->company_name}.";
-                    $icon = 'ti-file-description'; $color = 'text-[#ebb751]'; $bg = 'bg-[#ebb751]/10';
-                }
-
-                $notifications->push([
-                    'title' => $title, 'desc' => $desc, 'url' => route('noc.request.show', $r->id),
-                    'icon' => $icon, 'color' => $color, 'bg' => $bg
-                ]);
-            }
         }
 
         // NOTIFIKASI CUSTOMER / PELANGGAN
@@ -167,29 +120,6 @@ new class extends Component
                         'desc' => "{$customer->company_name}: Layanan aktif! Unggah dokumen BAA.", 
                         'url' => route('customer.dashboard'), 
                         'icon' => 'ti-signature', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10'
-                    ]);
-                }
-
-                $custRequests = ServiceRequest::where('customer_id', $customer->id)
-                    ->whereIn('status', ['menunggu_ttd_pelanggan', 'menunggu_ttd_bau'])
-                    ->get();
-                    
-                foreach($custRequests as $r) {
-                    $title = ''; $desc = ''; $icon = ''; $color = ''; $bg = '';
-                    
-                    if($r->status === 'menunggu_ttd_pelanggan') {
-                        $title = 'Tanda Tangan Form ' . $r->request_type;
-                        $desc = "Silakan tandatangani form pengajuan Anda.";
-                        $icon = 'ti-signature'; $color = 'text-[#ebb751]'; $bg = 'bg-[#ebb751]/10';
-                    } elseif($r->status === 'menunggu_ttd_bau') {
-                        $title = 'Tanda Tangan Berita Acara';
-                        $desc = "Pekerjaan selesai! Silakan tandatangani Berita Acara.";
-                        $icon = 'ti-certificate'; $color = 'text-[#60addf]'; $bg = 'bg-[#60addf]/10';
-                    }
-
-                    $notifications->push([
-                        'title' => $title, 'desc' => $desc, 'url' => route('customer.dashboard'),
-                        'icon' => $icon, 'color' => $color, 'bg' => $bg
                     ]);
                 }
             }

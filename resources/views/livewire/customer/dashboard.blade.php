@@ -58,27 +58,6 @@
             </div>
         @endif
 
-        @if($pendingRequest && $customer->status !== 'berhenti')
-            <div class="mb-6 md:mb-8 rounded-2xl border border-[#ebb751]/30 bg-[#ebb751]/10 p-5 md:p-6 shadow-sm relative overflow-hidden">
-                <div class="absolute inset-0 bg-white/20 overflow-hidden pointer-events-none">
-                    <div class="h-full w-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2.5s_infinite]"></div>
-                </div>
-                
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-                    <div class="flex items-start md:items-center gap-4">
-                        <div class="bg-white dark:bg-black/20 p-3 md:p-4 rounded-full shrink-0 shadow-sm"><i class="ti ti-mail-fast text-3xl md:text-4xl text-[#ebb751] animate-bounce"></i></div>
-                        <div>
-                            <h5 class="text-base md:text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">Formulir Pengajuan {{ $pendingRequest->request_type }}</h5>
-                            <p class="mt-1 text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">Tim kami telah membuka akses formulir pengajuan untuk Anda. Silakan lengkapi data yang dibutuhkan agar proses {{ strtolower($pendingRequest->request_type) }} dapat segera diproses.</p>
-                        </div>
-                    </div>
-                    <button wire:click="openRequestModal" class="w-full md:w-auto shrink-0 bg-[#ebb751] hover:bg-[#d4a03c] text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                        <i class="ti ti-edit-circle text-lg"></i> Lengkapi Form Sekarang
-                    </button>
-                </div>
-            </div>
-        @endif
-
         @if($customer->status === 'selesai')
             <div class="boron-card rounded-2xl bg-gradient-to-r from-[#1e5d87] to-[#60addf] border-0 mb-6 md:mb-8 text-white overflow-hidden relative shadow-lg shadow-[#60addf]/20">
                 <div class="absolute top-0 right-0 -mt-10 -mr-10 size-40 rounded-full bg-white/10 blur-2xl"></div>
@@ -139,23 +118,6 @@
                                     <span class="text-[10px] text-[#70bb63] font-bold mt-1 bg-[#70bb63]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
                                 </a>
                             @endif
-                            @php
-                                $signedBaus = \App\Models\ServiceRequest::with('bau')
-                                    ->where('customer_id', $customer->id)
-                                    ->where('status', 'selesai')
-                                    ->whereHas('bau', function($q) {
-                                        $q->whereNotNull('signed_bau_path');
-                                    })->get();
-                            @endphp
-                            
-                            @foreach($signedBaus as $reqBau)
-                                <a href="{{ asset('storage/' . $reqBau->bau->signed_bau_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#ebb751]/50 bg-[#ebb751]/5 hover:bg-[#ebb751]/10 hover:shadow-md transition-all group dark:border-[#ebb751]/30 dark:bg-[#1e1f27]">
-                                    <i class="ti ti-file-check text-3xl text-[#ebb751] mb-2"></i>
-                                    <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Berita Acara ({{ $reqBau->request_type }})</h6>
-                                    <span class="text-[10px] text-[#b58c3d] font-bold mt-1 bg-[#ebb751]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
-                                </a>
-                            @endforeach
-                            
                         </div>
                     </div>
 
@@ -203,6 +165,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="space-y-6 md:space-y-8 mt-2 lg:mt-0">
@@ -251,14 +214,59 @@
                     </div>
 
                     <div class="boron-card shadow-sm rounded-2xl">
+                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d]">
+                            <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Ringkasan Layanan') }}</h5>
+                        </div>
                         <div class="boron-card-body p-5">
-                            <ul class="space-y-4 text-xs md:text-sm">
-                                <li class="flex items-center gap-3 text-[#4c4c5c] dark:text-[#aab8c5]"><i class="ti ti-phone text-lg text-[#8a969c]"></i> 021-397 00 444</li>
-                                <li class="flex items-center gap-3 text-[#4c4c5c] dark:text-[#aab8c5]"><i class="ti ti-mail text-lg text-[#8a969c]"></i> admin.office@mediasolusisukses.co.id</li>
-                                <li class="flex items-center gap-3 text-[#4c4c5c] dark:text-[#aab8c5]"><i class="ti ti-world text-lg text-[#8a969c]"></i> www.mediasolusisukses.co.id</li>
+                            <div class="flex items-center gap-4 mb-5">
+                                <div class="flex size-14 md:size-12 shrink-0 items-center justify-center rounded-xl md:rounded-[0.3rem] bg-[#669776]/10 text-[#669776]">
+                                    <i class="ti ti-network text-3xl md:text-2xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
+                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->bandwidth }}</h6>
+                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service_type ?? '-' }}</p>
+                                </div>
+                            </div>
+                            
+                            <ul class="space-y-3.5 text-sm md:text-[13px]">
+                                <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                    <span class="text-[#8a969c]">Masa Kontrak</span>
+                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->term_of_service ?? '-' }} Tahun</span>
+                                </li>
+                                <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                    <span class="text-[#8a969c]">ID Pelanggan</span>
+                                    <span class="font-bold text-[#ebb751]">
+                                        {{ $customer->customer_number ?? 'Menunggu BAA' }}
+                                    </span>
+                                </li>
                             </ul>
                         </div>
                     </div>
+
+                    <div class="boron-card shadow-sm rounded-2xl">
+                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d]">
+                            <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Data Registrasi') }}</h5>
+                        </div>
+                        <div class="boron-card-body p-5">
+                            <ul class="space-y-4 md:space-y-5 text-sm md:text-[13px]">
+                                <li>
+                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">PT / Instansi</p>
+                                    <p class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->company_name ?? '-' }}</p>
+                                </li>
+                                <li>
+                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">Alamat Instalasi</p>
+                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->installation_address ?? $customer->company_address ?? '-' }}</p>
+                                </li>
+                                <li>
+                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">PIC Teknis/Kontak</p>
+                                    <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_name ?? '-' }} - {{ $customer->technical_phone ?? '-' }}</p>
+                                    <p class="text-xs text-[#8a969c] mt-0.5 break-words">{{ $customer->technical_email ?? '-' }}</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             
@@ -283,37 +291,21 @@
                     <div class="boron-card bg-white dark:bg-[#15151b] border border-[#e7e9eb] dark:border-[#37394d] shadow-sm rounded-2xl">
                         <div class="boron-card-header pb-3 pt-5 px-5 md:px-6 border-b border-[#e7e9eb] dark:border-[#37394d]">
                             <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf] flex items-center gap-2 text-base md:text-lg">
-                                <i class="ti ti-folder text-xl"></i> Arsip Dokumen Pemutusan
+                                <i class="ti ti-folder text-xl"></i> Arsip Dokumen Perusahaan
                             </h5>
                         </div>
                         <div class="boron-card-body p-5 md:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @php
-                                $terminateReq = \App\Models\ServiceRequest::with('bau')
-                                    ->where('customer_id', $customer->id)
-                                    ->where('request_type', 'Terminate')
-                                    ->where('status', 'selesai')
-                                    ->first();
-                            @endphp
-
-                            @if($terminateReq && $terminateReq->bau && $terminateReq->bau->signed_bau_path)
-                                <a href="{{ asset('storage/' . $terminateReq->bau->signed_bau_path) }}" target="_blank" class="flex flex-col items-center justify-center p-6 rounded-xl border border-[#ed6060]/50 bg-[#ed6060]/5 hover:bg-[#ed6060]/10 hover:shadow-md transition-all group dark:border-[#ed6060]/30 dark:bg-[#1e1f27]">
-                                    <i class="ti ti-file-check text-4xl text-[#ed6060] mb-3"></i>
-                                    <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Berita Acara Pemutusan</h6>
-                                    <span class="text-[10px] text-[#ed6060] font-bold mt-1 bg-[#ed6060]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
-                                </a>
-                            @else
-                                <div class="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
-                                    <i class="ti ti-file-x text-4xl text-[#dee2e6] mb-3 dark:text-[#37394d]"></i>
-                                    <h6 class="font-bold text-sm text-[#8a969c] text-center">Dokumen Tidak Ditemukan</h6>
-                                </div>
-                            @endif
-
                             @if($customer->baa && $customer->baa->signed_baa_path)
                                 <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-6 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
                                     <i class="ti ti-file-certificate text-4xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-3 transition-colors dark:group-hover:text-[#60addf]"></i>
                                     <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Registrasi Awal</h6>
                                     <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">History Aktivasi</span>
                                 </a>
+                            @else
+                                <div class="flex flex-col items-center justify-center p-6 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
+                                    <i class="ti ti-file-x text-4xl text-[#dee2e6] mb-3 dark:text-[#37394d]"></i>
+                                    <h6 class="font-bold text-sm text-[#8a969c] text-center">Dokumen BAA Tidak Tersedia</h6>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -436,6 +428,16 @@
                         </div>
                     </div>
                 </div>
+            @elseif($customer->status === 'dibatalkan')
+                <div class="mb-6 rounded-2xl border border-[#ed6060]/30 bg-[#ed6060]/10 p-4 md:p-5 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                        <div class="bg-white/50 dark:bg-black/20 p-3 rounded-full shrink-0 self-start sm:self-center"><i class="ti ti-ban text-2xl md:text-3xl text-[#ed6060]"></i></div>
+                        <div>
+                            <h5 class="text-sm md:text-base font-bold text-[#a84444] dark:text-[#ed6060]">Pendaftaran Dibatalkan</h5>
+                            <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">Pengajuan berlangganan Anda telah dibatalkan secara sistem. Silakan hubungi dukungan kami jika Anda ingin mendaftar kembali.</p>
+                        </div>
+                    </div>
+                </div>
             @else
                 <div class="mb-6 rounded-2xl border border-[#70bb63]/30 bg-[#70bb63]/10 p-4 md:p-5 shadow-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -496,13 +498,13 @@
 
                         <div class="mb-10 md:mb-12">
                             <div class="flex items-center justify-between text-sm md:text-base font-bold text-[#313a46] dark:text-white mb-3">
-                                <span>Progres: {{ $percentage }}%</span>
-                                @if($customer->status !== 'selesai' && $customer->status !== 'ditolak')
+                                <span>Progres: {{ $customer->status === 'ditolak' || $customer->status === 'dibatalkan' ? '0' : $percentage }}%</span>
+                                @if(!in_array($customer->status, ['selesai', 'ditolak', 'dibatalkan']))
                                     <span class="text-xs md:text-sm text-[#8a969c] font-medium hidden sm:inline-block">Estimasi Selesai: Segera</span>
                                 @endif
                             </div>
                             <div class="w-full bg-[#f8f9fa] dark:bg-[#15151b] rounded-full h-3 md:h-4 border border-[#e7e9eb] dark:border-[#37394d] overflow-hidden">
-                                <div class="bg-[#60addf] h-full rounded-full transition-all duration-1000 ease-out relative" style="width: {{ $percentage }}%">
+                                <div class="{{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'bg-[#ed6060]' : 'bg-[#60addf]' }} h-full rounded-full transition-all duration-1000 ease-out relative" style="width: {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? '100' : $percentage }}%">
                                     <div class="absolute inset-0 bg-white/20 overflow-hidden">
                                         <div class="h-full w-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
                                     </div>
@@ -514,15 +516,19 @@
                             
                             <div class="flex gap-4 md:gap-6 group">
                                 <div class="flex flex-col items-center">
-                                    <div class="size-12 md:size-14 rounded-full border border-[#70bb63] flex items-center justify-center bg-[#70bb63]/10 text-[#70bb63] z-10 shrink-0">
-                                        <i class="ti ti-file-check text-xl md:text-2xl"></i>
+                                    <div class="size-12 md:size-14 rounded-full border {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'border-[#ed6060] bg-[#ed6060]/10 text-[#ed6060]' : 'border-[#70bb63] bg-[#70bb63]/10 text-[#70bb63]' }} flex items-center justify-center z-10 shrink-0">
+                                        <i class="ti {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'ti-x' : 'ti-file-check' }} text-xl md:text-2xl"></i>
                                     </div>
-                                    <div class="w-[2px] bg-[#70bb63] h-full my-2 group-last:hidden"></div>
+                                    <div class="w-[2px] {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'bg-[#ed6060]' : 'bg-[#70bb63]' }} h-full my-2 group-last:hidden"></div>
                                 </div>
                                 <div class="flex-1 pb-8 md:pb-10 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
                                     <div>
-                                        <h5 class="text-base md:text-lg font-bold text-[#313a46] dark:text-white">Form Submit</h5>
-                                        <p class="text-[13px] md:text-sm text-[#8a969c] mt-0.5 md:mt-1">Formulir registrasi dan dokumen diserahkan</p>
+                                        <h5 class="text-base md:text-lg font-bold {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'text-[#ed6060]' : 'text-[#313a46] dark:text-white' }}">
+                                            {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'Registrasi Gagal' : 'Form Submit' }}
+                                        </h5>
+                                        <p class="text-[13px] md:text-sm text-[#8a969c] mt-0.5 md:mt-1">
+                                            {{ in_array($customer->status, ['ditolak', 'dibatalkan']) ? 'Pengajuan layanan tidak dapat dilanjutkan' : 'Formulir registrasi dan dokumen diserahkan' }}
+                                        </p>
                                     </div>
                                     <div class="text-[11px] md:text-[13px] text-[#8a969c] sm:text-right shrink-0 mt-1 sm:mt-0 font-medium">
                                         {{ $customer->created_at->format('d M Y, H:i') }}
@@ -530,129 +536,129 @@
                                 </div>
                             </div>
 
-                            @foreach($workflows as $index => $step)
-                                @php
-                                    $stepIndex = array_search($step['id'], $statusOrder);
-                                    if ($customer->status === 'ditolak') {
-                                        $state = 'pending';
-                                    } elseif ($stepIndex < $currentIndex) {
-                                        $state = 'completed';
-                                    } elseif ($stepIndex === $currentIndex) {
-                                        $state = 'active';
-                                    } else {
-                                        $state = 'pending';
-                                    }
+                            @if(!in_array($customer->status, ['ditolak', 'dibatalkan']))
+                                @foreach($workflows as $index => $step)
+                                    @php
+                                        $stepIndex = array_search($step['id'], $statusOrder);
+                                        if ($stepIndex < $currentIndex) {
+                                            $state = 'completed';
+                                        } elseif ($stepIndex === $currentIndex) {
+                                            $state = 'active';
+                                        } else {
+                                            $state = 'pending';
+                                        }
 
-                                    $iconClass = $state === 'completed' ? 'border-[#70bb63] bg-[#70bb63]/10 text-[#70bb63]' : ($state === 'active' ? 'border-[#60addf] bg-[#60addf]/10 text-[#60addf] ring-[6px] ring-[#60addf]/20' : 'border-[#e7e9eb] bg-white text-[#a1a9b1] dark:bg-[#1e1f27] dark:border-[#37394d]');
-                                    $lineClass = $state === 'completed' ? 'bg-[#70bb63]' : 'bg-[#e7e9eb] dark:bg-[#37394d]';
-                                @endphp
+                                        $iconClass = $state === 'completed' ? 'border-[#70bb63] bg-[#70bb63]/10 text-[#70bb63]' : ($state === 'active' ? 'border-[#60addf] bg-[#60addf]/10 text-[#60addf] ring-[6px] ring-[#60addf]/20' : 'border-[#e7e9eb] bg-white text-[#a1a9b1] dark:bg-[#1e1f27] dark:border-[#37394d]');
+                                        $lineClass = $state === 'completed' ? 'bg-[#70bb63]' : 'bg-[#e7e9eb] dark:bg-[#37394d]';
+                                    @endphp
 
-                                <div class="flex gap-4 md:gap-6 group">
-                                    <div class="flex flex-col items-center">
-                                        <div class="size-12 md:size-14 rounded-full border flex items-center justify-center z-10 shrink-0 transition-all duration-500 {{ $iconClass }}">
-                                            @if($state === 'completed')
-                                                <div class="relative">
-                                                    <i class="ti {{ $step['icon'] }} text-xl md:text-2xl"></i>
-                                                    <div class="absolute -bottom-1 -right-1 bg-[#70bb63] text-white rounded-full size-4 flex items-center justify-center border-2 border-white dark:border-[#1e1f27]">
-                                                        <i class="ti ti-check text-[10px]"></i>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <i class="ti {{ $step['icon'] }} text-xl md:text-2xl {{ $state === 'active' ? 'animate-pulse' : '' }}"></i>
-                                            @endif
-                                        </div>
-                                        <div class="w-[2px] h-full my-2 group-last:hidden transition-all duration-500 {{ $lineClass }}"></div>
-                                    </div>
-                                    <div class="flex-1 pb-8 md:pb-10 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
-                                        <div class="w-full">
-                                            <h5 class="text-base md:text-lg font-bold {{ $state === 'active' ? 'text-[#313a46] dark:text-white' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#a1a9b1] dark:text-[#6c757d]') }}">
-                                                {{ $step['title'] }}
-                                                @if($step['id'] === 'menunggu_pembayaran' && $customer->registration_fee == 0)
-                                                    <span class="ml-2 inline-block shrink-0 text-[10px] font-bold text-[#70bb63] bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded-full align-middle uppercase tracking-wider">Registrasi Gratis</span>
-                                                @endif
-                                            </h5>
-                                            <p class="text-[13px] md:text-sm mt-0.5 md:mt-1 {{ $state === 'active' ? 'text-[#313a46] dark:text-white font-medium' : ($state === 'completed' ? 'text-[#8a969c]' : 'text-[#a1a9b1]/70 dark:text-[#6c757d]/70') }}">{{ $step['desc'] }}</p>
-
-                                            @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && $customer->registration_fee != 0)
-                                                <div class="mt-5 w-full">
-                                                    <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
-                                                        <i class="ti ti-file-invoice text-lg"></i> Lihat Tagihan Invoice
-                                                    </a>
-                                                    <div class="relative mt-2.5">
-                                                        <input type="file" wire:model.live="payment_proof" id="upload-proof" class="hidden" accept="image/*">
-                                                        <label for="upload-proof" class="w-full flex justify-center items-center gap-2 bg-[#669776] text-white px-4 py-3 rounded-full text-sm font-bold shadow-md shadow-[#669776]/20 hover:bg-[#527a5f] hover:shadow-lg transition-all cursor-pointer" wire:loading.class="opacity-70" wire:target="payment_proof">
-                                                            <i class="ti ti-upload text-lg"></i>
-                                                            <span wire:loading.remove wire:target="payment_proof">Upload Bukti Transfer</span>
-                                                            <span wire:loading wire:target="payment_proof">Memproses File...</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                @error('payment_proof')
-                                                    <div class="mt-3 bg-[#ed6060]/10 border border-[#ed6060]/20 p-2.5 rounded-lg text-xs text-[#ed6060] font-medium flex items-center gap-2">
-                                                        <i class="ti ti-alert-circle text-base"></i> {{ $message }}
-                                                    </div>
-                                                @enderror
-                                                @if($payment_proof)
-                                                    <div class="mt-4 p-4 rounded-2xl border border-[#669776]/30 bg-[#f8f9fa] dark:bg-[#15151b] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-                                                        <div class="flex items-center gap-3 overflow-hidden">
-                                                            <div class="bg-[#669776]/10 p-2.5 rounded-xl shrink-0"><i class="ti ti-photo text-[#669776] text-xl"></i></div>
-                                                            <div class="truncate">
-                                                                <p class="text-[11px] font-bold text-[#8a969c] uppercase mb-0.5">File Bukti:</p>
-                                                                <p class="text-sm font-bold text-[#313a46] dark:text-white truncate">{{ $payment_proof->getClientOriginalName() }}</p>
-                                                            </div>
+                                    <div class="flex gap-4 md:gap-6 group">
+                                        <div class="flex flex-col items-center">
+                                            <div class="size-12 md:size-14 rounded-full border flex items-center justify-center z-10 shrink-0 transition-all duration-500 {{ $iconClass }}">
+                                                @if($state === 'completed')
+                                                    <div class="relative">
+                                                        <i class="ti {{ $step['icon'] }} text-xl md:text-2xl"></i>
+                                                        <div class="absolute -bottom-1 -right-1 bg-[#70bb63] text-white rounded-full size-4 flex items-center justify-center border-2 border-white dark:border-[#1e1f27]">
+                                                            <i class="ti ti-check text-[10px]"></i>
                                                         </div>
-                                                        <button wire:click="uploadPayment" wire:loading.attr="disabled" class="btn-boron btn-boron-primary !px-6 !py-3 text-sm rounded-full w-full sm:w-auto shadow-md shrink-0">
-                                                            <i class="ti ti-send text-lg mr-1.5"></i> Kirim
-                                                        </button>
                                                     </div>
+                                                @else
+                                                    <i class="ti {{ $step['icon'] }} text-xl md:text-2xl {{ $state === 'active' ? 'animate-pulse' : '' }}"></i>
                                                 @endif
-                                            @endif
-
-                                            @if($state === 'active' && $step['id'] === 'menunggu_baa')
-                                                <div class="mt-5 w-full">
-                                                    <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
-                                                        <i class="ti ti-download text-lg"></i> 1. Download BAA
-                                                    </a>
-                                                    <div class="relative mt-2.5">
-                                                        <input type="file" wire:model.live="signed_baa" id="upload-baa" class="hidden" accept=".pdf,image/*">
-                                                        <label for="upload-baa" class="w-full flex justify-center items-center gap-2 bg-[#669776] text-white px-4 py-3 rounded-full text-sm font-bold shadow-md shadow-[#669776]/20 hover:bg-[#527a5f] hover:shadow-lg transition-all cursor-pointer" wire:loading.class="opacity-70" wire:target="signed_baa">
-                                                            <i class="ti ti-upload text-lg"></i>
-                                                            <span wire:loading.remove wire:target="signed_baa">2. Upload BAA (TTD)</span>
-                                                            <span wire:loading wire:target="signed_baa">Memproses File...</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                @error('signed_baa')
-                                                    <div class="mt-3 bg-[#ed6060]/10 border border-[#ed6060]/20 p-2.5 rounded-lg text-xs text-[#ed6060] font-medium flex items-center gap-2">
-                                                        <i class="ti ti-alert-circle text-base"></i> {{ $message }}
-                                                    </div>
-                                                @enderror
-                                                @if($signed_baa)
-                                                    <div class="mt-4 p-4 rounded-2xl border border-[#669776]/30 bg-[#f8f9fa] dark:bg-[#15151b] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-                                                        <div class="flex items-center gap-3 overflow-hidden">
-                                                            <div class="bg-[#669776]/10 p-2.5 rounded-xl shrink-0"><i class="ti ti-file text-[#669776] text-xl"></i></div>
-                                                            <div class="truncate">
-                                                                <p class="text-[11px] font-bold text-[#8a969c] uppercase mb-0.5">File Dokumen:</p>
-                                                                <p class="text-sm font-bold text-[#313a46] dark:text-white truncate">{{ $signed_baa->getClientOriginalName() }}</p>
-                                                            </div>
-                                                        </div>
-                                                        <button wire:click="uploadSignedBaa" wire:loading.attr="disabled" class="btn-boron btn-boron-primary !px-6 !py-3 text-sm rounded-full w-full sm:w-auto shadow-md shrink-0">
-                                                            <i class="ti ti-send text-lg mr-1.5"></i> Kirim
-                                                        </button>
-                                                    </div>
-                                                @endif
-                                            @endif
+                                            </div>
+                                            <div class="w-[2px] h-full my-2 group-last:hidden transition-all duration-500 {{ $lineClass }}"></div>
                                         </div>
-                                        <div class="text-[11px] md:text-[13px] text-[#8a969c] sm:text-right shrink-0 mt-1 sm:mt-0 font-medium">
-                                            @if($state === 'completed' || $state === 'active')
-                                                {{ $customer->updated_at->format('d M Y, H:i') }}
-                                            @else
-                                                TBA
-                                            @endif
+                                        <div class="flex-1 pb-8 md:pb-10 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1">
+                                            <div class="w-full">
+                                                <h5 class="text-base md:text-lg font-bold {{ $state === 'active' ? 'text-[#313a46] dark:text-white' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#a1a9b1] dark:text-[#6c757d]') }}">
+                                                    {{ $step['title'] }}
+                                                    @if($step['id'] === 'menunggu_pembayaran' && $customer->registration_fee == 0)
+                                                        <span class="ml-2 inline-block shrink-0 text-[10px] font-bold text-[#70bb63] bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded-full align-middle uppercase tracking-wider">Registrasi Gratis</span>
+                                                    @endif
+                                                </h5>
+                                                <p class="text-[13px] md:text-sm mt-0.5 md:mt-1 {{ $state === 'active' ? 'text-[#313a46] dark:text-white font-medium' : ($state === 'completed' ? 'text-[#8a969c]' : 'text-[#a1a9b1]/70 dark:text-[#6c757d]/70') }}">{{ $step['desc'] }}</p>
+
+                                                @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && $customer->registration_fee != 0)
+                                                    <div class="mt-5 w-full">
+                                                        <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
+                                                            <i class="ti ti-file-invoice text-lg"></i> Lihat Tagihan Invoice
+                                                        </a>
+                                                        <div class="relative mt-2.5">
+                                                            <input type="file" wire:model.live="payment_proof" id="upload-proof" class="hidden" accept="image/*">
+                                                            <label for="upload-proof" class="w-full flex justify-center items-center gap-2 bg-[#669776] text-white px-4 py-3 rounded-full text-sm font-bold shadow-md shadow-[#669776]/20 hover:bg-[#527a5f] hover:shadow-lg transition-all cursor-pointer" wire:loading.class="opacity-70" wire:target="payment_proof">
+                                                                <i class="ti ti-upload text-lg"></i>
+                                                                <span wire:loading.remove wire:target="payment_proof">Upload Bukti Transfer</span>
+                                                                <span wire:loading wire:target="payment_proof">Memproses File...</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    @error('payment_proof')
+                                                        <div class="mt-3 bg-[#ed6060]/10 border border-[#ed6060]/20 p-2.5 rounded-lg text-xs text-[#ed6060] font-medium flex items-center gap-2">
+                                                            <i class="ti ti-alert-circle text-base"></i> {{ $message }}
+                                                        </div>
+                                                    @enderror
+                                                    @if($payment_proof)
+                                                        <div class="mt-4 p-4 rounded-2xl border border-[#669776]/30 bg-[#f8f9fa] dark:bg-[#15151b] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                                                            <div class="flex items-center gap-3 overflow-hidden">
+                                                                <div class="bg-[#669776]/10 p-2.5 rounded-xl shrink-0"><i class="ti ti-photo text-[#669776] text-xl"></i></div>
+                                                                <div class="truncate">
+                                                                    <p class="text-[11px] font-bold text-[#8a969c] uppercase mb-0.5">File Bukti:</p>
+                                                                    <p class="text-sm font-bold text-[#313a46] dark:text-white truncate">{{ $payment_proof->getClientOriginalName() }}</p>
+                                                                </div>
+                                                            </div>
+                                                            <button wire:click="uploadPayment" wire:loading.attr="disabled" class="btn-boron btn-boron-primary !px-6 !py-3 text-sm rounded-full w-full sm:w-auto shadow-md shrink-0">
+                                                                <i class="ti ti-send text-lg mr-1.5"></i> Kirim
+                                                            </button>
+                                                        </div>
+                                                    @endif
+                                                @endif
+
+                                                @if($state === 'active' && $step['id'] === 'menunggu_baa')
+                                                    <div class="mt-5 w-full">
+                                                        <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
+                                                            <i class="ti ti-download text-lg"></i> 1. Download BAA
+                                                        </a>
+                                                        <div class="relative mt-2.5">
+                                                            <input type="file" wire:model.live="signed_baa" id="upload-baa" class="hidden" accept=".pdf,image/*">
+                                                            <label for="upload-baa" class="w-full flex justify-center items-center gap-2 bg-[#669776] text-white px-4 py-3 rounded-full text-sm font-bold shadow-md shadow-[#669776]/20 hover:bg-[#527a5f] hover:shadow-lg transition-all cursor-pointer" wire:loading.class="opacity-70" wire:target="signed_baa">
+                                                                <i class="ti ti-upload text-lg"></i>
+                                                                <span wire:loading.remove wire:target="signed_baa">2. Upload BAA (TTD)</span>
+                                                                <span wire:loading wire:target="signed_baa">Memproses File...</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    @error('signed_baa')
+                                                        <div class="mt-3 bg-[#ed6060]/10 border border-[#ed6060]/20 p-2.5 rounded-lg text-xs text-[#ed6060] font-medium flex items-center gap-2">
+                                                            <i class="ti ti-alert-circle text-base"></i> {{ $message }}
+                                                        </div>
+                                                    @enderror
+                                                    @if($signed_baa)
+                                                        <div class="mt-4 p-4 rounded-2xl border border-[#669776]/30 bg-[#f8f9fa] dark:bg-[#15151b] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                                                            <div class="flex items-center gap-3 overflow-hidden">
+                                                                <div class="bg-[#669776]/10 p-2.5 rounded-xl shrink-0"><i class="ti ti-file text-[#669776] text-xl"></i></div>
+                                                                <div class="truncate">
+                                                                    <p class="text-[11px] font-bold text-[#8a969c] uppercase mb-0.5">File Dokumen:</p>
+                                                                    <p class="text-sm font-bold text-[#313a46] dark:text-white truncate">{{ $signed_baa->getClientOriginalName() }}</p>
+                                                                </div>
+                                                            </div>
+                                                            <button wire:click="uploadSignedBaa" wire:loading.attr="disabled" class="btn-boron btn-boron-primary !px-6 !py-3 text-sm rounded-full w-full sm:w-auto shadow-md shrink-0">
+                                                                <i class="ti ti-send text-lg mr-1.5"></i> Kirim
+                                                            </button>
+                                                        </div>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                            <div class="text-[11px] md:text-[13px] text-[#8a969c] sm:text-right shrink-0 mt-1 sm:mt-0 font-medium">
+                                                @if($state === 'completed' || $state === 'active')
+                                                    {{ $customer->updated_at->format('d M Y, H:i') }}
+                                                @else
+                                                    TBA
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -716,9 +722,6 @@
                 </div>
             </div>
         @endif
-
-        @include('livewire.customer.modal.formupgrade')
-        @include('livewire.customer.trackingupgrade')
     @endif
 
     <style>

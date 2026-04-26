@@ -16,11 +16,17 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    public $showCancelled = false;
 
     #[On('trigger-search')]
     public function updateSearch($query)
     {
         $this->search = $query;
+        $this->resetPage();
+    }
+    public function toggleCancelled()
+    {
+        $this->showCancelled = !$this->showCancelled;
         $this->resetPage();
     }
 
@@ -31,12 +37,17 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with('user')
-            ->whereNotIn('status', ['selesai', 'berhenti']) 
-            ->where(function($query) {
+        $query = Customer::with('user');
+        if ($this->showCancelled) {
+            $query->whereIn('status', ['dibatalkan', 'ditolak']);
+        } else {
+            $query->whereNotIn('status', ['selesai', 'berhenti', 'dibatalkan', 'ditolak']);
+        }
+
+        $customers = $query->where(function($q) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('phone', 'like', '%' . $this->search . '%');
+                    $q->where('company_name', 'like', '%' . $this->search . '%')
+                      ->orWhere('phone', 'like', '%' . $this->search . '%');
                 }
             })
             ->latest()

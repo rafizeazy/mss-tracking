@@ -17,6 +17,12 @@
                 <i class="ti ti-edit"></i> Edit Data
             </button>
 
+            @if(!in_array($customer->status, ['selesai', 'dibatalkan', 'ditolak']))
+                <button wire:click="cancelRegistration" wire:confirm="Yakin ingin membatalkan pengajuan ini? Data tidak akan tampil lagi di antrean." class="btn-boron !py-1.5 flex items-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
+                    <i class="ti ti-ban"></i> Batalkan Pengajuan
+                </button>
+            @endif
+
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
                 <i class="ti ti-arrow-left"></i> Kembali ke Antrean
             </a>
@@ -260,14 +266,37 @@
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
-                                <div class="col-span-2">
+                                <div class="col-span-2" x-data="{
+                                    raw: @entangle('registration_fee'),
+                                    formatRupiah(val) {
+                                        if (!val) return '';
+                                        return parseInt(String(val).replace(/[^0-9]/g, '')).toLocaleString('id-ID');
+                                    },
+                                    onInput(e) {
+                                        let val = e.target.value.replace(/[^0-9]/g, '');
+                                        this.raw = val ? parseInt(val) : null;
+                                        e.target.value = this.formatRupiah(val);
+                                    }
+                                }">
                                     <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Biaya Registrasi / Instalasi (Rp)</label>
-                                    <input type="number" wire:model="registration_fee" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <input type="text" :value="formatRupiah(raw)" @input="onInput" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     @error('registration_fee') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
-                                <div class="col-span-2">
+                                
+                                <div class="col-span-2" x-data="{
+                                    raw: @entangle('monthly_fee'),
+                                    formatRupiah(val) {
+                                        if (!val) return '';
+                                        return parseInt(String(val).replace(/[^0-9]/g, '')).toLocaleString('id-ID');
+                                    },
+                                    onInput(e) {
+                                        let val = e.target.value.replace(/[^0-9]/g, '');
+                                        this.raw = val ? parseInt(val) : null;
+                                        e.target.value = this.formatRupiah(val);
+                                    }
+                                }">
                                     <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Biaya Bulanan (Rp)</label>
-                                    <input type="number" wire:model="monthly_fee" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <input type="text" :value="formatRupiah(raw)" @input="onInput" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     <p class="mt-1 text-[10px] italic text-[#ed6060]">*Harga di atas belum termasuk PPN 11%</p>
                                     @error('monthly_fee') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
