@@ -1,110 +1,66 @@
 <div>
-    <div class="py-6">
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h4 class="text-lg font-semibold text-[#313a46] dark:text-white">{{ __('User Management') }}</h4>
-                <p class="mt-0.5 text-sm text-[#8a969c]">{{ __('Manage user accounts and assign roles') }}</p>
+                <flux:heading size="xl">{{ __('User Management') }}</flux:heading>
+                <flux:subheading>{{ __('Manage user accounts and assign roles') }}</flux:subheading>
             </div>
-            <div class="flex items-center gap-2 text-sm text-[#8a969c]">
-                <i class="ti ti-home text-base"></i>
-                <span>/</span>
-                <span>{{ __('Administration') }}</span>
-                <span>/</span>
-                <span class="font-medium text-[#313a46] dark:text-white">{{ __('Users') }}</span>
-            </div>
+
+            <flux:button variant="primary" icon="plus" wire:click="$set('showCreateModal', true)">
+                {{ __('Add User') }}
+            </flux:button>
         </div>
-        <div class="boron-card">
-            <div class="boron-card-header">
-                <h5 class="font-semibold text-[#313a46] dark:text-white">{{ __('All Users') }}</h5>
-                <button wire:click="$set('showCreateModal', true)"
-                    class="btn-boron btn-boron-primary inline-flex items-center gap-2 !px-4 !py-2 text-sm"
-                >
-                    <i class="ti ti-plus text-base"></i>
-                    {{ __('Add User') }}
-                </button>
-            </div>
-            <div class="boron-card-body">
-                <div class="mb-5 max-w-sm">
-                    <div class="relative">
-                        <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
-                        <input wire:model.live.debounce.300ms="search" type="text"
-                            placeholder="{{ __('Search users...') }}"
-                            class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent py-2 pl-9 pr-4 text-sm placeholder:text-[#a1a9b1] focus:border-[#669776] focus:outline-none focus:ring-2 focus:ring-[#669776]/20 dark:border-[#37394d] dark:focus:border-[#669776]"
-                        >
-                    </div>
-                </div>
 
-                <div class="overflow-x-auto">
-                    <table class="boron-table w-full">
-                        <thead>
-                            <tr>
-                                <th class="text-left">{{ __('Name') }}</th>
-                                <th class="text-left">{{ __('Email') }}</th>
-                                <th class="text-left">{{ __('Role') }}</th>
-                                <th class="text-left">{{ __('Created') }}</th>
-                                <th class="text-right">{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($this->users as $user)
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center gap-3">
-                                            <span class="flex size-8 items-center justify-center rounded-full bg-[#669776]/15 text-xs font-bold text-[#669776]">
-                                                {{ $user->initials() }}
-                                            </span>
-                                            <span class="font-medium text-[#313a46] dark:text-white">{{ $user->name }}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>
-                                        @php
-                                            $badgeClass = match($user->role) {
-                                                \App\Enums\Role::SuperAdmin => 'badge-soft-danger',
-                                                \App\Enums\Role::Noc => 'badge-soft-info',
-                                                \App\Enums\Role::Finance => 'badge-soft-success',
-                                                \App\Enums\Role::Marketing => 'badge-soft-warning',
-                                                default => 'badge-soft-secondary',
-                                            };
-                                        @endphp
-                                        <span class="{{ $badgeClass }}">{{ $user->role->label() }}</span>
-                                    </td>
-                                    <td>{{ $user->created_at->format('d M Y') }}</td>
-                                    <td class="text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <button wire:click="editUser({{ $user->id }})"
-                                                class="boron-topbar-btn !size-8 !rounded-[0.3rem]" title="{{ __('Edit') }}"
-                                            >
-                                                <i class="ti ti-pencil text-sm"></i>
-                                            </button>
-                                            @if ($user->id !== auth()->id())
-                                                <button wire:click="confirmDelete({{ $user->id }})"
-                                                    class="boron-topbar-btn !size-8 !rounded-[0.3rem] text-[#ed6060] hover:!bg-[#ed6060]/10" title="{{ __('Delete') }}"
-                                                >
-                                                    <i class="ti ti-trash text-sm"></i>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-[#8a969c]">
-                                        <div class="py-8">
-                                            <i class="ti ti-users-minus mb-2 text-3xl text-[#a1a9b1]"></i>
-                                            <p>{{ __('No users found.') }}</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+        <div class="max-w-sm">
+            <flux:input wire:model.live.debounce.300ms="search" placeholder="{{ __('Search users...') }}" />
+        </div>
 
-                <div class="mt-4">
-                    {{ $this->users->links() }}
-                </div>
-            </div>
+        <flux:table>
+            <flux:table.columns>
+                <flux:table.column>{{ __('Name') }}</flux:table.column>
+                <flux:table.column>{{ __('Email') }}</flux:table.column>
+                <flux:table.column>{{ __('Role') }}</flux:table.column>
+                <flux:table.column>{{ __('Created') }}</flux:table.column>
+                <flux:table.column class="text-right">{{ __('Actions') }}</flux:table.column>
+            </flux:table.columns>
+
+            <flux:table.rows>
+                @forelse ($this->users as $user)
+                    <flux:table.row :key="$user->id">
+                        <flux:table.cell>
+                            <div class="flex items-center gap-3">
+                                <flux:avatar size="sm" :name="$user->name" :initials="$user->initials()" />
+                                <span class="font-medium">{{ $user->name }}</span>
+                            </div>
+                        </flux:table.cell>
+                        <flux:table.cell>{{ $user->email }}</flux:table.cell>
+                        <flux:table.cell>
+                            <flux:badge size="sm" :variant="$user->role === \App\Enums\Role::SuperAdmin ? 'solid' : 'outline'">
+                                {{ $user->role->label() }}
+                            </flux:badge>
+                        </flux:table.cell>
+                        <flux:table.cell>{{ $user->created_at->format('d M Y') }}</flux:table.cell>
+                        <flux:table.cell class="text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <flux:button size="sm" variant="ghost" icon="pencil" wire:click="editUser({{ $user->id }})" />
+                                @if ($user->id !== auth()->id())
+                                    <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $user->id }})" />
+                                @endif
+                            </div>
+                        </flux:table.cell>
+                    </flux:table.row>
+                @empty
+                    <flux:table.row>
+                        <flux:table.cell colspan="5" class="text-center">
+                            <flux:text>{{ __('No users found.') }}</flux:text>
+                        </flux:table.cell>
+                    </flux:table.row>
+                @endforelse
+            </flux:table.rows>
+        </flux:table>
+
+        <div>
+            {{ $this->users->links() }}
         </div>
     </div>
 

@@ -8,7 +8,6 @@ enum Role: string
     case Noc = 'noc';
     case Finance = 'finance';
     case Marketing = 'marketing';
-    case Customer = 'customer';
 
     public function label(): string
     {
@@ -17,7 +16,6 @@ enum Role: string
             self::Noc => 'NOC',
             self::Finance => 'Finance',
             self::Marketing => 'Marketing',
-            self::Customer => 'Pelanggan',
         };
     }
 }

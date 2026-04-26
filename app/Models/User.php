@@ -50,8 +50,6 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => Role::class,
-            'two_factor_secret' => 'encrypted',
-            'two_factor_recovery_codes' => 'encrypted',
         ];
     }
 
@@ -75,9 +73,5 @@ class User extends Authenticatable
     public function hasRole(Role $role): bool
     {
         return $this->role === $role;
-    }
-    public function customer()
-    {
-        return $this->hasOne(\App\Models\Customer::class);
     }
 }

@@ -8,23 +8,23 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Boron Theme - Neobrutalism */
-
 @theme {
-    --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'DM Sans', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
     --color-zinc-50: #fafafa;
-    --color-zinc-100: #f6f7fb;
-    --color-zinc-200: #eef2f7;
-    --color-zinc-300: #e7e9eb;
-    --color-zinc-400: #ced4da;
-    --color-zinc-500: #a1a9b1;
-    --color-zinc-600: #8a969c;
-    --color-zinc-700: #6c757d;
-    --color-zinc-800: #343a40;
-    --color-zinc-900: #313a46;
+    --color-zinc-100: #f5f5f5;
+    --color-zinc-200: #e5e5e5;
+    --color-zinc-300: #d4d4d4;
+    --color-zinc-400: #a3a3a3;
+    --color-zinc-500: #737373;
+    --color-zinc-600: #525252;
+    --color-zinc-700: #404040;
+    --color-zinc-800: #262626;
+    --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
-    --color-accent: var(--color-zinc-900);
-    --color-accent-content: var(--color-zinc-900);
+
+    --color-accent: var(--color-neutral-800);
+    --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
 }
 
@@ -32,224 +32,102 @@
     .dark {
         --color-accent: var(--color-white);
         --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-zinc-900);
+        --color-accent-foreground: var(--color-neutral-800);
     }
 }
 
 @layer base {
-    *, ::after, ::before, ::backdrop, ::file-selector-button {
-        border-color: var(--color-zinc-800, currentColor);
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
     }
 }
 
-/* Flux UI Overrides */
-[data-flux-field]:not(ui-radio, ui-checkbox) { @apply grid gap-2; }
-[data-flux-label] { @apply !mb-0 !leading-tight; }
-input[data-flux-control],
-textarea[data-flux-control],
-select[data-flux-control] {
-    border: 1px solid #dee2e6 !important;
-    border-radius: 0.3rem !important;
-    background: #fff !important;
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
 }
-.dark input[data-flux-control],
-.dark textarea[data-flux-control],
-.dark select[data-flux-control] {
-    border-color: #37394d !important;
-    background: #1e1f27 !important;
-    color: #aab8c5 !important;
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
 }
+
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-offset-2 ring-offset-accent-foreground;
-    border-color: #669776 !important;
-    --tw-ring-color: rgba(102, 151, 118, 0.3) !important;
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
-/* Body Background */
-.boron-body { background-color: #fffbf4; color: #4c4c5c; }
-.dark .boron-body { background-color: #17181e; color: #aab8c5; }
+.auth-dot-pattern {
+    background-image: radial-gradient(circle, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+}
 
-/* Auth Background */
-.auth-bg { background-color: #fffbf4; }
-.dark .auth-bg { background-color: #17181e; }
+/* Admin Sidebar */
+.admin-sidebar {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16162a 100%);
+}
 
-/* Neobrutalism Card */
-.boron-card {
-    @apply rounded-[0.3rem] border border-[#343a40] overflow-hidden;
+.admin-sidebar .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+}
+.admin-sidebar .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+.admin-sidebar .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+}
+
+/* Dashboard Cards - Neobrutalism */
+.neo-card {
+    @apply rounded-2xl border p-6 shadow-sm transition-all duration-200;
     background: white;
-    box-shadow: 5px 7px 0 #6c757d;
-    margin-bottom: 1.875rem;
+    border-color: #e8e8e8;
 }
-.dark .boron-card {
-    background: #1e1f27;
-    border-color: #37394d;
-    box-shadow: 0px 0px 35px 0px rgba(26, 27, 34, 0.5);
+.neo-card:hover {
+    @apply shadow-md -translate-y-0.5;
 }
-.boron-card-header {
-    @apply flex items-center justify-between border-b border-dashed border-[#343a40] px-5 py-4;
-}
-.dark .boron-card-header { border-color: #37394d; }
-.boron-card-body { @apply px-5 py-4; }
-.boron-card-footer { @apply px-5 py-3; }
-
-/* Neobrutalism Buttons */
-.btn-boron {
-    @apply inline-flex items-center justify-center gap-2 rounded-[0.3rem] border border-[#343a40] px-4 py-2 text-sm font-medium transition-all duration-100;
-    box-shadow: #fff 3px 3px 0 0, #313a46 3px 3px 0 1px;
-}
-.btn-boron:hover {
-    box-shadow: #fff 2px 2px 0 0, #313a46 2px 2px 0 1px;
-    transform: translate(1px, 1px);
-}
-.btn-boron:active {
-    box-shadow: none;
-    transform: translate(3px, 3px);
-}
-.btn-boron-primary { @apply bg-[#313a46] text-white; }
-.btn-boron-primary:hover { background: #669776; border-color: #669776; }
-.btn-boron-secondary { @apply bg-[#669776] text-white; border-color: #669776; }
-.btn-boron-danger { @apply bg-[#ed6060] text-white; border-color: #ed6060; box-shadow: #fff 3px 3px 0 0, #ed6060 3px 3px 0 1px; }
-.btn-boron-outline { @apply bg-white text-[#313a46]; box-shadow: #313a46 3px 3px 0 0; }
-
-/* Badges */
-.badge-soft-success { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-[#70bb63]/15 text-[#70bb63]; }
-.badge-soft-danger  { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-[#ed6060]/15 text-[#ed6060]; }
-.badge-soft-info    { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-[#60addf]/15 text-[#60addf]; }
-.badge-soft-warning { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-[#ebb751]/15 text-[#ebb751]; }
-.badge-soft-primary { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-[#313a46]/15 text-[#313a46]; }
-.dark .badge-soft-primary { @apply bg-white/15 text-white; }
-.badge-soft-secondary { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-[#669776]/15 text-[#669776]; }
-
-/* Sidebar (Boron Dark) — Collapsed + Hover Expand */
-.boron-sidebar {
-    background: #000;
-    border-right: 1px solid #343a40;
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.dark .boron-sidebar { background: #000; border-right-color: #37394d; }
-
-/* Collapsed state (desktop default): icon-only, 70px */
-@media (min-width: 1024px) {
-    .boron-sidebar.sidebar-collapsed { width: 70px; }
-    .boron-sidebar.sidebar-expanded { width: 250px; }
-    .sidebar-collapsed .sidebar-label { opacity: 0; width: 0; overflow: hidden; transition: opacity 0.15s ease; }
-    .sidebar-expanded .sidebar-label { opacity: 1; width: auto; transition: opacity 0.2s ease 0.05s; }
-    .sidebar-collapsed .side-nav-title { height: 20px; padding-top: 12px; padding-bottom: 4px; }
-    .sidebar-collapsed .side-nav-link { justify-content: center; padding-left: 0; padding-right: 0; gap: 0; }
-    .sidebar-expanded .side-nav-link { justify-content: flex-start; padding-left: 0.75rem; padding-right: 0.75rem; gap: 0.75rem; }
-    .sidebar-icon-center { width: 24px; min-width: 24px; display: flex; align-items: center; justify-content: center; }
-    .sidebar-collapsed .sidebar-logo { justify-content: center; padding-left: 0; padding-right: 0; }
-    .sidebar-expanded .sidebar-logo { padding-left: 1.25rem; padding-right: 1.25rem; justify-content: flex-start; }
-    .sidebar-collapsed .sidebar-logo a { justify-content: center; }
-    .sidebar-expanded .sidebar-logo a { justify-content: flex-start; }
-}
-/* Mobile: always full 250px */
-@media (max-width: 1023px) {
-    .boron-sidebar { width: 250px; }
-    .sidebar-label { opacity: 1; width: auto; }
-    .sidebar-logo { padding-left: 1.25rem; padding-right: 1.25rem; }
+.dark .neo-card {
+    background: #1a1a2e;
+    border-color: #2a2a3d;
 }
 
-.boron-sidebar .side-nav-title {
-    @apply px-5 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.1em];
-    color: #8a969c;
-    white-space: nowrap;
-    overflow: hidden;
+.neo-stat-card {
+    @apply rounded-2xl border p-6 shadow-sm transition-all duration-200 relative overflow-hidden;
+    background: white;
+    border-color: #e8e8e8;
 }
-.boron-sidebar .side-nav-link {
-    @apply flex items-center gap-3 rounded-[0.3rem] mx-2 px-3 py-2.5 text-sm font-normal transition-all duration-150;
-    color: #c5c9d4;
-    white-space: nowrap;
-    overflow: hidden;
+.neo-stat-card:hover {
+    @apply shadow-md -translate-y-0.5;
 }
-.boron-sidebar .side-nav-link:hover { background: rgba(102, 151, 118, 0.1); color: #fff; }
-.boron-sidebar .side-nav-link.active {
-    background: rgba(102, 151, 118, 0.15);
-    color: #669776;
-    box-shadow: 3px 4px 0 rgba(102, 151, 118, 0.3);
+.dark .neo-stat-card {
+    background: #1a1a2e;
+    border-color: #2a2a3d;
 }
-
-/* Topbar (Boron) */
-.boron-topbar {
-    background: #fffbf4;
-    border-bottom: 1px dashed #343a40;
-    min-height: 70px;
-}
-.dark .boron-topbar { background: #000; border-bottom-color: #37394d; }
-.boron-topbar-btn {
-    @apply inline-flex items-center justify-center rounded-[0.3rem] border border-[#313a46] p-2 text-[#313a46] transition-all;
-}
-.boron-topbar-btn:hover { @apply bg-[#313a46] text-white; }
-.dark .boron-topbar-btn { @apply border-[#37394d] text-[#aab8c5]; }
-.dark .boron-topbar-btn:hover { @apply bg-white/10 text-white; }
-
-/* Boron Table */
-.boron-table { @apply w-full text-sm; }
-.boron-table th {
-    @apply border-b border-dashed border-[#343a40] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider;
-    color: #8a969c;
-}
-.dark .boron-table th { border-color: #37394d; }
-.boron-table td { @apply border-b border-[#e7e9eb] px-4 py-3; color: #4c4c5c; }
-.dark .boron-table td { border-color: #37394d; color: #aab8c5; }
-.boron-table tbody tr:hover td { background: #f6f7fb; }
-.dark .boron-table tbody tr:hover td { background: rgba(255, 255, 255, 0.03); }
-
-/* Timeline */
-.boron-timeline { @apply relative space-y-0 pl-8; }
-.boron-timeline::before {
+.neo-stat-card::before {
     content: '';
-    @apply absolute left-[11px] top-2 bottom-2 w-px;
-    background: #e7e9eb;
+    @apply absolute top-0 left-0 h-1 w-full;
 }
-.dark .boron-timeline::before { background: #37394d; }
-.timeline-item { @apply relative pb-5; }
-.timeline-dot {
-    @apply absolute -left-[25px] top-1 size-3 rounded-full border-2;
-    background: #e7e9eb;
-    border-color: #6c757d;
-}
-.timeline-content { @apply pl-0; }
-.boron-timeline-item { @apply relative pb-4; }
-.boron-timeline-icon { @apply absolute -left-5 top-0 flex size-6 items-center justify-center rounded-full text-xs; }
+.neo-stat-card.accent-teal::before { background: #4ecca3; }
+.neo-stat-card.accent-blue::before { background: #6c63ff; }
+.neo-stat-card.accent-amber::before { background: #f59e0b; }
+.neo-stat-card.accent-rose::before { background: #f43f5e; }
 
-/* Scrollbar */
-.boron-scrollbar::-webkit-scrollbar { width: 5px; }
-.boron-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.boron-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 9999px; }
-
-/* Settings Nav */
-.settings-nav-link {
-    @apply flex items-center gap-2.5 rounded-[0.3rem] px-3 py-2 text-sm font-medium transition-all duration-150;
-    color: #4c4c5c;
+/* Stat badge */
+.stat-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
 }
-.settings-nav-link:hover { background: #f6f7fb; color: #313a46; }
-.dark .settings-nav-link { color: #aab8c5; }
-.dark .settings-nav-link:hover { background: rgba(255,255,255,0.05); color: #fff; }
-.settings-nav-link.active {
-    background: rgba(102, 151, 118, 0.12);
-    color: #669776;
+.stat-badge.positive {
+    @apply bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400;
 }
-.dark .settings-nav-link.active {
-    background: rgba(102, 151, 118, 0.15);
-    color: #669776;
+.stat-badge.negative {
+    @apply bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400;
 }
 
-/* Footer */
-.boron-footer {
-    @apply border-t border-[#e7e9eb] px-6 py-5 text-center text-sm;
-    color: #6c757d;
-    margin-top: auto;
-}
-.dark .boron-footer { border-color: #37394d; }
-
-/* Bell animation */
-@keyframes ring-bell {
-    0%, 100% { transform: rotate(0deg); }
-    10%, 30% { transform: rotate(10deg); }
-    20% { transform: rotate(-10deg); }
-    40%, 50%, 60%, 70%, 80%, 90% { transform: rotate(0deg); }
-}
-.animate-ring-bell { animation: ring-bell 2s ease-in-out infinite; }
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */

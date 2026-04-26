@@ -4,13 +4,11 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
-use App\Enums\Role;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -31,18 +29,6 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
-
-        $this->app->singleton(LoginResponse::class, function () {
-            return new class implements LoginResponse {
-                public function toResponse($request)
-                {
-                    if (auth()->user()->role === Role::Customer) {
-                        return redirect()->route('customer.dashboard');
-                    }
-                    return redirect()->route('dashboard');
-                }
-            };
-        });
     }
 
     /**
