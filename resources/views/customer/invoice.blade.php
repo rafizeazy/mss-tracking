@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Invoice {{ $customer->invoice_number }} | PT Media Solusi Sukses</title>
     <style>
-        /* ========== RESET & GLOBAL ========== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Ukuran A4 potret untuk layar & cetak */
         body {
             background: #e2e8f0;
             display: flex;
@@ -23,7 +21,6 @@
             padding: 40px 20px;
         }
 
-        /* Container utama dengan ukuran A4 */
         .a4-container {
             width: 210mm;
             min-height: 297mm;
@@ -36,15 +33,13 @@
             flex-direction: column;
         }
 
-        /* Konten utama dengan padding yang pas agar muat 1 halaman */
         .invoice-content {
             padding: 1.8rem 2rem 1.5rem 2rem;
             flex: 1;
             display: flex;
-            flex-direction: column; /* Wajib flex-col agar auto-margin bekerja */
+            flex-direction: column; 
         }
 
-        /* ========== HEADER ========== */
         .header-row {
             display: flex;
             justify-content: space-between;
@@ -95,7 +90,6 @@
             margin-top: 5px;
         }
 
-        /* ========== INFO GRID ========== */
         .info-grid {
             display: flex;
             justify-content: space-between;
@@ -133,7 +127,6 @@
             text-align: right;
         }
 
-        /* ========== TABEL ========== */
         .table-wrapper {
             margin: 0.8rem 0 1rem 0;
             border-radius: 16px;
@@ -178,7 +171,6 @@
             margin-top: 3px;
         }
 
-        /* ========== TOTAL SECTION ========== */
         .total-section {
             display: flex;
             justify-content: flex-end;
@@ -209,14 +201,11 @@
             font-size: 1.05rem;
         }
 
-        /* ========== BOTTOM (PAYMENT & SIGNATURE) ========== */
         .bottom-flex {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             gap: 1.5rem;
-            
-            /* PERBAIKAN: Posisi dikembalikan normal ke atas (tepat di bawah total) */
             margin-top: 1.5rem; 
             margin-bottom: 1rem;
         }
@@ -281,10 +270,19 @@
             font-size: 0.65rem;
             color: #6b7280;
         }
+        .signature-img-container {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .signature-img-container img {
+            max-height: 100%;
+            width: auto;
+        }
 
-        /* ========== FOOTER NOTES ========== */
         .footer-notes {
-            /* PERBAIKAN: Elemen ini yang didorong ke bawah */
             margin-top: auto; 
             padding-top: 1rem;
             border-top: 1px solid #e2e8f0;
@@ -297,7 +295,6 @@
             margin-bottom: 4px;
         }
 
-        /* ========== TOMBOL CETAK (sticky di layar, hilang saat print) ========== */
         .print-button-container {
             text-align: right;
             margin-bottom: 12px;
@@ -323,7 +320,6 @@
             transform: scale(0.98);
         }
 
-        /* ========== PRINT STYLE ========== */
         @media print {
             body {
                 background: white;
@@ -360,7 +356,6 @@
             }
         }
 
-        /* ========== RESPONSIVE UNTUK LAYAR KECIL ========== */
         @media screen and (max-width: 850px) {
             body { padding: 10px; }
             .a4-container {
@@ -392,7 +387,6 @@
 </head>
 <body>
 <div class="a4-container">
-    <!-- Tombol cetak hanya di layar, tidak muncul di print -->
     <div class="print-button-container" style="padding: 12px 20px 0 0;">
         <button class="btn-print" onclick="window.print()">
             🖨️ Cetak / Simpan PDF (A4 Portrait)
@@ -400,7 +394,6 @@
     </div>
 
     <div class="invoice-content">
-        <!-- HEADER -->
         <div class="header-row">
             <div class="brand">
                 <img src="{{ asset('logo/Logo MSS.png') }}" class="logo" alt="Logo MSS" onerror="this.style.display='none';">
@@ -415,7 +408,6 @@
             </div>
         </div>
 
-        <!-- INFO PELANGGAN & TANGGAL (2 kolom rapi) -->
         <div class="info-grid">
             <div class="info-card">
                 <label>📋 DITAGIHKAN KEPADA</label>
@@ -440,7 +432,6 @@
             </div>
         </div>
 
-        <!-- TABEL LAYANAN -->
         <div class="table-wrapper">
             <table class="invoice-table">
                 <thead>
@@ -463,7 +454,6 @@
             </table>
         </div>
 
-        <!-- RINGKASAN TOTAL -->
         <div class="total-section">
             <div class="total-card">
                 <div class="total-row">
@@ -481,7 +471,6 @@
             </div>
         </div>
 
-        <!-- BAGIAN BAWAH: PAYMENT + TTD (Kembali normal di bawah total) -->
         <div class="bottom-flex">
             <div class="payment-box">
                 <h4>💳 INFORMASI PEMBAYARAN</h4>
@@ -496,13 +485,15 @@
             </div>
             <div class="signature">
                 <div class="sign-title">Hormat Kami,</div>
+                <div class="signature-img-container">
+                    <img src="{{ asset('ttd/finance/ttdfinance.png') }}" alt="TTD Finance" style="max-height: 70px; width: auto; display: block; margin: 0 auto;">
+                </div>
                 <div class="sign-line"></div>
-                <div class="sign-name">PT Media Solusi Sukses</div>
+                <div class="sign-name">{{ config('invoice.signature_name', 'Finance Department') }}</div>
                 <div class="sign-role">Finance Department</div>
             </div>
         </div>
 
-        <!-- CATATAN KAKI (Akan didorong mentok ke bawah) -->
         <div class="footer-notes">
             <p>Invoice ini dibuat secara otomatis oleh sistem. Biaya berlangganan bulan pertama akan ditagihkan secara terpisah setelah layanan aktif (BAA diterbitkan). Apabila ada pertanyaan mengenai tagihan ini, silakan hubungi tim Finance kami.</p>
             <p style="margin-top: 8px;">© {{ date('Y') }} PT Media Solusi Sukses — {{ config('app.url', 'mss.co.id') }}</p>

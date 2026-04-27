@@ -75,8 +75,13 @@ class Dashboard extends Component
         $currAktif = Customer::where('status', 'selesai')->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
         $prevAktif = Customer::where('status', 'selesai')->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
 
-        $currProses = Customer::whereNotIn('status', ['selesai', 'ditolak'])->whereBetween('created_at', [$currentStart, $currentEnd])->count();
-        $prevProses = Customer::whereNotIn('status', ['selesai', 'ditolak'])->whereBetween('created_at', [$prevStart, $prevEnd])->count();
+        // MENGECUALIKAN STATUS TERMINAL DARI PERHITUNGAN PROSES
+        $currProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti', 'dibatalkan'])->whereBetween('created_at', [$currentStart, $currentEnd])->count();
+        $prevProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti', 'dibatalkan'])->whereBetween('created_at', [$prevStart, $prevEnd])->count();
+
+        // MENGHITUNG KHUSUS UNTUK PELANGGAN 'berhenti'
+        $currBerhenti = Customer::where('status', 'berhenti')->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
+        $prevBerhenti = Customer::where('status', 'berhenti')->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
 
         $totalKeseluruhan = Customer::where('status', 'selesai')->count();
 
@@ -88,12 +93,12 @@ class Dashboard extends Component
 
             return ['val' => round(abs($diff / $prev) * 100, 1), 'up' => $diff >= 0];
         };
-
         $this->stats = [
             'pendaftar' => ['total' => $currPendaftar, 'change' => $calcChange($currPendaftar, $prevPendaftar)],
-            'aktif' => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
-            'proses' => ['total' => $currProses, 'change' => $calcChange($currProses, $prevProses)],
-            'total_all' => ['total' => $totalKeseluruhan],
+            'aktif'     => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
+            'proses'    => ['total' => $currProses, 'change' => $calcChange($currProses, $prevProses)],
+            'berhenti'  => ['total' => $currBerhenti, 'change' => $calcChange($currBerhenti, $prevBerhenti)],
+            'total_all' => ['total' => $totalKeseluruhan]
         ];
 
         $monthExpr = \DB::connection()->getDriverName() === 'sqlite'

@@ -16,6 +16,7 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    public $showCancelled = false;
 
     public function updatedSearch(): void
     {
@@ -28,6 +29,11 @@ class Index extends Component
         $this->search = $query;
         $this->resetPage();
     }
+    public function toggleCancelled()
+    {
+        $this->showCancelled = !$this->showCancelled;
+        $this->resetPage();
+    }
 
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshData()
@@ -36,12 +42,17 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with('user')
-            ->where('status', '!=', 'selesai') 
-            ->where(function($query) {
+        $query = Customer::with('user');
+        if ($this->showCancelled) {
+            $query->whereIn('status', ['dibatalkan', 'ditolak']);
+        } else {
+            $query->whereNotIn('status', ['selesai', 'berhenti', 'dibatalkan', 'ditolak']);
+        }
+
+        $customers = $query->where(function($q) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('phone', 'like', '%' . $this->search . '%');
+                    $q->where('company_name', 'like', '%' . $this->search . '%')
+                      ->orWhere('phone', 'like', '%' . $this->search . '%');
                 }
             })
             ->latest()

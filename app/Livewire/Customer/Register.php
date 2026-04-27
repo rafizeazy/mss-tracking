@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -18,10 +19,13 @@ class Register extends Component
     use WithFileUploads;
 
     public int $currentStep = 1;
-
     public int $totalSteps = 4;
 
-    // Data Pendaftar
+    public $provinces = [];
+    public $cities = [];
+    public string $province_id = '';
+    public string $city_id = '';
+
     public string $name = '';
     public string $email = '';
     public string $ktp_number = '';
@@ -29,29 +33,23 @@ class Register extends Component
     public string $position = '';
     public string $phone = '';
 
-    // Informasi Perusahaan
     public string $company_name = '';
     public string $business_type = '';
     public string $npwp_number = '';
     public string $company_address = '';
-    public string $city = '';
-    public string $province = '';
     public string $postal_code = '';
     public string $company_phone = '';
 
-    // PIC Keuangan
     public string $finance_name = '';
     public string $finance_email = '';
     public string $billing_address = '';
     public string $finance_phone = '';
 
-    // PIC Teknis
     public string $technical_name = '';
     public string $technical_email = '';
     public string $installation_address = '';
     public string $technical_phone = '';
 
-    // Layanan & Dokumen
     public string $service_type = 'Internet Dedicated 1:1'; 
     public string $bandwidth = '';
     public string $term_of_service = '1';
@@ -61,12 +59,37 @@ class Register extends Component
     public $nib_file;
     public $certificate_file;
 
-    // Kredensial
     public string $password = '';
     public string $password_confirmation = '';
     public bool $accepted_terms = false;
 
-    /** @return array<string, string> */
+    public function mount(): void
+    {
+        try {
+            $this->provinces = DB::table('provinces')->orderBy('name', 'asc')->get();
+        } catch (\Exception $e) {
+            $this->provinces = collect();
+        }
+    }
+
+    public function updatedProvinceId(string $value): void
+    {
+        if (! empty($value)) {
+            try {
+                $this->cities = DB::table('regencies')
+                    ->where('province_id', $value)
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } catch (\Exception $e) {
+                $this->cities = collect();
+            }
+        } else {
+            $this->cities = collect();
+        }
+
+        $this->city_id = '';
+    }
+
     protected function rulesForStep(int $step): array
     {
         return match ($step) {
@@ -83,25 +106,25 @@ class Register extends Component
                 'company_address' => 'required|string',
                 'business_type' => 'nullable|string|max:255',
                 'npwp_number' => 'nullable|string|max:50',
-                'city' => 'nullable|string|max:100',
-                'province' => 'nullable|string|max:100',
+                'province_id' => 'required|string',
+                'city_id' => 'required|string',
                 'postal_code' => 'nullable|string|max:10',
                 'company_phone' => 'nullable|string|max:20',
             ],
             3 => [
-                'finance_name' => 'nullable|string|max:255',
-                'finance_email' => 'nullable|email|max:255',
-                'billing_address' => 'nullable|string',
-                'finance_phone' => 'nullable|string|max:20',
-                'technical_name' => 'nullable|string|max:255',
-                'technical_email' => 'nullable|email|max:255',
-                'installation_address' => 'nullable|string',
-                'technical_phone' => 'nullable|string|max:20',
+                'finance_name' => 'required|string|max:255',
+                'finance_email' => 'required|email|max:255',
+                'billing_address' => 'required|string',
+                'finance_phone' => 'required|string|max:20',
+                'technical_name' => 'required|string|max:255',
+                'technical_email' => 'required|email|max:255',
+                'installation_address' => 'required|string',
+                'technical_phone' => 'required|string|max:20',
             ],
             4 => [
                 'bandwidth' => 'required|string|max:255',
                 'term_of_service' => 'required|integer|in:1,2,3',
-                'ktp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+                'ktp_file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
                 'npwp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
                 'nib_file' => 'nullable|mimes:pdf|max:2048',
                 'certificate_file' => 'nullable|mimes:pdf|max:2048',
@@ -112,7 +135,6 @@ class Register extends Component
         };
     }
 
-    /** @return array<string, string> */
     protected function messagesForStep(int $step): array
     {
         return match ($step) {
@@ -128,14 +150,25 @@ class Register extends Component
             2 => [
                 'company_name.required' => 'Nama perusahaan wajib diisi.',
                 'company_address.required' => 'Alamat perusahaan wajib diisi.',
+                'province_id.required' => 'Provinsi wajib dipilih.',
+                'city_id.required' => 'Kota/Kabupaten wajib dipilih.',
             ],
             3 => [
+                'finance_name.required' => 'Nama PIC Keuangan wajib diisi.',
+                'finance_email.required' => 'Email PIC Keuangan wajib diisi.',
                 'finance_email.email' => 'Format email keuangan tidak valid.',
+                'billing_address.required' => 'Alamat Penagihan wajib diisi.',
+                'finance_phone.required' => 'Nomor handphone keuangan wajib diisi.',
+                'technical_name.required' => 'Nama PIC Teknis wajib diisi.',
+                'technical_email.required' => 'Email PIC Teknis wajib diisi.',
                 'technical_email.email' => 'Format email teknis tidak valid.',
+                'installation_address.required' => 'Alamat Instalasi wajib diisi.',
+                'technical_phone.required' => 'Nomor handphone teknis wajib diisi.',
             ],
             4 => [
                 'bandwidth.required' => 'Kapasitas Bandwidth wajib dipilih.',
                 'term_of_service.required' => 'Jangka waktu berlangganan wajib dipilih.',
+                'ktp_file.required' => 'File dokumen KTP wajib diunggah.',
                 'password.required' => 'Password wajib diisi.',
                 'password.min' => 'Password minimal 8 karakter.',
                 'password.confirmed' => 'Konfirmasi password tidak cocok.',
@@ -184,6 +217,9 @@ class Register extends Component
             'email_verified_at' => now(),
         ]);
 
+        $namaProvinsi = DB::table('provinces')->where('id', $this->province_id)->value('name');
+        $namaKota = DB::table('regencies')->where('id', $this->city_id)->value('name');
+
         Customer::create([
             'user_id' => $user->id,
             'ktp_number' => $this->ktp_number,
@@ -195,8 +231,8 @@ class Register extends Component
             'business_type' => $this->business_type,
             'npwp_number' => $this->npwp_number,
             'company_address' => $this->company_address,
-            'city' => $this->city,
-            'province' => $this->province,
+            'city' => $namaKota,
+            'province' => $namaProvinsi,
             'postal_code' => $this->postal_code,
             'company_phone' => $this->company_phone,
             

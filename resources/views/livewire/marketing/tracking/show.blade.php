@@ -17,6 +17,12 @@
                 <i class="ti ti-edit"></i> Edit Data
             </button>
 
+            @if(!in_array($customer->status, ['selesai', 'dibatalkan', 'ditolak']))
+                <button wire:click="cancelRegistration" wire:confirm="Yakin ingin membatalkan pengajuan ini? Data tidak akan tampil lagi di antrean." class="btn-boron !py-1.5 flex items-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
+                    <i class="ti ti-ban"></i> Batalkan Pengajuan
+                </button>
+            @endif
+
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
                 <i class="ti ti-arrow-left"></i> Kembali ke Antrean
             </a>
@@ -229,17 +235,75 @@
                                     <input type="text" wire:model="sla" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     @error('sla') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
+                                
+                                <div class="col-span-2" x-data="{
+                                    isCustom: false,
+                                    init() {
+                                        const predefined = ['Lokal Link', 'Telkom', 'Lintas Arta', 'Indosat', 'MV. Net Telkom', 'Fiber Star', 'Iforte'];
+                                        const current = @js($jalur_metro);
+                                        this.isCustom = current !== '' && current !== null && !predefined.includes(current);
+                                    }
+                                }">
+                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Vendor Jalur Metro</label>
+                                    <select 
+                                        wire:model="jalur_metro" 
+                                        x-show="!isCustom" 
+                                        @change="$event.target.value === 'Lainnya' ? (isCustom = true, $wire.set('jalur_metro', '')) : isCustom = false"
+                                        class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]"
+                                    >
+                                        <option value="">Pilih Jalur Metro...</option>
+                                        <option value="Lokal Link">Lokal Link</option>
+                                        <option value="Telkom">Telkom</option>
+                                        <option value="Lintas Arta">Lintas Arta</option>
+                                        <option value="Indosat">Indosat</option>
+                                        <option value="MV. Net Telkom">MV. Net Telkom</option>
+                                        <option value="Fiber Star">Fiber Star</option>
+                                        <option value="Iforte">Iforte</option>
+                                        <option value="Lainnya">Lainnya...</option>
+                                    </select>
+                                    
+                                    <div x-show="isCustom" style="display: none;" class="flex gap-2">
+                                        <input type="text" wire:model="jalur_metro" placeholder="Ketik nama vendor jalur metro..." class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                        <button type="button" @click="isCustom = false; $wire.set('jalur_metro', '')" class="px-2 text-[#ed6060] hover:bg-[#ed6060]/10 rounded" title="Batal isi manual">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                    @error('jalur_metro') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
-                                <div class="col-span-2">
+                                <div class="col-span-2" x-data="{
+                                    raw: @entangle('registration_fee'),
+                                    formatRupiah(val) {
+                                        if (!val) return '';
+                                        return parseInt(String(val).replace(/[^0-9]/g, '')).toLocaleString('id-ID');
+                                    },
+                                    onInput(e) {
+                                        let val = e.target.value.replace(/[^0-9]/g, '');
+                                        this.raw = val ? parseInt(val) : null;
+                                        e.target.value = this.formatRupiah(val);
+                                    }
+                                }">
                                     <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Biaya Registrasi / Instalasi (Rp)</label>
-                                    <input type="number" wire:model="registration_fee" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <input type="text" :value="formatRupiah(raw)" @input="onInput" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     @error('registration_fee') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
-                                <div class="col-span-2">
+                                
+                                <div class="col-span-2" x-data="{
+                                    raw: @entangle('monthly_fee'),
+                                    formatRupiah(val) {
+                                        if (!val) return '';
+                                        return parseInt(String(val).replace(/[^0-9]/g, '')).toLocaleString('id-ID');
+                                    },
+                                    onInput(e) {
+                                        let val = e.target.value.replace(/[^0-9]/g, '');
+                                        this.raw = val ? parseInt(val) : null;
+                                        e.target.value = this.formatRupiah(val);
+                                    }
+                                }">
                                     <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Biaya Bulanan (Rp)</label>
-                                    <input type="number" wire:model="monthly_fee" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                    <input type="text" :value="formatRupiah(raw)" @input="onInput" placeholder="0" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     <p class="mt-1 text-[10px] italic text-[#ed6060]">*Harga di atas belum termasuk PPN 11%</p>
                                     @error('monthly_fee') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
@@ -288,8 +352,6 @@
                                 <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Jenis Pekerjaan</label>
                                 <select wire:model="job_type" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b]">
                                     <option value="Aktivasi Baru">Aktivasi Baru</option>
-                                    <option value="Upgrade">Upgrade</option>
-                                    <option value="Downgrade">Downgrade</option>
                                 </select>
                                 @error('job_type') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                             </div>
@@ -323,11 +385,9 @@
 
                         @if($customer->spk)
                             <div class="mt-5 pt-5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] space-y-3">
-                                
                                 <a href="{{ route('marketing.spk', $customer->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 text-sm dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
                                     <i class="ti ti-file-pdf text-[#ed6060]"></i> Lihat / Cetak PDF SPK
                                 </a>
-                                
                                 <button wire:click="sendToNoc" wire:confirm="Pastikan PDF SPK sudah sesuai. Lanjutkan kirim ke Dashboard NOC?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
                                     <i class="ti ti-send text-lg"></i> Kirim SPK ke NOC
                                 </button>

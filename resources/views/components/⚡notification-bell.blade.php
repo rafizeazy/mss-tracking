@@ -17,6 +17,8 @@ new class extends Component
         $notifications = collect();
         $user = auth()->user();
         $role = $user->role;
+        
+        // NOTIFIKASI MARKETING & SUPER ADMIN
         if ($role === \App\Enums\Role::Marketing || $user->isSuperAdmin()) {
             
             $verifikasi = Customer::where('status', 'menunggu_verifikasi')->latest()->get();
@@ -50,6 +52,7 @@ new class extends Component
             }
         }
 
+        // NOTIFIKASI FINANCE & SUPER ADMIN
         if ($role === \App\Enums\Role::Finance || $user->isSuperAdmin()) {
             
             $invoice = Customer::where('status', 'menunggu_invoice')->latest()->get();
@@ -73,8 +76,10 @@ new class extends Component
             }
         }
 
+        // NOTIFIKASI NOC & SUPER ADMIN
         if ($role === \App\Enums\Role::Noc || $user->isSuperAdmin()) {
             
+            // Tugas Aktivasi Baru
             $instalasi = Customer::where('status', 'proses_instalasi')->latest()->get();
             foreach($instalasi as $c) {
                 $notifications->push([
@@ -96,8 +101,10 @@ new class extends Component
             }
         }
 
+        // NOTIFIKASI CUSTOMER / PELANGGAN
         if ($role === \App\Enums\Role::Customer) {
             $customer = Customer::where('user_id', $user->id)->first();
+            
             if ($customer) {
                 if ($customer->status === 'menunggu_pembayaran') {
                     $notifications->push([
@@ -117,7 +124,6 @@ new class extends Component
                 }
             }
         }
-
         return [
             'notifications' => $notifications,
             'unreadCount' => $notifications->count()

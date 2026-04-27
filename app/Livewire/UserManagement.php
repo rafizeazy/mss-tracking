@@ -19,27 +19,16 @@ class UserManagement extends Component
     use WithPagination;
 
     public bool $showCreateModal = false;
-
     public bool $showEditModal = false;
-
     public bool $showDeleteModal = false;
-
     public string $name = '';
-
     public string $email = '';
-
     public string $password = '';
-
     public string $password_confirmation = '';
-
     public string $role = '';
-
     public ?int $editingUserId = null;
-
     public ?int $deletingUserId = null;
-
     public string $search = '';
-
     public function createUser(): void
     {
         $validated = $this->validate([

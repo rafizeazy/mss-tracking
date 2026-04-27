@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureSuperAdmin;
-use App\Http\Middleware\EnsureHasRole; // Pastikan Anda membuat file ini nanti
+use App\Http\Middleware\EnsureHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

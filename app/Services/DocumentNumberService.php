@@ -39,9 +39,7 @@ class DocumentNumberService
     public static function generateInvoiceNumber()
     {
         $year = date('Y');
-        $month = date('n'); // Angka biasa sesuai permintaan: 3 (Bukan Romawi)
-
-        // Cari invoice terakhir yang dibuat tahun ini
+        $month = date('n'); 
         $lastData = Customer::whereNotNull('invoice_number')
             ->whereYear('invoice_generated_at', $year)
             ->latest('invoice_generated_at')

@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome')->name('home');
 Route::get('register/customer', \App\Livewire\Customer\Register::class)->name('customer.register');
 
-// Route Khusus Pelanggan (tanpa 'verified' agar langsung bisa akses usai daftar)
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('customer/dashboard', \App\Livewire\Customer\Dashboard::class)->name('customer.dashboard');
     Route::get('/customer/invoice/{id}/pdf', [InvoiceController::class, 'streamInvoice'])->name('customer.invoice.pdf');
@@ -23,30 +22,28 @@ Route::middleware(['auth', 'verified', 'role:marketing,finance,noc,super_admin']
     Route::get('customer/invoice/{id}', [\App\Http\Controllers\InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
 });
 
-// ROUTE KHUSUS SUPER ADMIN
 Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
     Route::get('users', \App\Livewire\UserManagement::class)->name('users.index');
 });
 
-// ROUTE MARKETING
+// ROUTE KHUSUS MARKETING
 Route::middleware(['auth', 'verified', 'role:marketing,super_admin'])->group(function () {
     Route::get('marketing/tracking', \App\Livewire\Marketing\Tracking\Index::class)->name('marketing.tracking.index');
     Route::get('marketing/tracking/{id}', \App\Livewire\Marketing\Tracking\Show::class)->name('marketing.tracking.show');
 });
 
-// ROUTE FINANCE
+// ROUTE KHUSUS FINANCE
 Route::middleware(['auth', 'verified', 'role:finance,super_admin'])->group(function () {
     Route::get('finance/tracking', \App\Livewire\Finance\Index::class)->name('finance.tracking.index');
     Route::get('finance/tracking/{id}', \App\Livewire\Finance\Show::class)->name('finance.tracking.show');
 });
 
-// ROUTE NOC
+// ROUTE KHUSUS NOC
 Route::middleware(['auth', 'verified', 'role:noc,super_admin'])->group(function () {
     Route::get('noc/tracking', \App\Livewire\Noc\Tracking\Index::class)->name('noc.tracking.index');
     Route::get('noc/tracking/{id}', \App\Livewire\Noc\Tracking\Show::class)->name('noc.tracking.show');
 });
 
-// Marketing & Finance
 Route::middleware(['auth', 'verified', 'role:marketing,finance,super_admin'])->group(function () {
     Route::get('form/formulir-berlangganan/{id}', [\App\Http\Controllers\FormController::class, 'cetakFormulir'])->name('form.formulir');
 });

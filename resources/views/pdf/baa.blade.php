@@ -4,111 +4,152 @@
     <meta charset="utf-8">
     <title>BAA - {{ $customer->company_name }}</title>
     <style>
-        @page { margin: 40px 50px; }
+        /* Pengaturan Halaman A4 & Margin Presisi */
+        @page { 
+            size: A4 portrait;
+            margin: 30px 40px; 
+        }
+        
+        /* Tipografi Resmi (Font yang sama dengan SPK) */
         body { 
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-            color: #313a46; 
-            font-size: 12px; 
-            line-height: 1.5; 
+            font-family: Arial, Helvetica, sans-serif; 
+            color: #000000; 
+            font-size: 11px; 
+            line-height: 1.4; 
         }
         
-        /* Header & Kop Surat */
-        .header-table { 
+        h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
+        
+        /* KOP SURAT */
+        .kop-surat { 
             width: 100%; 
-            border-bottom: 3px solid #1e5d87; 
-            padding-bottom: 15px; 
-            margin-bottom: 25px; 
+            border-bottom: 3px solid #000; 
+            padding-bottom: 10px; 
+            margin-bottom: 15px; 
         }
-        .header-logo { max-height: 60px; width: auto; }
-        .comp-name { 
-            font-size: 20px; 
-            font-weight: 900; 
+        .kop-logo { max-height: 45px; width: auto; }
+        .kop-teks { 
+            text-align: right; 
+            font-size: 10px; 
+            line-height: 1.4;
+        }
+        .kop-teks strong { 
+            font-size: 14px; 
             color: #1e5d87; 
-            margin: 0 0 5px 0; 
+            display: block; 
+            margin-bottom: 2px; 
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        .comp-sub { font-size: 10px; color: #8a969c; line-height: 1.4; }
         
-        /* Judul Dokumen */
-        .title-container { text-align: center; margin-bottom: 30px; }
-        .title { 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: #313a46;
+        /* JUDUL DOKUMEN */
+        .judul-dokumen { 
+            text-align: center; 
+            margin-bottom: 15px; 
+        }
+        .judul-dokumen h1 { 
+            font-size: 14px; 
             text-decoration: underline; 
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
+            text-transform: uppercase; 
+            margin-bottom: 3px; 
+            letter-spacing: 1px; 
         }
-        .subtitle { font-size: 13px; font-weight: bold; color: #669776; }
+        .judul-dokumen p { 
+            font-size: 11px; 
+            font-weight: bold; 
+        }
 
-        /* Konten & Paragraf */
-        .paragraph { text-align: justify; margin-bottom: 15px; }
+        /* PARAGRAF TEKS */
+        .paragraf { 
+            text-align: justify; 
+            margin-bottom: 10px; 
+        }
         
-        /* Tabel Informasi Modern */
-        .info-table { 
+        /* TABEL INFORMASI RESMI */
+        .tabel-resmi { 
             width: 100%; 
             border-collapse: collapse; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
         }
-        .info-table td { 
-            padding: 8px 12px; 
-            border: 1px solid #e7e9eb; 
+        .tabel-resmi td, .tabel-resmi th { 
+            border: 1px solid #000; 
+            padding: 5px 8px; 
             vertical-align: middle; 
         }
-        .info-table .td-label { 
-            width: 30%; 
-            background-color: #f8f9fa; 
+        .tabel-resmi .label-col { 
+            width: 25%; 
             font-weight: bold; 
-            color: #1e5d87; 
-            border-right: 2px solid #1e5d87;
+            background-color: #f4f4f4; 
         }
 
-        /* Tabel Tanda Tangan */
-        .sign-table { width: 100%; margin-top: 40px; text-align: center; }
-        .sign-table td { width: 50%; vertical-align: bottom; height: 130px; }
-        .sign-title { font-weight: bold; color: #1e5d87; margin-bottom: 10px; }
-        .sign-img { max-height: 90px; max-width: 180px; margin-bottom: 10px; }
-        .sign-name { font-weight: bold; text-decoration: underline; text-transform: uppercase; }
-
-        /* Halaman Lampiran */
-        .page-break { page-break-before: always; }
-        .attachment-title { 
-            font-size: 16px; 
-            font-weight: bold; 
-            color: #1e5d87;
-            margin: 20px 0 15px 0; 
-            border-left: 4px solid #669776;
-            padding-left: 10px;
-        }
-
-        /* Tabel Perangkat */
-        .device-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-        .device-table th, .device-table td { 
-            border: 1px solid #dee2e6; 
-            padding: 10px; 
-            text-align: left; 
-        }
-        .device-table th { 
+        /* TABEL LAMPIRAN PERANGKAT */
+        .tabel-perangkat th { 
             background-color: #1e5d87; 
             color: #ffffff; 
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 11px;
+            font-weight: bold; 
+            text-transform: uppercase; 
+            font-size: 10px; 
         }
-        .device-table tr:nth-child(even) { background-color: #f8f9fa; }
+        .tabel-perangkat tr:nth-child(even) { background-color: #f8f9fa; }
+
+        /* AREA TANDA TANGAN */
+        .tabel-ttd { 
+            width: 100%; 
+            text-align: center; 
+            margin-top: 25px; 
+            page-break-inside: avoid; 
+        }
+        .tabel-ttd td { 
+            width: 50%; 
+            vertical-align: bottom; 
+        }
+        .ruang-ttd { 
+            height: 70px; 
+            text-align: center;
+            margin: 5px 0; 
+        }
+        .ruang-ttd img { 
+            max-height: 65px; 
+            width: auto; 
+            vertical-align: bottom;
+        }
+        .nama-ttd { 
+            font-weight: bold; 
+            text-decoration: underline; 
+        }
+        .jabatan-ttd { 
+            font-size: 10px; 
+            margin-top: 2px; 
+        }
+
+        /* CATATAN KAKI */
+        .footer-note { 
+            font-size: 10px; 
+            font-style: italic; 
+            margin-top: 15px; 
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+        }
+
+        /* PEMISAH HALAMAN (PAGE 2) */
+        .page-break { page-break-before: always; }
+        
+        .attachment-title { 
+            font-size: 12px; 
+            font-weight: bold; 
+            margin: 15px 0 8px 0; 
+            text-transform: uppercase; 
+            border-bottom: 1px solid #000; 
+            padding-bottom: 3px; 
+        }
         
         .img-attachment { 
             max-width: 100%; 
-            max-height: 350px; 
+            max-height: 380px; 
             display: block; 
             margin: 10px auto; 
-            border: 2px dashed #dee2e6;
-            padding: 5px;
-            border-radius: 4px;
+            border: 1px solid #000; 
+            padding: 3px; 
         }
-        .footer-note { font-size: 10px; color: #ed6060; font-style: italic; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -121,120 +162,117 @@
         $tahun = $date->format('Y');
     @endphp
 
-    <table class="header-table">
+    <table class="kop-surat">
         <tr>
-            <td width="25%" style="vertical-align: middle;">
-                <img src="{{ public_path('logo/Logo MSS.png') }}" class="header-logo" alt="Logo MSS">
+            <td width="50%" style="vertical-align: middle;">
+                <img src="{{ public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
             </td>
-            <td width="75%" style="text-align: right; vertical-align: middle;">
-                <div class="comp-name">PT MEDIA SOLUSI SUKSES</div>
-                <div class="comp-sub">
-                    Jl. Bumi Karawang Residence Blk. G12 No.7, Cengkong, Kec. Purwasari,<br>
-                    Kab. Karawang, Jawa Barat 41373, Indonesia<br>
-                    <strong>Phone:</strong> 021-39700444 &nbsp;|&nbsp; <strong>Email:</strong> admin.office@mediasolusisukses.co.id
-                </div>
+            <td width="50%" class="kop-teks" style="vertical-align: middle;">
+                <strong>PT Media Solusi Sukses</strong>
+                Perum. Bumi Karawang Residence, Blok G12 No. 7-9<br>
+                Cengkong, Purwasari, Kab. Karawang, 41373<br>
+                P: +62 21 397 00 444 | E: admin.office@mediasolusisukses.co.id
             </td>
         </tr>
     </table>
 
-    <div class="title-container">
-        <div class="title">BERITA ACARA AKTIVASI</div>
-        <div class="subtitle">NOMOR: {{ $customer->baa->baa_number }}</div>
+    <div class="judul-dokumen">
+        <h1>Berita Acara Aktivasi</h1>
+        <p>Nomor: {{ $customer->baa->baa_number }}</p>
     </div>
 
-    <div class="paragraph">
-        Pada hari ini, <strong>{{ $hari }}</strong> tanggal <strong>{{ $tanggal }}</strong>, bulan <strong>{{ $bulan }}</strong>, tahun <strong>{{ $tahun }}</strong> ({{ $date->format('d/m/Y') }}), bertempat di Kantor PT Media Solusi Sukses, Jl. Bumi Karawang Residence Blk. G12 No.7, Cengkong, Kec. Purwasari, Kab. Karawang, Jawa Barat, Kami yang bertanda tangan di bawah ini:
+    <div class="paragraf">
+        Pada hari ini, <strong>{{ $hari }}</strong> tanggal <strong>{{ $tanggal }}</strong>, bulan <strong>{{ $bulan }}</strong>, tahun <strong>{{ $tahun }}</strong> ({{ $date->format('d/m/Y') }}), bertempat di Kantor PT Media Solusi Sukses, Jl. Bumi Karawang Residence Blk. G12 No.7, Cengkong, Kec. Purwasari, Kab. Karawang, Jawa Barat. Kami yang bertanda tangan di bawah ini:
     </div>
 
-    <table class="info-table">
-        <tr><td class="td-label">Nama</td><td>{{ strtoupper($customer->baa->noc_name) }}</td></tr>
-        <tr><td class="td-label">Jabatan</td><td>{{ strtoupper($customer->baa->noc_position) }}</td></tr>
-        <tr><td class="td-label">Departemen</td><td>{{ strtoupper($customer->baa->noc_department) }}</td></tr>
-        <tr><td class="td-label">Lokasi Kerja</td><td>{{ strtoupper($customer->baa->noc_location) }}</td></tr>
+    <table class="tabel-resmi"> 
+        <tr><td class="label-col">Nama</td><td style="text-transform: uppercase;">{{ $customer->baa->noc_name }}</td></tr>
+        <tr><td class="label-col">Jabatan</td><td style="text-transform: uppercase;">{{ $customer->baa->noc_position }}</td></tr>
+        <tr><td class="label-col">Departemen</td><td style="text-transform: uppercase;">{{ $customer->baa->noc_department }}</td></tr>
+        <tr><td class="label-col">Lokasi Kerja</td><td>{{ $customer->baa->noc_location }}</td></tr>
     </table>
 
-    <div class="paragraph">
+    <div class="paragraf">
         Dalam hal ini bertindak untuk dan atas nama <strong>PT MEDIA SOLUSI SUKSES</strong>, yang selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.
     </div>
 
-    <table class="info-table">
-        <tr><td class="td-label">ID Pelanggan</td><td><strong>{{ $customer->customer_number }}</strong></td></tr>
-        <tr><td class="td-label">Nama PIC</td><td>{{ strtoupper($customer->technical_name ?? $customer->user->name) }}</td></tr>
-        <tr><td class="td-label">Instansi / Perusahaan</td><td>{{ strtoupper($customer->company_name) }}</td></tr>
-        <tr><td class="td-label">Kontak Telepon</td><td>{{ $customer->technical_phone ?? $customer->phone }}</td></tr>
+    <table class="tabel-resmi">
+        <tr><td class="label-col" >ID Pelanggan</td><td style="text-transform: uppercase;">{{ $customer->customer_number }}</td></tr>
+        <tr><td class="label-col">Nama PIC</td><td style="text-transform: uppercase;">{{ $customer->technical_name ?? $customer->user->name }}</td></tr>
+        <tr><td class="label-col">Instansi / Perusahaan</td><td style="text-transform: uppercase;">{{ $customer->company_name }}</td></tr>
+        <tr><td class="label-col">Kontak Telepon</td><td style="text-transform: uppercase;">{{ $customer->technical_phone ?? $customer->phone }}</td></tr>
     </table>
 
-    <div class="paragraph">
+    <div class="paragraf">
         Dalam hal ini bertindak untuk dan atas nama Instansi/Perusahaan tersebut di atas, yang selanjutnya disebut sebagai <strong>PELANGGAN</strong> atau <strong>PIHAK KEDUA</strong>.<br><br>
         Kedua belah pihak secara bersama-sama menyatakan bahwa layanan di bawah ini:
     </div>
 
-    <table class="info-table">
-        <tr><td class="td-label">Alamat Instalasi</td><td>{{ $customer->installation_address ?? $customer->company_address }}</td></tr>
-        <tr><td class="td-label">Jenis Layanan</td><td><strong>{{ strtoupper($customer->service_type) }}</strong></td></tr>
-        <tr><td class="td-label">Kapasitas Bandwidth</td><td><strong>{{ strtoupper($customer->bandwidth) }}</strong></td></tr>
-        <tr><td class="td-label">Status Layanan</td><td><strong style="color: #70bb63;">AKTIF DAN TERHUBUNG</strong></td></tr>
+    <table class="tabel-resmi">
+        <tr><td class="label-col">Alamat Instalasi</td><td style="line-height: 1.4;">{{ $customer->installation_address ?? $customer->company_address }}</td></tr>
+        <tr><td class="label-col">Jenis Layanan</td><td><strong>{{ ucwords($customer->service_type) }}</strong></td></tr>
+        <tr><td class="label-col">Kapasitas Bandwidth</td><td><strong>{{ $customer->bandwidth }}</strong></td></tr>
+        <tr><td class="label-col">Status Layanan</td><td><strong>Aktif dan Terhubung</strong></td></tr>
     </table>
 
-    <div class="paragraph">
+    <div class="paragraf">
         Telah selesai dilakukan instalasi, konfigurasi, serta pengujian konektivitas, dan dinyatakan <strong>SIAP DIGUNAKAN / DIOPERASIKAN</strong> terhitung sejak tanggal <strong>{{ $date->format('d-m-Y') }}</strong>.<br><br>
         Demikian Berita Acara Aktivasi ini dibuat dengan sebenar-benarnya dalam 2 (dua) rangkap untuk dapat dipergunakan sebagaimana mestinya oleh kedua belah pihak.
     </div>
 
-    <table class="sign-table">
+    <table class="tabel-ttd">
         <tr>
             <td>
-                <div class="sign-title">PT MEDIA SOLUSI SUKSES</div>
-                @if($customer->baa->noc_signature_path)
-                    <img src="{{ public_path('storage/' . $customer->baa->noc_signature_path) }}" class="sign-img">
-                @else
-                    <br><br><br><br><br>
-                @endif
-                <div class="sign-name">{{ strtoupper($customer->baa->noc_name) }}</div>
-                <div style="font-size: 11px; color: #8a969c; mt-1;">{{ strtoupper($customer->baa->noc_position) }}</div>
+                <div>Mengetahui,<br><strong>PT Media Solusi Sukses</strong></div>
+                <div class="ruang-ttd">
+                    @if($customer->baa->noc_signature_path)
+                        <img src="{{ public_path('storage/' . $customer->baa->noc_signature_path) }}" alt="TTD NOC">
+                    @endif
+                </div>
+                <div class="nama-ttd">{{ $customer->baa->noc_name }}</div>
+                <div class="jabatan-ttd">{{ $customer->baa->noc_position }}</div>
             </td>
             <td>
-                <div class="sign-title">PELANGGAN</div>
-                <br><br><br><br><br>
-                <div class="sign-name">{{ strtoupper($customer->technical_name ?? $customer->user->name) }}</div>
-                <div style="font-size: 11px; color: #8a969c; mt-1;">{{ strtoupper($customer->company_name) }}</div>
+                <div>Menyetujui,<br><strong>Pelanggan (Pihak Kedua)</strong></div>
+                <div class="ruang-ttd"></div>
+                <div class="nama-ttd">{{ $customer->technical_name ?? $customer->user->name }}</div>
+                <div class="jabatan-ttd">{{ $customer->company_name }}</div>
             </td>
         </tr>
     </table>
     
     <div class="footer-note">
-        * Catatan: Apabila selama 5 (lima) hari kerja sejak dokumen BAA ini diterbitkan pihak Pelanggan tidak memberikan konfirmasi/tanda tangan, maka Pelanggan dianggap telah menyetujui seluruh isi Berita Acara ini.
+        * Catatan: Apabila selama 5 (lima) hari kerja sejak dokumen BAA ini diterbitkan pihak Pelanggan tidak memberikan konfirmasi/tanda tangan, maka Pelanggan dianggap telah menyetujui seluruh isi Berita Acara ini secara otomatis.
     </div>
+
 
     <div class="page-break"></div>
     
-    <table class="header-table">
+    <table class="kop-surat">
         <tr>
-            <td width="25%" style="vertical-align: middle;">
-                <img src="{{ public_path('logo/Logo MSS.png') }}" class="header-logo" alt="Logo MSS">
+            <td width="50%" style="vertical-align: middle;">
+                <img src="{{ public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
             </td>
-            <td width="75%" style="text-align: right; vertical-align: middle;">
-                <div class="comp-name">PT MEDIA SOLUSI SUKSES</div>
-                <div class="comp-sub">
-                    <strong>LAMPIRAN BERITA ACARA AKTIVASI</strong><br>
-                    ID Pelanggan: {{ $customer->customer_number }}
-                </div>
+            <td width="50%" class="kop-teks" style="vertical-align: middle;">
+                <strong>PT Media Solusi Sukses</strong>
+                <strong>LAMPIRAN BERITA ACARA AKTIVASI</strong>
+                ID Pelanggan: {{ $customer->customer_number }}
             </td>
         </tr>
     </table>
 
-    <div class="attachment-title">1. Detail Perangkat Terpasang</div>
-    <table class="device-table">
+    <div class="attachment-title">A. Detail Perangkat Terpasang</div>
+    <table class="tabel-resmi tabel-perangkat">
         <thead>
             <tr>
-                <th width="8%">NO</th>
-                <th width="42%">NAMA PERANGKAT</th>
-                <th width="15%">JUMLAH</th>
-                <th width="35%">SERIAL NUMBER (SN)</th>
+                <th width="8%" style="text-align: center;">NO</th>
+                <th width="42%" style="text-align: left;">NAMA PERANGKAT</th>
+                <th width="15%" style="text-align: center;">JUMLAH</th>
+                <th width="35%" style="text-align: left;">SERIAL NUMBER (SN)</th>
             </tr>
         </thead>
         <tbody>
-            @if(is_array($customer->baa->devices))
+            @if(is_array($customer->baa->devices) && count($customer->baa->devices) > 0)
                 @foreach($customer->baa->devices as $index => $dev)
                 <tr>
                     <td style="text-align: center;">{{ $index + 1 }}</td>
@@ -245,18 +283,18 @@
                 @endforeach
             @else
                 <tr>
-                    <td colspan="4" style="text-align: center; color: #8a969c;">Tidak ada data perangkat.</td>
+                    <td colspan="4" style="text-align: center; color: #8a969c; padding: 15px;">Tidak ada data perangkat yang dilampirkan.</td>
                 </tr>
             @endif
         </tbody>
     </table>
 
-    <div class="attachment-title">2. Bukti Pengujian (Speedtest / Link Test)</div>
+    <div class="attachment-title">B. Bukti Pengujian (Speedtest / Link Test)</div>
     @if($customer->baa->speedtest_image_path)
         <img src="{{ public_path('storage/' . $customer->baa->speedtest_image_path) }}" class="img-attachment">
     @else
-        <div style="padding: 30px; border: 2px dashed #dee2e6; text-align: center; color: #8a969c; background-color: #f8f9fa;">
-            Gambar lampiran pengujian tidak tersedia atau belum diunggah.
+        <div style="padding: 40px; border: 1px dashed #000; text-align: center; color: #8a969c; background-color: #f8f9fa;">
+            Gambar lampiran pengujian tidak tersedia atau belum diunggah oleh tim NOC.
         </div>
     @endif
 

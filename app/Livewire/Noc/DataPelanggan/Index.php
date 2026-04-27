@@ -21,6 +21,9 @@ class Index extends Component
 
     public $selectedCustomer = null;
 
+    public $showArsipModal = false;
+    public $customerForArsip = null;
+
     #[On('trigger-search')]
     public function updateSearch($query)
     {
@@ -38,6 +41,18 @@ class Index extends Component
     {
         $this->showModal = false;
         $this->selectedCustomer = null;
+    }
+
+    public function openArsip($id)
+    {
+        $this->customerForArsip = Customer::with(['spk', 'baa'])->find($id);
+        $this->showArsipModal = true;
+    }
+
+    public function closeArsip()
+    {
+        $this->showArsipModal = false;
+        $this->customerForArsip = null;
     }
 
     public function render()
