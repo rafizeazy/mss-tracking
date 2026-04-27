@@ -236,7 +236,14 @@
                                     @error('sla') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
                                 
-                                <div class="col-span-2" x-data="{ isCustom: false }">
+                                <div class="col-span-2" x-data="{
+                                    isCustom: false,
+                                    init() {
+                                        const predefined = ['Lokal Link', 'Telkom', 'Lintas Arta', 'Indosat', 'MV. Net Telkom', 'Fiber Star', 'Iforte'];
+                                        const current = @js($jalur_metro);
+                                        this.isCustom = current !== '' && current !== null && !predefined.includes(current);
+                                    }
+                                }">
                                     <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Vendor Jalur Metro</label>
                                     <select 
                                         wire:model="jalur_metro" 

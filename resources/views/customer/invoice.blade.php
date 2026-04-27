@@ -489,7 +489,7 @@
                     <img src="{{ asset('ttd/finance/ttdfinance.png') }}" alt="TTD Finance" style="max-height: 70px; width: auto; display: block; margin: 0 auto;">
                 </div>
                 <div class="sign-line"></div>
-                <div class="sign-name">SUKIRMAN</div>
+                <div class="sign-name">{{ config('invoice.signature_name', 'Finance Department') }}</div>
                 <div class="sign-role">Finance Department</div>
             </div>
         </div>

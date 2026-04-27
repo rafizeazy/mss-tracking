@@ -63,22 +63,30 @@ class Register extends Component
     public string $password_confirmation = '';
     public bool $accepted_terms = false;
 
-    public function mount()
+    public function mount(): void
     {
-        $this->provinces = DB::table('provinces')->orderBy('name', 'asc')->get();
+        try {
+            $this->provinces = DB::table('provinces')->orderBy('name', 'asc')->get();
+        } catch (\Exception $e) {
+            $this->provinces = collect();
+        }
     }
 
-    public function updatedProvinceId($value)
+    public function updatedProvinceId(string $value): void
     {
-        if (!empty($value)) {
-            $this->cities = DB::table('regencies')
-                ->where('province_id', $value)
-                ->orderBy('name', 'asc')
-                ->get();
+        if (! empty($value)) {
+            try {
+                $this->cities = DB::table('regencies')
+                    ->where('province_id', $value)
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } catch (\Exception $e) {
+                $this->cities = collect();
+            }
         } else {
-            $this->cities = [];
+            $this->cities = collect();
         }
-        
+
         $this->city_id = '';
     }
 

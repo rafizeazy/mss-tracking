@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\Finance\Datapelanggan;
+namespace App\Livewire\Finance\DataPelanggan;
 
 use App\Models\Customer;
 use App\Events\CustomerUpdated;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -17,12 +17,14 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
-    
+
     public $showModal = false;
+
     public $selectedCustomer = null;
 
     public $isEditingCustomer = false;
     public $editData = [];
+    public $editingCustomerId = null;
 
     public $showArsipModal = false;
     public $customerForArsip = null;
@@ -93,15 +95,17 @@ class Index extends Component
             'marketing_phone' => $customerToEdit->marketing_phone,
         ];
         
+        $this->editingCustomerId = $customerToEdit->id;
         $this->isEditingCustomer = true;
     }
 
     public function updateCustomer()
     {
-        if (!$this->selectedCustomer && !$this->isEditingCustomer) return;
-        
-        $customerId = $this->selectedCustomer ? $this->selectedCustomer->id : Customer::where('phone', $this->editData['phone'])->first()->id;
-        $customerToUpdate = Customer::find($customerId);
+        if (! $this->editingCustomerId) {
+            return;
+        }
+
+        $customerToUpdate = Customer::findOrFail($this->editingCustomerId);
 
         $this->validate([
             'editData.ktp_number' => 'nullable|string',
@@ -139,33 +143,33 @@ class Index extends Component
         if(class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated());
         }
-        
-        if($this->selectedCustomer) $this->selectedCustomer->refresh();
 
         $this->isEditingCustomer = false;
+        $this->editingCustomerId = null;
         $this->dispatch('notify', type: 'success', message: 'Arsip data pelanggan berhasil diperbarui!');
     }
 
     public function cancelEdit()
     {
         $this->isEditingCustomer = false;
+        $this->editingCustomerId = null;
     }
 
     public function render()
     {
         $customers = Customer::with(['user', 'spk', 'baa'])
             ->where('status', 'selesai')
-            ->where(function($query) {
+            ->where(function ($query) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('customer_number', 'like', '%' . $this->search . '%');
+                    $query->where('company_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_number', 'like', '%'.$this->search.'%');
                 }
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.finance.datapelanggan.index', [
-            'customers' => $customers
+            'customers' => $customers,
         ]);
     }
 }

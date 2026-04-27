@@ -10,17 +10,17 @@ class FormController extends Controller
 {
     public function cetakFormulir($id)
     {
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::with('user')->findOrFail($id);
 
         $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
-            'customer' => $customer
+            'customer' => $customer,
         ]);
 
         $pdf->setPaper('A4', 'portrait');
 
-        $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->name;
-        $fileName = 'FORMULIR-BERLANGGANAN-' . strtoupper(Str::slug($namaPerusahaanAtauOrang)) . '.pdf';
+        $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->user?->name;
+        $fileName = 'FORMULIR-BERLANGGANAN-'.strtoupper(Str::slug($namaPerusahaanAtauOrang)).'.pdf';
 
-        return $pdf->stream($fileName);
+        return $pdf->download($fileName);
     }
 }
