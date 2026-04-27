@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\Marketing\Datapelanggan;
+namespace App\Livewire\Marketing\DataPelanggan;
 
 use App\Models\Customer;
 use App\Events\CustomerUpdated;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,6 +19,7 @@ class Index extends Component
     public $search = '';
 
     public $showModal = false;
+
     public $selectedCustomer = null;
 
     public $isEditingCustomer = false;
@@ -160,17 +161,17 @@ class Index extends Component
     {
         $customers = Customer::with(['user', 'spk', 'baa'])
             ->where('status', 'selesai')
-            ->where(function($query) {
+            ->where(function ($query) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('customer_number', 'like', '%' . $this->search . '%');
+                    $query->where('company_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_number', 'like', '%'.$this->search.'%');
                 }
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.marketing.datapelanggan.index', [
-            'customers' => $customers
+            'customers' => $customers,
         ]);
     }
 }

@@ -11,12 +11,12 @@ class BaaController extends Controller
     {
         $customer = Customer::with(['baa', 'spk'])->findOrFail($id);
 
-        if (!$customer->baa) {
+        if (! $customer->baa) {
             abort(404, 'Berita Acara Aktivasi (BAA) belum diterbitkan.');
         }
 
         $pdf = Pdf::loadView('pdf.baa', ['customer' => $customer]);
-        
-        return $pdf->stream('BAA-' . $customer->company_name . '.pdf');
+
+        return $pdf->download('BAA-'.$customer->company_name.'.pdf');
     }
 }

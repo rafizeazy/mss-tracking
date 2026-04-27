@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
 
 class SpkController extends Controller
 {
@@ -12,7 +11,7 @@ class SpkController extends Controller
     {
         $customer = Customer::with('spk')->findOrFail($id);
 
-        if (!$customer->spk) {
+        if (! $customer->spk) {
             abort(404, 'SPK belum di-generate untuk pelanggan ini.');
         }
 
@@ -20,6 +19,6 @@ class SpkController extends Controller
             'customer' => $customer,
         ]);
 
-        return $pdf->stream('SPK-NOC-' . $customer->company_name . '.pdf');
+        return $pdf->download('SPK-NOC-'.$customer->company_name.'.pdf');
     }
 }
