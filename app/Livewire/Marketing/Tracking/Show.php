@@ -151,10 +151,10 @@ class Show extends Component
             'editData.monthly_fee' => 'nullable|numeric',
             'editData.marketing_name' => 'nullable|string|max:255',
             'editData.marketing_phone' => 'nullable|string|max:20',
-            'new_ktp_path' => 'nullable|file|max:5120',
-            'new_npwp_path' => 'nullable|file|max:5120',
-            'new_nib_path' => 'nullable|file|max:5120',
-            'new_certificate_path' => 'nullable|file|max:5120',
+            'new_ktp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'new_npwp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'new_nib_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'new_certificate_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $updateData = $this->editData;

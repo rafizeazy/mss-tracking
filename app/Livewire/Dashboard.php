@@ -75,9 +75,9 @@ class Dashboard extends Component
         $currAktif = Customer::where('status', 'selesai')->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
         $prevAktif = Customer::where('status', 'selesai')->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
 
-        // MENGECUALIKAN 'berhenti' DARI PERHITUNGAN PROSES
-        $currProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti'])->whereBetween('created_at', [$currentStart, $currentEnd])->count();
-        $prevProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti'])->whereBetween('created_at', [$prevStart, $prevEnd])->count();
+        // MENGECUALIKAN STATUS TERMINAL DARI PERHITUNGAN PROSES
+        $currProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti', 'dibatalkan'])->whereBetween('created_at', [$currentStart, $currentEnd])->count();
+        $prevProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti', 'dibatalkan'])->whereBetween('created_at', [$prevStart, $prevEnd])->count();
 
         // MENGHITUNG KHUSUS UNTUK PELANGGAN 'berhenti'
         $currBerhenti = Customer::where('status', 'berhenti')->whereBetween('updated_at', [$currentStart, $currentEnd])->count();

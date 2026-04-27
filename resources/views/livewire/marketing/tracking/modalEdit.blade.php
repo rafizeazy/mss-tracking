@@ -95,7 +95,14 @@
                                     </select>
                                 </div>
                             </div>
-                            <div x-data="{ isCustomMetro: false }">
+                            <div x-data="{
+                                    isCustomMetro: false,
+                                    init() {
+                                        const predefined = ['Lokal Link', 'Telkom', 'Lintas Arta', 'Indosat', 'MV. Net Telkom', 'Fiber Star', 'Iforte'];
+                                        const current = @js($editData['jalur_metro'] ?? '');
+                                        this.isCustomMetro = current !== '' && current !== null && !predefined.includes(current);
+                                    }
+                                }">
                                 <label class="mb-1.5 block text-[11px] font-bold text-[#8a969c] uppercase tracking-wider">Vendor Jalur Metro</label>
                                 <select 
                                     wire:model="editData.jalur_metro" 
