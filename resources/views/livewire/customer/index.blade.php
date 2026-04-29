@@ -62,8 +62,8 @@
                                 <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">Layanan</span>
                                     <div class="text-right md:text-left">
-                                        <p class="font-bold md:font-medium text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white">{{ $cust->bandwidth }}</p>
-                                        <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5">{{ $cust->service_type }}</p>
+                                        <p class="font-bold md:font-medium text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white">{{ $cust->service?->bandwidth ?? '-' }}</p>
+                                        <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5">{{ $cust->service?->service_type ?? '-' }}</p>
                                     </div>
                                 </td>
 
@@ -76,7 +76,7 @@
                                 @if(auth()->user()->role !== \App\Enums\Role::Noc)
                                     <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                         <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">B. Bulanan</span>
-                                        <span class="font-bold md:font-medium text-[#70bb63]">Rp {{ number_format($cust->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                        <span class="font-bold md:font-medium text-[#70bb63]">Rp {{ number_format($cust->service?->monthly_fee ?? 0, 0, ',', '.') }}</span>
                                     </td>
                                 @endif
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap pb-1 md:pb-0">

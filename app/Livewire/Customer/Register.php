@@ -201,56 +201,64 @@ class Register extends Component
         $nibPath = $this->nib_file ? $this->nib_file->store('documents/nib', 'public') : null;
         $certPath = $this->certificate_file ? $this->certificate_file->store('documents/certificate', 'public') : null;
 
-        $user = User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'role' => 'customer',
-            'email_verified_at' => now(),
-        ]);
-
         $namaProvinsi = DB::table('provinces')->where('id', $this->province_id)->value('name');
         $namaKota = DB::table('regencies')->where('id', $this->city_id)->value('name');
 
-        Customer::create([
-            'user_id' => $user->id,
-            'ktp_number' => $this->ktp_number,
-            'gender' => $this->gender,
-            'position' => $this->position,
-            'phone' => $this->phone,
+        // Menggunakan DB Transaction agar jika ada error di tengah jalan, semua data di-rollback
+        DB::transaction(function () use ($ktpPath, $npwpPath, $nibPath, $certPath, $namaProvinsi, $namaKota) {
             
-            'company_name' => $this->company_name,
-            'business_type' => $this->business_type,
-            'npwp_number' => $this->npwp_number,
-            'company_address' => $this->company_address,
-            'city' => $namaKota,
-            'province' => $namaProvinsi,
-            'postal_code' => $this->postal_code,
-            'company_phone' => $this->company_phone,
-            
-            'finance_name' => $this->finance_name,
-            'finance_email' => $this->finance_email,
-            'billing_address' => $this->billing_address,
-            'finance_phone' => $this->finance_phone,
-            
-            'technical_name' => $this->technical_name,
-            'technical_email' => $this->technical_email,
-            'installation_address' => $this->installation_address,
-            'technical_phone' => $this->technical_phone,
-            
-            'service_type' => $this->service_type, 
-            'bandwidth' => $this->bandwidth,
-            'term_of_service' => (int) $this->term_of_service,
-            
-            'ktp_file_path' => $ktpPath,
-            'npwp_file_path' => $npwpPath,
-            'nib_file_path' => $nibPath,
-            'certificate_file_path' => $certPath,
-            
-            'status' => 'menunggu_verifikasi',
-        ]);
+            // 1. Buat Akun User
+            $user = User::create([
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'role' => 'customer', 
+                'email_verified_at' => now(),
+            ]);
 
-        Auth::login($user);
+            // 2. Buat Profil Customer (Tanpa data layanan)
+            $customer = Customer::create([
+                'user_id' => $user->id,
+                'ktp_number' => $this->ktp_number,
+                'gender' => $this->gender,
+                'position' => $this->position,
+                'phone' => $this->phone,
+                
+                'company_name' => $this->company_name,
+                'business_type' => $this->business_type,
+                'npwp_number' => $this->npwp_number,
+                'company_address' => $this->company_address,
+                'city' => $namaKota,
+                'province' => $namaProvinsi,
+                'postal_code' => $this->postal_code,
+                'company_phone' => $this->company_phone,
+                
+                'finance_name' => $this->finance_name,
+                'finance_email' => $this->finance_email,
+                'billing_address' => $this->billing_address,
+                'finance_phone' => $this->finance_phone,
+                
+                'technical_name' => $this->technical_name,
+                'technical_email' => $this->technical_email,
+                'installation_address' => $this->installation_address,
+                'technical_phone' => $this->technical_phone,
+                
+                'ktp_file_path' => $ktpPath,
+                'npwp_file_path' => $npwpPath,
+                'nib_file_path' => $nibPath,
+                'certificate_file_path' => $certPath,
+                
+                'status' => 'menunggu_verifikasi',
+            ]);
+
+            $customer->service()->create([
+                'service_type' => $this->service_type, 
+                'bandwidth' => $this->bandwidth,
+                'term_of_service' => (int) $this->term_of_service,
+            ]);
+
+            Auth::login($user);
+        });
 
         $this->redirect(route('customer.dashboard'));
     }

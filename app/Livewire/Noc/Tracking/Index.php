@@ -22,7 +22,7 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with(['user', 'spk'])
+        $customers = Customer::with(['user', 'spk', 'service', 'baa'])
             ->whereIn('status', [
                 'proses_instalasi', 
                 'proses_aktivasi', 

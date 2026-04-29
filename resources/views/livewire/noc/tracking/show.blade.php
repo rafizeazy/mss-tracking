@@ -32,8 +32,8 @@
                         <div><p class="text-xs text-[#8a969c] uppercase mb-1">Jenis Pekerjaan</p><p class="font-bold text-[#313a46] dark:text-white">{{ $customer->spk->job_type ?? '-' }}</p></div>
                         <div>
                             <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
-                            <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
-                            <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
+                            <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->service?->bandwidth ?? '-' }}</p>
+                            <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service?->service_type ?? '-' }}</p>
                         </div>
                         <div><p class="text-xs text-[#8a969c] uppercase mb-1">Tenggat (Due)</p><p class="font-bold text-[#ed6060]">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d M Y') : '-' }}</p></div>
                     </div>

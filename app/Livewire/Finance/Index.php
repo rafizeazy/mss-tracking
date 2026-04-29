@@ -31,7 +31,7 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with('user')
+        $customers = Customer::with(['user', 'service', 'invoiceRegistrasi'])
             ->whereIn('status', [
                 'menunggu_invoice', 
                 'menunggu_pembayaran', 
@@ -45,7 +45,10 @@ class Index extends Component
             ])
             ->where(function($query) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%');
+                    $query->where('company_name', 'like', '%' . $this->search . '%')
+                          ->orWhereHas('invoiceRegistrasi', function($q) {
+                              $q->where('invoice_number', 'like', '%' . $this->search . '%');
+                          });
                 }
             })
             ->latest()

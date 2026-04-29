@@ -6,15 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             
-            // Relasi ke tabel users
+            // Relasi ke tabel users (Akun Pendaftar)
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('customer_number')->nullable();
             
@@ -45,23 +42,11 @@ return new class extends Migration
             $table->string('technical_phone')->nullable();
             $table->text('installation_address')->nullable();
             
-            // 4. Layanan & File Pendukung
-            $table->string('service_type')->default('Internet Dedicated 1:1');
-            $table->string('bandwidth');
-            $table->integer('term_of_service');
+            // 4. File Pendukung Legalitas
             $table->string('ktp_file_path')->nullable();
             $table->string('npwp_file_path')->nullable();
             $table->string('nib_file_path')->nullable();
             $table->string('certificate_file_path')->nullable();
-
-            $table->decimal('monthly_fee', 15, 2)->nullable();
-            $table->decimal('registration_fee', 15, 2)->nullable();
-            $table->string('sla')->default('99.5%');
-            
-            $table->string('jalur_metro')->nullable(); 
-            $table->string('marketing_name')->nullable();
-            $table->string('marketing_phone')->nullable();
-            $table->string('payment_proof_file_path')->nullable();
             
             // 5. Status Workflow
             $table->string('status')->default('menunggu_verifikasi'); 
@@ -70,9 +55,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('customers');

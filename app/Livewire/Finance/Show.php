@@ -22,7 +22,7 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->customer = Customer::with('user')->findOrFail($id);
+        $this->customer = Customer::with(['user', 'service', 'invoiceRegistrasi'])->findOrFail($id);
         $this->calculateTotals();
     }
 
@@ -34,18 +34,21 @@ class Show extends Component
 
     public function calculateTotals()
     {
-        $this->subtotal = $this->customer->registration_fee;
+        $this->subtotal = $this->customer->service?->registration_fee ?? 0;
         $this->ppn = 0;
         $this->grand_total = $this->subtotal;
     }
 
     public function generatePreview()
     {
-        if (!$this->customer->invoice_number) {
-            $this->customer->update([
-                'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
-                'invoice_generated_at' => now()
-            ]);
+        if (!$this->customer->invoiceRegistrasi || !$this->customer->invoiceRegistrasi->invoice_number) {
+            $this->customer->invoiceRegistrasi()->updateOrCreate(
+                ['customer_id' => $this->customer->id],
+                [
+                    'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
+                    'invoice_generated_at' => now()
+                ]
+            );
             $this->customer->refresh();
         }
 
@@ -67,8 +70,11 @@ class Show extends Component
 
     public function markAsFree()
     {
-        $this->customer->update([
+        $this->customer->service()->update([
             'registration_fee' => 0,
+        ]);
+
+        $this->customer->update([
             'status' => 'pembayaran_disetujui'
         ]);
 

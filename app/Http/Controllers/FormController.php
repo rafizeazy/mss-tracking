@@ -10,7 +10,7 @@ class FormController extends Controller
 {
     public function cetakFormulir($id)
     {
-        $customer = Customer::findOrFail($id);
+        $customer = Customer::with(['user', 'service'])->findOrFail($id);
 
         $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
             'customer' => $customer
@@ -18,7 +18,7 @@ class FormController extends Controller
 
         $pdf->setPaper('A4', 'portrait');
 
-        $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->name;
+        $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->user->name;
         $fileName = 'FORMULIR-BERLANGGANAN-' . strtoupper(Str::slug($namaPerusahaanAtauOrang)) . '.pdf';
 
         return $pdf->stream($fileName);

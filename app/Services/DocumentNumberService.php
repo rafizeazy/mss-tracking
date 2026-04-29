@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Spk;
 use App\Models\Customer;
 use App\Models\Baa;
+use App\Models\InvoiceRegistrasi;
 
 class DocumentNumberService
 {
@@ -40,7 +41,7 @@ class DocumentNumberService
     {
         $year = date('Y');
         $month = date('n'); 
-        $lastData = Customer::whereNotNull('invoice_number')
+        $lastData = InvoiceRegistrasi::whereNotNull('invoice_number')
             ->whereYear('invoice_generated_at', $year)
             ->latest('invoice_generated_at')
             ->first();

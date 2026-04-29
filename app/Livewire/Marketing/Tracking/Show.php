@@ -5,6 +5,7 @@ namespace App\Livewire\Marketing\Tracking;
 use App\Events\CustomerUpdated;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Arr;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -43,11 +44,11 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->customer = Customer::with(['user', 'spk'])->findOrFail($id);
+        $this->customer = Customer::with(['user', 'spk', 'service'])->findOrFail($id);
         
-        $this->service_type = $this->customer->service_type;
-        $this->bandwidth = $this->customer->bandwidth; 
-        $this->jalur_metro = $this->customer->jalur_metro; 
+        $this->service_type = $this->customer->service->service_type ?? '';
+        $this->bandwidth = $this->customer->service->bandwidth ?? ''; 
+        $this->jalur_metro = $this->customer->service->jalur_metro ?? ''; 
         $this->marketing_name = auth()->user()->name;
 
         if ($this->customer->spk) {
@@ -87,14 +88,14 @@ class Show extends Component
             'technical_email' => $this->customer->technical_email, 
             'technical_phone' => $this->customer->technical_phone,
             'installation_address' => $this->customer->installation_address,
-            'service_type' => $this->customer->service_type,
-            'bandwidth' => $this->customer->bandwidth,
-            'term_of_service' => $this->customer->term_of_service,
-            'jalur_metro' => $this->customer->jalur_metro,
-            'registration_fee' => $this->customer->registration_fee,
-            'monthly_fee' => $this->customer->monthly_fee,
-            'marketing_name' => $this->customer->marketing_name,
-            'marketing_phone' => $this->customer->marketing_phone,
+            'service_type' => $this->customer->service->service_type ?? '',
+            'bandwidth' => $this->customer->service->bandwidth ?? '',
+            'term_of_service' => $this->customer->service->term_of_service ?? '',
+            'jalur_metro' => $this->customer->service->jalur_metro ?? '',
+            'registration_fee' => $this->customer->service->registration_fee ?? '',
+            'monthly_fee' => $this->customer->service->monthly_fee ?? '',
+            'marketing_name' => $this->customer->service->marketing_name ?? '',
+            'marketing_phone' => $this->customer->service->marketing_phone ?? '',
         ];
         
         $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
@@ -138,7 +139,21 @@ class Show extends Component
             'new_certificate_path' => 'nullable|file|max:5120',
         ]);
 
-        $updateData = $this->editData;
+        $updateData = Arr::except($this->editData, [
+            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
+        ]);
+
+        $serviceData = Arr::only($this->editData, [
+            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
+        ]);
+
+        // --- PERBAIKAN: Mencegah Error MathException Decimal ---
+        // Jika input dikosongkan (string ''), kita paksa ubah menjadi 0 atau null
+        $serviceData['registration_fee'] = empty($serviceData['registration_fee']) ? 0 : $serviceData['registration_fee'];
+        $serviceData['monthly_fee']      = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
+        $serviceData['term_of_service']  = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
 
         if ($this->new_ktp_path) {
             if ($this->customer->ktp_file_path) Storage::disk('public')->delete($this->customer->ktp_file_path);
@@ -161,6 +176,11 @@ class Show extends Component
         }
 
         $this->customer->update($updateData);
+        
+        $this->customer->service()->updateOrCreate(
+            ['customer_id' => $this->customer->id],
+            $serviceData
+        );
 
         broadcast(new CustomerUpdated());
         $this->customer->refresh();
@@ -189,15 +209,21 @@ class Show extends Component
             'marketing_phone' => 'required|string|max:20',
         ]);
 
+        $this->customer->service()->updateOrCreate(
+            ['customer_id' => $this->customer->id],
+            [
+                'service_type' => $this->service_type,
+                'bandwidth' => $this->bandwidth, 
+                'monthly_fee' => $this->monthly_fee,
+                'registration_fee' => $this->registration_fee,
+                'sla' => $this->sla,
+                'jalur_metro' => $this->jalur_metro, 
+                'marketing_name' => $this->marketing_name,
+                'marketing_phone' => $this->marketing_phone,
+            ]
+        );
+
         $this->customer->update([
-            'service_type' => $this->service_type,
-            'bandwidth' => $this->bandwidth, 
-            'monthly_fee' => $this->monthly_fee,
-            'registration_fee' => $this->registration_fee,
-            'sla' => $this->sla,
-            'jalur_metro' => $this->jalur_metro, 
-            'marketing_name' => $this->marketing_name,
-            'marketing_phone' => $this->marketing_phone,
             'status' => 'menunggu_invoice'
         ]);
 

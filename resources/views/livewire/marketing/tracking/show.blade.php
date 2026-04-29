@@ -166,12 +166,12 @@
                     <div class="flex items-center gap-6 mb-6">
                         <div class="flex-1 rounded-[0.3rem] border border-[#60addf]/30 bg-[#60addf]/5 p-4">
                             <p class="text-xs text-[#60addf] uppercase font-semibold mb-1">Paket Layanan Dipilih</p>
-                            <p class="text-lg font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
-                            <p class="text-xs text-[#1e5d87]/70 dark:text-[#60addf]/70">{{ $customer->service_type }}</p>
+                            <p class="text-lg font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->service?->bandwidth ?? '-' }}</p>
+                            <p class="text-xs text-[#1e5d87]/70 dark:text-[#60addf]/70">{{ $customer->service?->service_type ?? '-' }}</p>
                         </div>
                         <div class="flex-1 rounded-[0.3rem] border border-[#ebb751]/30 bg-[#ebb751]/5 p-4">
                             <p class="text-xs text-[#ebb751] uppercase font-semibold mb-1">Durasi Kontrak</p>
-                            <p class="text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">{{ $customer->term_of_service }} Tahun ({{ $customer->term_of_service * 12 }} Bulan)</p>
+                            <p class="text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">{{ $customer->service?->term_of_service ?? '-' }} Tahun ({{ ($customer->service?->term_of_service ?? 0) * 12 }} Bulan)</p>
                         </div>
                     </div>
 

@@ -55,8 +55,8 @@
                                 <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">Layanan</span>
                                     <div class="text-right md:text-left">
-                                        <p class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $cust->bandwidth }}</p>
-                                        <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5">{{ $cust->service_type }}</p>
+                                        <p class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $cust->service?->bandwidth ?? '-' }}</p>
+                                        <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5">{{ $cust->service?->service_type ?? '-' }}</p>
                                     </div>
                                 </td>
                                 

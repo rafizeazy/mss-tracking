@@ -42,8 +42,8 @@
                     </div>
                     <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
-                        <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
-                        <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
+                        <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->service?->bandwidth ?? '-' }}</p>
+                        <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service?->service_type ?? '-' }}</p>
                     </div>
                     <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">PIC Keuangan</p>
@@ -60,7 +60,7 @@
                 </div>
             </div>
             
-            @if($customer->payment_proof_file_path)
+            @if($customer->invoiceRegistrasi?->payment_proof_file_path)
                 <div class="boron-card {{ $customer->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
                     <div class="boron-card-header {{ $customer->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
                         <h5 class="font-bold {{ $customer->status === 'verifikasi_pembayaran' ? 'text-[#b58c3d] dark:text-[#ebb751]' : 'text-[#313a46] dark:text-white' }}">
@@ -72,12 +72,12 @@
                     </div>
                     <div class="boron-card-body p-5 bg-[#f8f9fa] dark:bg-[#15151b]">
                         <div x-data="{ openImage: false }" class="w-full flex justify-center">
-                            <img @click="openImage = true" src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
+                            <img @click="openImage = true" src="{{ asset('storage/' . $customer->invoiceRegistrasi->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
                             <div x-show="openImage" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" x-transition.opacity>
                                 <button @click="openImage = false" class="absolute top-4 right-4 text-white hover:text-gray-300">
                                     <i class="ti ti-x text-4xl"></i>
                                 </button>
-                                <img src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer Zoom" @click.away="openImage = false" class="max-h-[90vh] max-w-[90vw] rounded shadow-2xl">
+                                <img src="{{ asset('storage/' . $customer->invoiceRegistrasi->payment_proof_file_path) }}" alt="Bukti Transfer Zoom" @click.away="openImage = false" class="max-h-[90vh] max-w-[90vw] rounded shadow-2xl">
                             </div>
                         </div>
                         <p class="text-center text-xs text-[#8a969c] mt-3"><i class="ti ti-zoom-in"></i> Klik gambar untuk memperbesar</p>
@@ -90,7 +90,7 @@
                     <div class="flex justify-between items-start border-b border-[#e7e9eb] pb-6 dark:border-[#37394d]">
                         <div>
                             <h2 class="text-2xl font-bold text-[#313a46] dark:text-white uppercase tracking-wider">INVOICE</h2>
-                            <p class="text-sm text-[#8a969c] mt-1">INV-REG-{{ date('Ymd') }}-{{ str_pad($customer->id, 3, '0', STR_PAD_LEFT) }}</p>
+                            <p class="text-sm text-[#8a969c] mt-1">{{ $customer->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }}</p>
                         </div>
                         <div class="text-right">
                             <h4 class="font-bold text-[#313a46] dark:text-white">PT Media Solusi Sukses</h4>
@@ -121,10 +121,10 @@
                                 <tr>
                                     <td class="p-3">
                                         Biaya Registrasi / Instalasi Awal Jaringan<br>
-                                        <small class="text-[#8a969c] font-semibold">{{ $customer->bandwidth }}</small><br>
-                                        <small class="text-[#8a969c]">{{ $customer->service_type }}</small>
+                                        <small class="text-[#8a969c] font-semibold">{{ $customer->service?->bandwidth ?? '-' }}</small><br>
+                                        <small class="text-[#8a969c]">{{ $customer->service?->service_type ?? '-' }}</small>
                                     </td>
-                                    <td class="p-3 text-right font-medium text-[#313a46] dark:text-white">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
+                                    <td class="p-3 text-right font-medium text-[#313a46] dark:text-white">{{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -338,6 +338,12 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if($customer->status === 'ditolak')
+                        <div class="mt-4 rounded bg-[#ed6060]/10 p-3 text-center text-sm font-semibold text-[#ed6060]">
+                            <i class="ti ti-x"></i> Registrasi Ditolak oleh Marketing
+                        </div>
+                    @endif
                 </div>
             </div>
 

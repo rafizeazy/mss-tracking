@@ -11,7 +11,7 @@ class InvoiceController extends Controller
 {
     public function streamCustomerInvoice(int $id): \Illuminate\View\View
     {
-        $customer = Customer::with('user')->findOrFail($id);
+        $customer = Customer::with(['user', 'service'])->findOrFail($id);
         $user = auth()->user();
         $isCustomer = false;
         
@@ -25,18 +25,21 @@ class InvoiceController extends Controller
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
         }
 
-        $subtotal = $customer->registration_fee ?? 0;
+        $subtotal = $customer->service?->registration_fee ?? 0;
         $ppn = 0;
         $grandTotal = $subtotal + $ppn;
+        
         return view('customer.invoice', compact('customer', 'subtotal', 'ppn', 'grandTotal'));
     }
+
     public function streamInvoice($id)
     {
-        $customer = Customer::with(['user', 'baa'])->findOrFail($id);
+        $customer = Customer::with(['user', 'baa', 'service', 'invoiceRegistrasi'])->findOrFail($id);
 
         if (!$customer->baa) {
             abort(404, 'BAA belum tersedia, Invoice belum dapat dicetak.');
         }
+        
         $activationDate = Carbon::parse($customer->baa->activation_date);
         $trialEndDate = $activationDate->copy()->addDays(7);
         $prorateStartDate = $trialEndDate->copy()->addDay();
@@ -45,7 +48,7 @@ class InvoiceController extends Controller
         $daysInMonth = $prorateStartDate->daysInMonth;
         $billableDays = $prorateStartDate->diffInDays($endOfMonth) + 1;
 
-        $monthlyFee = $customer->monthly_fee ?? 0;
+        $monthlyFee = $customer->service?->monthly_fee ?? 0;
         $prorateAmount = ($monthlyFee / $daysInMonth) * $billableDays;
         
         $ppn = $prorateAmount * 0.11;
@@ -63,11 +66,15 @@ class InvoiceController extends Controller
             'ppn' => $ppn,
             'grand_total' => $grandTotal,
         ];
+        
         $pdf = Pdf::loadView('pdf.invoice-cetak', [
             'customer' => $customer,
             'invoiceData' => $invoiceData
         ]);
-        $namaFile = 'INV-' . str_replace('/', '-', $customer->invoice_number ?? 'DRAFT') . '.pdf';
+        
+        $invoiceNumber = $customer->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
+        $namaFile = 'INV-' . str_replace('/', '-', $invoiceNumber) . '.pdf';
+        
         return $pdf->stream($namaFile);
     }
 }

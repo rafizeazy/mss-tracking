@@ -9,7 +9,6 @@
             margin: 30px 40px; 
         }
         
-        /* Tipografi Dasar Dokumen Resmi */
         body { 
             font-family: Arial, Helvetica, sans-serif; 
             color: #000000; 
@@ -19,7 +18,6 @@
         
         h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
 
-        /* KOP SURAT */
         .kop-surat { 
             width: 100%; 
             border-bottom: 3px solid #000; 
@@ -41,7 +39,6 @@
             margin-bottom: 2px;
         }
 
-        /* JUDUL DOKUMEN */
         .judul-dokumen {
             text-align: center;
             margin-bottom: 15px;
@@ -58,7 +55,6 @@
             text-transform: uppercase;
         }
 
-        /* TABEL STANDAR RESMI */
         .tabel-resmi {
             width: 100%;
             border-collapse: collapse;
@@ -75,7 +71,6 @@
             background-color: #f4f4f4;
         }
 
-        /* JUDUL BAGIAN (SECTION) */
         .judul-bagian {
             background-color: #1e5d87;
             color: #ffffff;
@@ -87,7 +82,6 @@
             border: 1px solid #1e5d87;
         }
 
-        /* KOTAK INSTRUKSI */
         .kotak-instruksi {
             border: 1px solid #000;
             border-top: none;
@@ -160,7 +154,7 @@
             <td class="label-col">Target Selesai</td>
             <td style="color: #d32f2f; font-weight: bold;">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d F Y') : '-' }}</td>
             <td class="label-col">Diterbitkan Oleh</td>
-            <td>{{ $customer->marketing_name ?? 'Administration' }}</td>
+            <td>{{ $customer->service?->marketing_name ?? 'Administration' }}</td>
         </tr>
     </table>
 
@@ -180,15 +174,15 @@
         </tr>
         <tr>
             <td class="label-col">Jenis Layanan</td>
-            <td>{{ $customer->service_type ?? '-' }}</td>
+            <td>{{ $customer->service?->service_type ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label-col">Kapasitas Bandwidth</td>
-            <td style="font-weight: bold; font-size: 12px;">{{ $customer->bandwidth }}</td>
+            <td style="font-weight: bold; font-size: 12px;">{{ $customer->service?->bandwidth }}</td>
         </tr>
         <tr>
             <td class="label-col">Vendor Jalur Metro</td>
-            <td>{{ $customer->jalur_metro ?? '-' }}</td>
+            <td>{{ $customer->service?->jalur_metro ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label-col">Jenis Pekerjaan</td>
@@ -212,7 +206,7 @@
         </tr>
         <tr>
             <td class="label-col">PIC Sales/Marketing</td>
-            <td>{{ $customer->marketing_name ?? '-' }} ({{ $customer->marketing_phone ?? '-' }})</td>
+            <td>{{ $customer->service?->marketing_name ?? '-' }} ({{ $customer->service?->marketing_phone ?? '-' }})</td>
         </tr>
     </table>
 
@@ -234,7 +228,7 @@
                 <div class="ruang-ttd">
                     <img src="{{ public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Marketing" onerror="this.style.display='none';">
                 </div>
-                <div class="nama-ttd">{{ $customer->marketing_name ?? 'Administration' }}</div>
+                <div class="nama-ttd">{{ $customer->service?->marketing_name ?? 'Administration' }}</div>
                 <div class="jabatan-ttd">Admin Marketing</div>
             </td>
         </tr>

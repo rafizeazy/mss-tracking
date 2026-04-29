@@ -24,6 +24,7 @@ class Index extends Component
         $this->search = $query;
         $this->resetPage();
     }
+    
     public function toggleCancelled()
     {
         $this->showCancelled = !$this->showCancelled;
@@ -37,7 +38,8 @@ class Index extends Component
 
     public function render()
     {
-        $query = Customer::with('user');
+        $query = Customer::with(['user', 'service', 'invoiceRegistrasi', 'baa']);
+        
         if ($this->showCancelled) {
             $query->whereIn('status', ['dibatalkan', 'ditolak']);
         } else {

@@ -10,7 +10,7 @@ class SpkController extends Controller
 {
     public function streamSpk($id)
     {
-        $customer = Customer::with('spk')->findOrFail($id);
+        $customer = Customer::with(['spk', 'service'])->findOrFail($id);
 
         if (!$customer->spk) {
             abort(404, 'SPK belum di-generate untuk pelanggan ini.');

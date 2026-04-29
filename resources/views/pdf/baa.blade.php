@@ -4,13 +4,11 @@
     <meta charset="utf-8">
     <title>BAA - {{ $customer->company_name }}</title>
     <style>
-        /* Pengaturan Halaman A4 & Margin Presisi */
         @page { 
             size: A4 portrait;
             margin: 30px 40px; 
         }
         
-        /* Tipografi Resmi (Font yang sama dengan SPK) */
         body { 
             font-family: Arial, Helvetica, sans-serif; 
             color: #000000; 
@@ -20,7 +18,6 @@
         
         h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
         
-        /* KOP SURAT */
         .kop-surat { 
             width: 100%; 
             border-bottom: 3px solid #000; 
@@ -41,7 +38,6 @@
             text-transform: uppercase;
         }
         
-        /* JUDUL DOKUMEN */
         .judul-dokumen { 
             text-align: center; 
             margin-bottom: 15px; 
@@ -58,13 +54,11 @@
             font-weight: bold; 
         }
 
-        /* PARAGRAF TEKS */
         .paragraf { 
             text-align: justify; 
             margin-bottom: 10px; 
         }
         
-        /* TABEL INFORMASI RESMI */
         .tabel-resmi { 
             width: 100%; 
             border-collapse: collapse; 
@@ -81,7 +75,6 @@
             background-color: #f4f4f4; 
         }
 
-        /* TABEL LAMPIRAN PERANGKAT */
         .tabel-perangkat th { 
             background-color: #1e5d87; 
             color: #ffffff; 
@@ -91,7 +84,6 @@
         }
         .tabel-perangkat tr:nth-child(even) { background-color: #f8f9fa; }
 
-        /* AREA TANDA TANGAN */
         .tabel-ttd { 
             width: 100%; 
             text-align: center; 
@@ -121,7 +113,6 @@
             margin-top: 2px; 
         }
 
-        /* CATATAN KAKI */
         .footer-note { 
             font-size: 10px; 
             font-style: italic; 
@@ -130,7 +121,6 @@
             padding-top: 5px;
         }
 
-        /* PEMISAH HALAMAN (PAGE 2) */
         .page-break { page-break-before: always; }
         
         .attachment-title { 
@@ -210,8 +200,8 @@
 
     <table class="tabel-resmi">
         <tr><td class="label-col">Alamat Instalasi</td><td style="line-height: 1.4;">{{ $customer->installation_address ?? $customer->company_address }}</td></tr>
-        <tr><td class="label-col">Jenis Layanan</td><td><strong>{{ ucwords($customer->service_type) }}</strong></td></tr>
-        <tr><td class="label-col">Kapasitas Bandwidth</td><td><strong>{{ $customer->bandwidth }}</strong></td></tr>
+        <tr><td class="label-col">Jenis Layanan</td><td>{{ ucwords($customer->service?->service_type ?? '-') }}</td></tr>
+        <tr><td class="label-col">Kapasitas Bandwidth</td><td>{{ $customer->service?->bandwidth ?? '-' }}</td></tr>
         <tr><td class="label-col">Status Layanan</td><td><strong>Aktif dan Terhubung</strong></td></tr>
     </table>
 

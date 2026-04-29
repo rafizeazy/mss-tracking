@@ -4,6 +4,7 @@ namespace App\Livewire\Finance\Datapelanggan;
 
 use App\Models\Customer;
 use App\Events\CustomerUpdated;
+use Illuminate\Support\Arr;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
@@ -36,7 +37,7 @@ class Index extends Component
 
     public function viewDetail($id)
     {
-        $this->selectedCustomer = Customer::with(['user', 'spk', 'baa'])->find($id);
+        $this->selectedCustomer = Customer::with(['user', 'spk', 'baa', 'service'])->find($id);
         $this->showModal = true;
     }
 
@@ -48,7 +49,7 @@ class Index extends Component
 
     public function openArsip($id)
     {
-        $this->customerForArsip = Customer::with(['spk', 'baa'])->find($id);
+        $this->customerForArsip = Customer::with(['spk', 'baa', 'service', 'invoiceRegistrasi'])->find($id);
         $this->showArsipModal = true;
     }
 
@@ -60,7 +61,7 @@ class Index extends Component
 
     public function editCustomer($id)
     {
-        $customerToEdit = Customer::findOrFail($id);
+        $customerToEdit = Customer::with('service')->findOrFail($id);
         
         $this->editData = [
             'ktp_number' => $customerToEdit->ktp_number,
@@ -83,14 +84,14 @@ class Index extends Component
             'technical_email' => $customerToEdit->technical_email, 
             'technical_phone' => $customerToEdit->technical_phone,
             'installation_address' => $customerToEdit->installation_address,
-            'service_type' => $customerToEdit->service_type,
-            'bandwidth' => $customerToEdit->bandwidth,
-            'term_of_service' => $customerToEdit->term_of_service,
-            'jalur_metro' => $customerToEdit->jalur_metro,
-            'registration_fee' => $customerToEdit->registration_fee,
-            'monthly_fee' => $customerToEdit->monthly_fee,
-            'marketing_name' => $customerToEdit->marketing_name,
-            'marketing_phone' => $customerToEdit->marketing_phone,
+            'service_type' => $customerToEdit->service->service_type ?? '',
+            'bandwidth' => $customerToEdit->service->bandwidth ?? '',
+            'term_of_service' => $customerToEdit->service->term_of_service ?? '',
+            'jalur_metro' => $customerToEdit->service->jalur_metro ?? '',
+            'registration_fee' => $customerToEdit->service->registration_fee ?? '',
+            'monthly_fee' => $customerToEdit->service->monthly_fee ?? '',
+            'marketing_name' => $customerToEdit->service->marketing_name ?? '',
+            'marketing_phone' => $customerToEdit->service->marketing_phone ?? '',
         ];
         
         $this->isEditingCustomer = true;
@@ -134,7 +135,26 @@ class Index extends Component
             'editData.marketing_phone' => 'nullable|string|max:20',
         ]);
 
-        $customerToUpdate->update($this->editData);
+        $updateData = Arr::except($this->editData, [
+            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
+        ]);
+
+        $serviceData = Arr::only($this->editData, [
+            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
+        ]);
+
+        $serviceData['registration_fee'] = empty($serviceData['registration_fee']) ? 0 : $serviceData['registration_fee'];
+        $serviceData['monthly_fee']      = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
+        $serviceData['term_of_service']  = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
+
+        $customerToUpdate->update($updateData);
+
+        $customerToUpdate->service()->updateOrCreate(
+            ['customer_id' => $customerToUpdate->id],
+            $serviceData
+        );
 
         if(class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated());
@@ -153,7 +173,7 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with(['user', 'spk', 'baa'])
+        $customers = Customer::with(['user', 'spk', 'baa', 'service'])
             ->where('status', 'selesai')
             ->where(function($query) {
                 if ($this->search) {

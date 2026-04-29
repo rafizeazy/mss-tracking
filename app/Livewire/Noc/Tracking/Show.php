@@ -32,7 +32,7 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->customer = Customer::with(['user', 'spk', 'baa'])->findOrFail($id);
+        $this->customer = Customer::with(['user', 'spk', 'baa', 'service'])->findOrFail($id);
         $this->customer_number = $this->customer->customer_number;
         $this->noc_name = auth()->user()->name;
         $this->activation_date = date('Y-m-d');
@@ -97,7 +97,6 @@ class Show extends Component
         if ($this->noc_signature) $signaturePath = $this->noc_signature->store('baa/signatures', 'public');
         if ($this->speedtest_image) $speedtestPath = $this->speedtest_image->store('baa/speedtests', 'public');
 
-        // Memanggil layanan penomoran dokumen otomatis
         $baaNumber = $this->customer->baa->baa_number ?? \App\Services\DocumentNumberService::generateBaaNumber();
 
         $this->customer->baa()->updateOrCreate(

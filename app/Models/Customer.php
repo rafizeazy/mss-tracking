@@ -10,16 +10,6 @@ class Customer extends Model
 {
     protected $guarded = ['id'];
 
-    protected function casts(): array
-    {
-        return [
-            'invoice_generated_at' => 'datetime',
-            'monthly_fee' => 'decimal:2',
-            'registration_fee' => 'decimal:2',
-            'term_of_service' => 'integer',
-        ];
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -33,5 +23,17 @@ class Customer extends Model
     public function baa(): HasOne
     {
         return $this->hasOne(Baa::class);
+    }
+
+    // Relasike tabel customer_services
+    public function service(): HasOne
+    {
+        return $this->hasOne(CustomerService::class);
+    }
+
+    // Relasi ke tabel invoice_registrasi
+    public function invoiceRegistrasi(): HasOne
+    {
+        return $this->hasOne(InvoiceRegistrasi::class);
     }
 }

@@ -35,18 +35,18 @@
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">Perusahaan & Layanan</span>
                                     <div class="text-right md:text-left">
                                         <p class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->company_name }}</p>
-                                        <p class="text-[11px] text-[#8a969c] mt-0.5">{{ $customer->bandwidth }} • {{ $customer->service_type }}</p>
+                                        <p class="text-[11px] text-[#8a969c] mt-0.5">{{ $customer->service?->bandwidth }} • {{ $customer->service?->service_type }}</p>
                                     </div>
                                 </td>
                                 
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap font-bold md:font-medium text-[#313a46] dark:text-white border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">B. Registrasi</span>
-                                    <span>Rp {{ number_format($customer->registration_fee, 0, ',', '.') }}</span>
+                                    <span>Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}</span>
                                 </td>
                                 
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap font-bold md:font-medium text-[#70bb63] md:text-[#313a46] md:dark:text-white border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">B. Bulanan</span>
-                                    <span>Rp {{ number_format($customer->monthly_fee, 0, ',', '.') }}</span>
+                                    <span>Rp {{ number_format($customer->service?->monthly_fee ?? 0, 0, ',', '.') }}</span>
                                 </td>
                                 
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap pb-1 md:pb-0">

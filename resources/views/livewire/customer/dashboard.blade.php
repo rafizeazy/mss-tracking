@@ -1,5 +1,4 @@
 <div class="py-6">
-    {{-- TAMPILAN JIKA DATA PELANGGAN SUDAH DIHAPUS PERMANEN --}}
     @if(!$customer)
         <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
@@ -26,10 +25,7 @@
                 </a>
             </div>
         </div>
-
-    {{-- JIKA DATA PELANGGAN MASIH ADA, TAMPILKAN DASHBOARD NORMAL --}}
     @else
-
         <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
                 <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">{{ __('Dashboard Pelanggan') }}</h4>
@@ -86,8 +82,8 @@
                                 </div>
                                 <div>
                                     <p class="text-[11px] md:text-xs font-semibold uppercase text-[#8a969c]">Paket Layanan Aktif</p>
-                                    <h6 class="text-lg md:text-xl font-bold text-[#313a46] dark:text-white">{{ $customer->bandwidth }}</h6>
-                                    <p class="text-xs md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-0.5">{{ $customer->service_type }}</p>
+                                    <h6 class="text-lg md:text-xl font-bold text-[#313a46] dark:text-white">{{ $customer->service?->bandwidth }}</h6>
+                                    <p class="text-xs md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-0.5">{{ $customer->service?->service_type }}</p>
                                 </div>
                             </div>
                             <div class="w-full sm:w-auto mt-2 sm:mt-0 text-left sm:text-right border-t border-[#e7e9eb] sm:border-0 pt-4 sm:pt-0 dark:border-[#37394d]">
@@ -104,19 +100,46 @@
                                 <i class="ti ti-folder text-xl"></i> Arsip Dokumen Legal
                             </h5>
                         </div>
-                        <div class="boron-card-body p-5 md:p-6 grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="boron-card-body p-5 md:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {{-- BAA Original --}}
                             <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
                                 <i class="ti ti-file-certificate text-3xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-2 transition-colors dark:group-hover:text-[#60addf]"></i>
                                 <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Original</h6>
                                 <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">Format Kosong</span>
                             </a>
-
+                    
+                            {{-- BAA Signed --}}
                             @if($customer->baa && $customer->baa->signed_baa_path)
                                 <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#70bb63]/50 bg-[#70bb63]/5 hover:bg-[#70bb63]/10 hover:shadow-md transition-all group dark:border-[#70bb63]/30 dark:bg-[#1e1f27]">
                                     <i class="ti ti-file-check text-3xl text-[#70bb63] mb-2"></i>
                                     <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA (Signed)</h6>
                                     <span class="text-[10px] text-[#70bb63] font-bold mt-1 bg-[#70bb63]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
                                 </a>
+                            @endif
+                    
+                            <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#ebb751] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                                <i class="ti ti-file-invoice text-3xl text-[#a1a9b1] group-hover:text-[#ebb751] mb-2 transition-colors"></i>
+                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Invoice Registrasi</h6>
+                                <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generated</span>
+                            </a>
+                    
+                            @if($customer->invoiceRegistrasi?->payment_proof_file_path)
+                                <a href="{{ asset('storage/' . $customer->invoiceRegistrasi->payment_proof_file_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#60addf] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                                    <i class="ti ti-receipt-2 text-3xl text-[#60addf] mb-2"></i>
+                                    <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Bukti Transfer</h6>
+                                    <span class="text-[10px] text-[#60addf] font-bold mt-1 bg-[#60addf]/10 px-2 py-0.5 rounded">Verifikasi Lunas</span>
+                                </a>
+                            @elseif($customer->service?->registration_fee == 0)
+                                <div class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-[#70bb63] bg-[#70bb63]/5 dark:bg-[#70bb63]/10 dark:border-[#70bb63]/30">
+                                    <i class="ti ti-gift text-3xl text-[#70bb63] mb-2"></i>
+                                    <h6 class="font-bold text-sm text-[#70bb63] text-center">Bukti Transfer</h6>
+                                    <span class="text-[10px] text-[#70bb63] font-bold mt-1 px-2 py-0.5 rounded border border-[#70bb63]">PROMO FREE</span>
+                                </div>
+                            @else
+                                <div class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 dark:bg-[#15151b] dark:border-[#37394d]">
+                                    <i class="ti ti-receipt-off text-3xl text-[#dee2e6] mb-2 dark:text-[#37394d]"></i>
+                                    <h6 class="font-bold text-sm text-[#8a969c] text-center">Belum Ada Bukti</h6>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -224,15 +247,15 @@
                                 </div>
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
-                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->bandwidth }}</h6>
-                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service_type ?? '-' }}</p>
+                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->service?->bandwidth }}</h6>
+                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service?->service_type ?? '-' }}</p>
                                 </div>
                             </div>
                             
                             <ul class="space-y-3.5 text-sm md:text-[13px]">
                                 <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
                                     <span class="text-[#8a969c]">Masa Kontrak</span>
-                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->term_of_service ?? '-' }} Tahun</span>
+                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->service?->term_of_service ?? '-' }} Tahun</span>
                                 </li>
                                 <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
                                     <span class="text-[#8a969c]">ID Pelanggan</span>
@@ -445,7 +468,7 @@
                         <div>
                             <h5 class="text-sm md:text-base font-bold text-[#4a8a3f] dark:text-[#70bb63]">Layanan Sedang Diproses NOC</h5>
                             <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">
-                                @if($customer->registration_fee == 0)
+                                @if($customer->service?->registration_fee == 0)
                                     Pendaftaran Anda mendapatkan promo Gratis Biaya Registrasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.
                                 @else
                                     Pembayaran Anda telah sukses dikonfirmasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.
@@ -474,9 +497,9 @@
                             $workflows = [
                                 ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'desc' => 'Tim kami sedang memverifikasi data dan layanan Anda.', 'icon' => 'ti-shield-check'],
                                 ['id' => 'menunggu_invoice', 'title' => 'Pembuatan Invoice', 'desc' => 'Pembuatan invoice registrasi/instalasi oleh tim Finance.', 'icon' => 'ti-file-invoice'],
-                                ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => $customer->registration_fee == 0 ? 'Biaya instalasi/registrasi digratiskan (Free). Tahap pembayaran dilewati.' : 'Penerbitan tagihan awal dan menunggu pembayaran Anda.', 'icon' => 'ti-receipt'],
-                                ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => $customer->registration_fee == 0 ? 'Otomatis terverifikasi karena program registrasi gratis.' : 'Tim Finance memverifikasi keabsahan pembayaran Anda.', 'icon' => 'ti-search'],
-                                ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => $customer->registration_fee == 0 ? 'Layanan langsung diteruskan ke tim Instalasi NOC.' : 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
+                                ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => $customer->service?->registration_fee == 0 ? 'Biaya instalasi/registrasi digratiskan (Free). Tahap pembayaran dilewati.' : 'Penerbitan tagihan awal dan menunggu pembayaran Anda.', 'icon' => 'ti-receipt'],
+                                ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => $customer->service?->registration_fee == 0 ? 'Otomatis terverifikasi karena program registrasi gratis.' : 'Tim Finance memverifikasi keabsahan pembayaran Anda.', 'icon' => 'ti-search'],
+                                ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => $customer->service?->registration_fee == 0 ? 'Layanan langsung diteruskan ke tim Instalasi NOC.' : 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
                                 ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'desc' => 'Pemasangan perangkat fisik di lokasi Anda oleh tim NOC.', 'icon' => 'ti-router'],
                                 ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi & Setting', 'desc' => 'Konfigurasi jaringan dan aktivasi bandwidth internet Anda.', 'icon' => 'ti-wifi'],
                                 ['id' => 'review_baa', 'title' => 'Pembuatan Dokumen', 'desc' => 'Pembuatan Berita Acara Aktivasi (BAA) oleh tim kami.', 'icon' => 'ti-file-description'],
@@ -572,13 +595,13 @@
                                             <div class="w-full">
                                                 <h5 class="text-base md:text-lg font-bold {{ $state === 'active' ? 'text-[#313a46] dark:text-white' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#a1a9b1] dark:text-[#6c757d]') }}">
                                                     {{ $step['title'] }}
-                                                    @if($step['id'] === 'menunggu_pembayaran' && $customer->registration_fee == 0)
+                                                    @if($step['id'] === 'menunggu_pembayaran' && $customer->service?->registration_fee == 0)
                                                         <span class="ml-2 inline-block shrink-0 text-[10px] font-bold text-[#70bb63] bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded-full align-middle uppercase tracking-wider">Registrasi Gratis</span>
                                                     @endif
                                                 </h5>
                                                 <p class="text-[13px] md:text-sm mt-0.5 md:mt-1 {{ $state === 'active' ? 'text-[#313a46] dark:text-white font-medium' : ($state === 'completed' ? 'text-[#8a969c]' : 'text-[#a1a9b1]/70 dark:text-[#6c757d]/70') }}">{{ $step['desc'] }}</p>
 
-                                                @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && $customer->registration_fee != 0)
+                                                @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && $customer->service?->registration_fee != 0)
                                                     <div class="mt-5 w-full">
                                                         <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
                                                             <i class="ti ti-file-invoice text-lg"></i> Lihat Tagihan Invoice
@@ -676,15 +699,15 @@
                                 </div>
                                 <div>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
-                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->bandwidth }}</h6>
-                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service_type ?? '-' }}</p>
+                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->service?->bandwidth }}</h6>
+                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service?->service_type ?? '-' }}</p>
                                 </div>
                             </div>
                             
                             <ul class="space-y-3.5 text-sm md:text-[13px]">
                                 <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
                                     <span class="text-[#8a969c]">Masa Kontrak</span>
-                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->term_of_service ?? '-' }} Tahun</span>
+                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->service?->term_of_service ?? '-' }} Tahun</span>
                                 </li>
                                 <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
                                     <span class="text-[#8a969c]">ID Pelanggan</span>

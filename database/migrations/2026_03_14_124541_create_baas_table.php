@@ -25,8 +25,9 @@ return new class extends Migration
             // File Uploads
             $table->string('noc_signature_path')->nullable();
             $table->string('speedtest_image_path')->nullable();
+            $table->string('signed_baa_path')->nullable();
             
-            // Format JSON untuk input dinamis perangkat (Multi-row)
+            // Data perangkat (multi-row JSON)
             $table->json('devices')->nullable(); 
             
             $table->timestamps();
