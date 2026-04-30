@@ -28,6 +28,8 @@ class Index extends Component
     public $showArsipModal = false;
     public $customerForArsip = null;
 
+    public $showBerhentiOnly = false;
+
     #[On('trigger-search')]
     public function updateSearch($query)
     {
@@ -173,8 +175,10 @@ class Index extends Component
 
     public function render()
     {
+        $statusToFetch = $this->showBerhentiOnly ? 'berhenti' : 'selesai';
+
         $customers = Customer::with(['user', 'spk', 'baa', 'service'])
-            ->where('status', 'selesai')
+            ->where('status', $statusToFetch)
             ->where(function($query) {
                 if ($this->search) {
                     $query->where('company_name', 'like', '%' . $this->search . '%')

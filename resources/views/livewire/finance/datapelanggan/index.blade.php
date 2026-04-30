@@ -1,8 +1,13 @@
 <div class="py-4 md:py-6">
-    <div class="mb-4 md:mb-6 flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-3">
+    <div class="mb-4 md:mb-6 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
         <div>
             <h4 class="text-lg md:text-xl font-bold md:font-semibold text-[#313a46] dark:text-white">Arsip Data Pelanggan Aktif</h4>
             <p class="mt-0.5 text-xs md:text-sm text-[#8a969c]">Basis data pelanggan yang layanannya telah beroperasi (100% Selesai).</p>
+        </div>
+        <div class="flex gap-2">
+            <button wire:click="$toggle('showBerhentiOnly')" class="w-full md:w-auto btn-boron {{ $showBerhentiOnly ? 'bg-[#ed6060] text-white border-transparent' : '!bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]' }} !py-2 !px-4 text-[13px] md:text-sm font-semibold shadow-sm transition-colors">
+                <i class="ti ti-hand-stop mr-1.5 text-lg"></i> {{ $showBerhentiOnly ? 'Kembali ke Aktif' : 'Lihat Pelanggan Berhenti' }}
+            </button>
         </div>
     </div>
 
@@ -28,7 +33,12 @@
                                     <span class="text-[10px] font-bold text-[#8a969c] md:hidden uppercase tracking-widest mt-0.5">Perusahaan</span>
                                     <div class="text-right md:text-left max-w-[65%] md:max-w-none">
                                         <p class="font-bold text-[#ebb751] text-[11px] md:text-xs mb-0.5">{{ $cust->customer_number ?? '-' }}</p>
-                                        <p class="font-bold md:font-semibold text-[#313a46] dark:text-white text-sm md:text-sm leading-tight">{{ $cust->company_name }}</p>
+                                        <div class="flex flex-col md:flex-row md:items-center justify-end md:justify-start gap-1 md:gap-2">
+                                            <p class="font-bold md:font-semibold text-[#313a46] dark:text-white text-sm md:text-sm leading-tight">{{ $cust->company_name }}</p>
+                                            @if($cust->status === 'berhenti')
+                                                <span class="inline-block px-1.5 py-0.5 rounded bg-[#ed6060]/10 text-[#ed6060] text-[9px] md:text-[10px] font-bold w-fit ml-auto md:ml-0">BERHENTI</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                                 
@@ -64,7 +74,7 @@
                                 <td colspan="4" class="block md:table-cell px-6 py-12 text-center text-[#8a969c]">
                                     <div class="flex flex-col items-center justify-center">
                                         <i class="ti ti-inbox text-5xl mb-3 opacity-30"></i>
-                                        <p class="text-sm">Belum ada arsip pelanggan aktif.</p>
+                                        <p class="text-sm">{{ $showBerhentiOnly ? 'Belum ada arsip pelanggan yang berhenti.' : 'Belum ada arsip pelanggan aktif.' }}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -367,6 +377,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                             </div>
                         </div>
 
@@ -382,103 +393,108 @@
 
     @if($showArsipModal && $customerForArsip)
         <div class="fixed inset-0 z-[999] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4 transition-all duration-300" wire:transition.opacity>
-            <div class="bg-white dark:bg-[#1e1f27] rounded-t-[1.5rem] md:rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden border-t md:border border-[#e7e9eb] dark:border-[#37394d] transform transition-transform" @click.stop>
-                
+            <div class="bg-white dark:bg-[#1e1f27] rounded-t-[1.5rem] md:rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden border-t md:border border-[#e7e9eb] dark:border-[#37394d] transform transition-transform h-[85vh] md:h-auto md:max-h-[90vh]" @click.stop>
                 <div class="w-full flex justify-center pt-3 pb-1 md:hidden bg-[#f8f9fa] dark:bg-[#15151b]">
                     <div class="w-12 h-1.5 bg-[#e7e9eb] rounded-full dark:bg-[#37394d]"></div>
                 </div>
 
                 <div class="px-5 md:px-6 py-4 md:py-5 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-[#15151b]">
                     <div class="flex items-center gap-3">
-                        <div class="flex size-10 md:size-12 items-center justify-center rounded-full bg-[#ebb751]/10 text-[#ebb751] shrink-0">
+                        <div class="flex size-10 md:size-12 items-center justify-center rounded-full bg-[#1e5d87]/10 text-[#1e5d87] shrink-0">
                             <i class="ti ti-folder-open text-xl md:text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-base md:text-lg text-[#313a46] dark:text-white leading-tight">Arsip Dokumen</h3>
+                            <h3 class="font-bold text-base md:text-lg text-[#313a46] dark:text-white leading-tight">Arsip Dokumen Pelanggan</h3>
                             <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5 line-clamp-1">{{ $customerForArsip->company_name }}</p>
                         </div>
                     </div>
-                    <button wire:click="closeArsip" class="text-[#8a969c] bg-white border border-[#e7e9eb] md:border-transparent md:bg-transparent hover:bg-[#ed6060]/10 p-2 md:p-1.5 rounded-full hover:text-[#ed6060] transition-colors dark:bg-[#1e1e2a] dark:border-[#37394d]"><i class="ti ti-x text-lg md:text-xl"></i></button>
+                    <button wire:click="closeArsip" class="text-[#8a969c] bg-white border border-[#e7e9eb] md:border-transparent md:bg-transparent hover:bg-[#ed6060]/10 p-2 md:p-1.5 rounded-full hover:text-[#ed6060] transition-colors dark:bg-[#1e1e2a] dark:border-[#37394d] shrink-0">
+                        <i class="ti ti-x text-lg md:text-xl"></i>
+                    </button>
                 </div>
 
-                <div class="p-5 md:p-6 bg-[#fcfcfd] dark:bg-[#1e1f27] overflow-y-auto max-h-[70vh] md:max-h-none boron-scrollbar">
-                    <div class="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                <div class="p-4 md:p-6 bg-[#fcfcfd] dark:bg-[#1e1f27] overflow-y-auto boron-scrollbar flex-1">
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                         
-                        <a href="{{ route('form.formulir', $customerForArsip->id) }}" target="_blank" class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#1e5d87] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] dark:hover:border-[#60addf] gap-4 min-[480px]:gap-0">
-                            <div class="flex-none min-[480px]:w-full min-[480px]:text-center">
-                                <i class="ti ti-file-text text-3xl md:text-4xl text-[#a1a9b1] group-hover:text-[#1e5d87] min-[480px]:mb-3 transition-colors dark:group-hover:text-[#60addf]"></i>
-                            </div>
-                            <div class="flex-1 min-[480px]:text-center">
-                                <h6 class="font-bold text-[13px] md:text-sm text-[#313a46] dark:text-white">Formulir Registrasi</h6>
-                                <span class="inline-block text-[10px] text-[#8a969c] mt-1 md:mt-1.5 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generate</span>
-                            </div>
+                        <a href="{{ route('form.formulir', $customerForArsip->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#1e5d87] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] dark:hover:border-[#60addf]">
+                            <i class="ti ti-file-text text-3xl md:text-4xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-2 md:mb-3 transition-colors dark:group-hover:text-[#60addf]"></i>
+                            <h6 class="font-bold text-xs md:text-sm text-[#313a46] dark:text-white text-center leading-tight">Formulir Registrasi</h6>
+                            <span class="text-[9px] md:text-[10px] text-[#8a969c] mt-1 md:mt-1.5 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generate</span>
                         </a>
 
-                        <a href="{{ route('customer.invoice', $customerForArsip->id) }}" target="_blank" class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#ebb751] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] gap-4 min-[480px]:gap-0">
-                            <div class="flex-none min-[480px]:w-full min-[480px]:text-center">
-                                <i class="ti ti-file-invoice text-3xl md:text-4xl text-[#a1a9b1] group-hover:text-[#ebb751] min-[480px]:mb-3 transition-colors"></i>
-                            </div>
-                            <div class="flex-1 min-[480px]:text-center">
-                                <h6 class="font-bold text-[13px] md:text-sm text-[#313a46] dark:text-white">Invoice Registrasi</h6>
-                                <span class="inline-block text-[10px] text-[#8a969c] mt-1 md:mt-1.5 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generate</span>
-                            </div>
+                        <a href="{{ route('customer.invoice', $customerForArsip->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#ebb751] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d]">
+                            <i class="ti ti-file-invoice text-3xl md:text-4xl text-[#a1a9b1] group-hover:text-[#ebb751] mb-2 md:mb-3 transition-colors"></i>
+                            <h6 class="font-bold text-xs md:text-sm text-[#313a46] dark:text-white text-center leading-tight">Invoice Registrasi</h6>
+                            <span class="text-[9px] md:text-[10px] text-[#8a969c] mt-1 md:mt-1.5 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generate</span>
                         </a>
 
-                        @if($customerForArsip->invoiceRegistrasi?->payment_proof_file_path)
-                            <a href="{{ asset('storage/' . $customerForArsip->invoiceRegistrasi->payment_proof_file_path) }}" target="_blank" class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#60addf] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] gap-4 min-[480px]:gap-0">
-                                <div class="flex-none min-[480px]:w-full min-[480px]:text-center">
-                                    <i class="ti ti-receipt-2 text-3xl md:text-4xl text-[#60addf] min-[480px]:mb-3"></i>
-                                </div>
-                                <div class="flex-1 min-[480px]:text-center">
-                                    <h6 class="font-bold text-[13px] md:text-sm text-[#313a46] dark:text-white">Bukti Transfer</h6>
-                                    <span class="inline-block text-[10px] text-[#60addf] font-bold mt-1 md:mt-1.5 bg-[#60addf]/10 px-2 py-0.5 rounded">Terverifikasi</span>
-                                </div>
+                        @if($customerForArsip->spk)
+                            <a href="{{ route('marketing.spk', $customerForArsip->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#60addf] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-file-description text-3xl md:text-4xl text-[#a1a9b1] group-hover:text-[#60addf] mb-2 md:mb-3 transition-colors"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#313a46] dark:text-white text-center leading-tight">SPK (Perintah Kerja)</h6>
+                                <span class="text-[9px] md:text-[10px] text-[#8a969c] mt-1 md:mt-1.5 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generate</span>
                             </a>
-                        @elseif($customerForArsip->service?->registration_fee == 0)
-                            <div class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#70bb63] bg-[#70bb63]/5 dark:bg-[#70bb63]/10 dark:border-[#70bb63]/30 gap-4 min-[480px]:gap-0">
-                                <div class="flex-none min-[480px]:w-full min-[480px]:text-center">
-                                    <i class="ti ti-gift text-3xl md:text-4xl text-[#70bb63] min-[480px]:mb-3"></i>
-                                </div>
-                                <div class="flex-1 min-[480px]:text-center">
-                                    <h6 class="font-bold text-[13px] md:text-sm text-[#70bb63]">Bukti Transfer</h6>
-                                    <span class="inline-block text-[10px] text-[#70bb63] font-bold mt-1 md:mt-1.5 px-2 py-0.5 rounded border border-[#70bb63]">PROMO FREE</span>
-                                </div>
-                            </div>
                         @else
-                            <div class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d] gap-4 min-[480px]:gap-0">
-                                <div class="flex-none min-[480px]:w-full min-[480px]:text-center">
-                                    <i class="ti ti-receipt-off text-3xl md:text-4xl text-[#dee2e6] min-[480px]:mb-3 dark:text-[#37394d]"></i>
-                                </div>
-                                <div class="flex-1 min-[480px]:text-center">
-                                    <h6 class="font-bold text-[13px] md:text-sm text-[#8a969c]">Belum Ada Bukti</h6>
-                                </div>
+                            <div class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-file-description text-3xl md:text-4xl text-[#dee2e6] mb-2 md:mb-3 dark:text-[#37394d]"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#8a969c] text-center leading-tight">SPK Belum Terbit</h6>
+                            </div>
+                        @endif
+
+                        @if($customerForArsip->baa)
+                            <a href="{{ route('noc.baa', $customerForArsip->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#669776] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] dark:hover:border-[#70bb63]">
+                                <i class="ti ti-certificate text-3xl md:text-4xl text-[#a1a9b1] group-hover:text-[#669776] mb-2 md:mb-3 transition-colors dark:group-hover:text-[#70bb63]"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#313a46] dark:text-white text-center leading-tight">BAA (Original)</h6>
+                                <span class="text-[9px] md:text-[10px] text-[#8a969c] mt-1 md:mt-1.5 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">Format Kosong</span>
+                            </a>
+                        @else
+                            <div class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-certificate text-3xl md:text-4xl text-[#dee2e6] mb-2 md:mb-3 dark:text-[#37394d]"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#8a969c] text-center leading-tight">BAA Belum Terbit</h6>
                             </div>
                         @endif
 
                         @if($customerForArsip->baa && $customerForArsip->baa->signed_baa_path)
-                            <a href="{{ asset('storage/' . $customerForArsip->baa->signed_baa_path) }}" target="_blank" class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#70bb63] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] shadow-[0_0_0_2px_rgba(112,187,99,0.2)] gap-4 min-[480px]:gap-0">
-                                <div class="flex-none min-[480px]:w-full min-[480px]:flex min-[480px]:justify-center">
-                                    <div class="relative min-[480px]:mb-3 w-fit">
-                                        <i class="ti ti-file-check text-3xl md:text-4xl text-[#70bb63]"></i>
-                                        <i class="ti ti-circle-check-filled text-[#70bb63] bg-white rounded-full absolute -bottom-1 -right-1 md:-right-2 text-xs md:text-sm border-2 border-white"></i>
-                                    </div>
+                            <a href="{{ asset('storage/' . $customerForArsip->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#70bb63] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] shadow-[0_0_0_2px_rgba(112,187,99,0.2)]">
+                                <div class="relative mb-2 md:mb-3">
+                                    <i class="ti ti-file-check text-3xl md:text-4xl text-[#70bb63]"></i>
+                                    <i class="ti ti-circle-check-filled text-[#70bb63] bg-white rounded-full absolute -bottom-1 -right-1 md:-right-2 text-[10px] md:text-sm border-[1.5px] md:border-2 border-white"></i>
                                 </div>
-                                <div class="flex-1 min-[480px]:text-center">
-                                    <h6 class="font-bold text-[13px] md:text-sm text-[#313a46] dark:text-white">BAA (Signed)</h6>
-                                    <span class="inline-block text-[10px] text-[#70bb63] font-bold mt-1 md:mt-1.5 bg-[#70bb63]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
-                                </div>
+                                <h6 class="font-bold text-xs md:text-sm text-[#313a46] dark:text-white text-center leading-tight">BAA (Signed)</h6>
+                                <span class="text-[9px] md:text-[10px] text-[#70bb63] font-bold mt-1 md:mt-1.5 bg-[#70bb63]/10 px-2 py-0.5 rounded text-center">Telah Di-TTD</span>
                             </a>
                         @else
-                            <div class="flex flex-row min-[480px]:flex-col items-center min-[480px]:justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d] gap-4 min-[480px]:gap-0">
-                                <div class="flex-none min-[480px]:w-full min-[480px]:text-center">
-                                    <i class="ti ti-file-x text-3xl md:text-4xl text-[#dee2e6] min-[480px]:mb-3 dark:text-[#37394d]"></i>
-                                </div>
-                                <div class="flex-1 min-[480px]:text-center">
-                                    <h6 class="font-bold text-[13px] md:text-sm text-[#8a969c]">BAA Belum Ada</h6>
-                                </div>
+                            <div class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-file-x text-3xl md:text-4xl text-[#dee2e6] mb-2 md:mb-3 dark:text-[#37394d]"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#8a969c] text-center leading-tight">BAA (Signed) Belum Ada</h6>
                             </div>
                         @endif
 
+                        @if($customerForArsip->invoiceRegistrasi?->payment_proof_file_path)
+                            <a href="{{ asset('storage/' . $customerForArsip->invoiceRegistrasi->payment_proof_file_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#60addf] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-receipt-2 text-3xl md:text-4xl text-[#60addf] mb-2 md:mb-3"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#313a46] dark:text-white text-center leading-tight">Bukti Transfer</h6>
+                                <span class="text-[9px] md:text-[10px] text-[#60addf] font-bold mt-1 md:mt-1.5 bg-[#60addf]/10 px-2 py-0.5 rounded text-center">Lunas / Terverifikasi</span>
+                            </a>
+                        @elseif($customerForArsip->service?->registration_fee == 0)
+                            <div class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#70bb63] bg-[#70bb63]/5 dark:bg-[#70bb63]/10 dark:border-[#70bb63]/30">
+                                <i class="ti ti-gift text-3xl md:text-4xl text-[#70bb63] mb-2 md:mb-3"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#70bb63] text-center leading-tight">Bukti Transfer</h6>
+                                <span class="text-[9px] md:text-[10px] text-[#70bb63] font-bold mt-1 md:mt-1.5 px-2 py-0.5 rounded border border-[#70bb63]">PROMO FREE</span>
+                            </div>
+                        @else
+                            <div class="flex flex-col items-center justify-center p-4 md:p-5 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 cursor-not-allowed dark:bg-[#15151b] dark:border-[#37394d]">
+                                <i class="ti ti-receipt-off text-3xl md:text-4xl text-[#dee2e6] mb-2 md:mb-3 dark:text-[#37394d]"></i>
+                                <h6 class="font-bold text-xs md:text-sm text-[#8a969c] text-center leading-tight">Tidak Ada Bukti Bayar</h6>
+                            </div>
+                        @endif
+
+                    </div>
+                    
+                    <div class="mt-4 md:hidden pb-2">
+                        <button wire:click="closeArsip" class="w-full btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-3 text-sm font-bold rounded-xl dark:!bg-[#15151b] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
+                            Tutup Arsip
+                        </button>
                     </div>
                 </div>
             </div>

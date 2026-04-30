@@ -215,8 +215,6 @@ class Register extends Component
                 'role' => 'customer', 
                 'email_verified_at' => now(),
             ]);
-
-            // 2. Buat Profil Customer (Tanpa data layanan)
             $customer = Customer::create([
                 'user_id' => $user->id,
                 'ktp_number' => $this->ktp_number,

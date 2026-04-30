@@ -28,7 +28,6 @@ class Index extends Component
     public $showArsipModal = false;
     public $customerForArsip = null;
 
-    // Menambahkan properti untuk mengontrol tampilan tab pelanggan berhenti
     public $showBerhentiOnly = false;
 
     #[On('trigger-search')]
@@ -105,6 +104,7 @@ class Index extends Component
         $this->isEditingCustomer = true;
     }
 
+    // Fungsi Edit Data Pelanggan
     public function updateCustomer()
     {
         if (!$this->selectedCustomer && !$this->isEditingCustomer) return;
@@ -179,7 +179,7 @@ class Index extends Component
         $this->isEditingCustomer = false;
     }
 
-    // Fungsi Baru: Memberhentikan Pelanggan
+    // Fungsi Memberhentikan Pelanggan
     public function berhentikanPelanggan($id)
     {
         $customer = Customer::findOrFail($id);
@@ -194,7 +194,6 @@ class Index extends Component
 
     public function render()
     {
-        // Kondisi Query diperbarui berdasarkan status toggle
         $statusToFetch = $this->showBerhentiOnly ? 'berhenti' : 'selesai';
 
         $customers = Customer::with(['user', 'spk', 'baa', 'service'])
