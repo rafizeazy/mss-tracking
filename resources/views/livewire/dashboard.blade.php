@@ -148,18 +148,16 @@
             updateTime() {
                 const now = new Date();
                 
-                // Format Waktu (09:13:04 PM)
                 let hours = now.getHours();
                 let minutes = now.getMinutes().toString().padStart(2, '0');
                 let seconds = now.getSeconds().toString().padStart(2, '0');
                 let ampm = hours >= 12 ? 'PM' : 'AM';
                 hours = hours % 12;
-                hours = hours ? hours : 12; // Jam '0' menjadi '12'
+                hours = hours ? hours : 12; 
                 hours = hours.toString().padStart(2, '0');
                 
                 this.time = `${hours}:${minutes}:${seconds} ${ampm}`;
 
-                // Format Tanggal (Rabu, 29 April 2026)
                 const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 this.date = `${hari[now.getDay()]}, ${now.getDate()} ${bulan[now.getMonth()]} ${now.getFullYear()}`;
@@ -219,7 +217,6 @@
                         grid: { borderColor: '#e7e9eb', strokeDashArray: 4, padding: { left: 10, right: 10 } }
                     };
 
-                    // Penyesuaian konfigurasi chart untuk layar kecil
                     if(window.innerWidth < 640) {
                         options.xaxis.labels.rotate = -90;
                         options.stroke.width = 2;

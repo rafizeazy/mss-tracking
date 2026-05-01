@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Invoice {{ $customer->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }} | PT Media Solusi Sukses</title>
+    <title>Invoice {{ $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }} | PT Media Solusi Sukses</title>
     <style>
         * {
             margin: 0;
@@ -404,7 +404,7 @@
             </div>
             <div class="invoice-title">
                 <h1>INVOICE</h1>
-                <div class="inv-num">{{ $customer->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }}</div>
+                <div class="inv-num">{{ $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }}</div>
             </div>
         </div>
 
@@ -425,8 +425,8 @@
             <div class="info-card text-right">
                 <label>📅 DETAIL INVOICE</label>
                 <p>
-                    <strong>Tanggal Terbit:</strong> {{ $customer->invoiceRegistrasi?->invoice_generated_at?->format('d M Y') ?? now()->format('d M Y') }}<br>
-                    <strong>Jatuh Tempo:</strong> {{ ($customer->invoiceRegistrasi?->invoice_generated_at ?? now())->addDays(14)->format('d M Y') }}<br>
+                    <strong>Tanggal Terbit:</strong> {{ $service->invoiceRegistrasi?->invoice_generated_at?->format('d M Y') ?? now()->format('d M Y') }}<br>
+                    <strong>Jatuh Tempo:</strong> {{ ($service->invoiceRegistrasi?->invoice_generated_at ?? now())->addDays(14)->format('d M Y') }}<br>
                     <strong>NPWP:</strong> {{ $customer->npwp_number ?? '-' }}
                 </p>
             </div>
@@ -446,9 +446,9 @@
                         <td>1</td>
                         <td class="service-desc">
                             Biaya Registrasi / Instalasi Awal
-                            <small>{{ $customer->service?->bandwidth ?? '-' }} • {{ $customer->service?->service_type ?? '-' }}</small>
+                            <small>{{ $service->bandwidth ?? '-' }} • {{ $service->service_type ?? '-' }}</small>
                         </td>
-                        <td>Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($service->registration_fee ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>

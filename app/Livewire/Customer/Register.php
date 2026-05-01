@@ -110,12 +110,13 @@ class Register extends Component
                 'finance_phone' => 'required|string|max:20',
                 'technical_name' => 'required|string|max:255',
                 'technical_email' => 'required|email|max:255',
-                'installation_address' => 'required|string',
                 'technical_phone' => 'required|string|max:20',
             ],
             4 => [
+                'service_type' => 'required|string|max:255',
                 'bandwidth' => 'required|string|max:255',
                 'term_of_service' => 'required|integer|in:1,2,3',
+                'installation_address' => 'required|string',
                 'ktp_file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
                 'npwp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
                 'nib_file' => 'nullable|mimes:pdf|max:2048',
@@ -154,12 +155,13 @@ class Register extends Component
                 'technical_name.required' => 'Nama PIC Teknis wajib diisi.',
                 'technical_email.required' => 'Email PIC Teknis wajib diisi.',
                 'technical_email.email' => 'Format email teknis tidak valid.',
-                'installation_address.required' => 'Alamat Instalasi wajib diisi.',
                 'technical_phone.required' => 'Nomor handphone teknis wajib diisi.',
             ],
             4 => [
+                'service_type.required' => 'Jenis layanan wajib dipilih.',
                 'bandwidth.required' => 'Kapasitas Bandwidth wajib dipilih.',
                 'term_of_service.required' => 'Jangka waktu berlangganan wajib dipilih.',
+                'installation_address.required' => 'Alamat Instalasi wajib diisi.',
                 'ktp_file.required' => 'File dokumen KTP wajib diunggah.',
                 'password.required' => 'Password wajib diisi.',
                 'password.min' => 'Password minimal 8 karakter.',
@@ -204,10 +206,8 @@ class Register extends Component
         $namaProvinsi = DB::table('provinces')->where('id', $this->province_id)->value('name');
         $namaKota = DB::table('regencies')->where('id', $this->city_id)->value('name');
 
-        // Menggunakan DB Transaction agar jika ada error di tengah jalan, semua data di-rollback
         DB::transaction(function () use ($ktpPath, $npwpPath, $nibPath, $certPath, $namaProvinsi, $namaKota) {
             
-            // 1. Buat Akun User
             $user = User::create([
                 'name' => $this->name,
                 'email' => $this->email,
@@ -215,6 +215,7 @@ class Register extends Component
                 'role' => 'customer', 
                 'email_verified_at' => now(),
             ]);
+            
             $customer = Customer::create([
                 'user_id' => $user->id,
                 'ktp_number' => $this->ktp_number,
@@ -253,6 +254,7 @@ class Register extends Component
                 'service_type' => $this->service_type, 
                 'bandwidth' => $this->bandwidth,
                 'term_of_service' => (int) $this->term_of_service,
+                'installation_address' => $this->installation_address,
             ]);
 
             Auth::login($user);

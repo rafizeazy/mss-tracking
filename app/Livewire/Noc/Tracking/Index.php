@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Noc\Tracking;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\On; 
@@ -22,19 +22,21 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with(['user', 'spk', 'service', 'baa'])
-            ->whereIn('status', [
-                'proses_instalasi', 
-                'proses_aktivasi', 
-                'review_baa',      
-                'menunggu_baa', 
-                'verifikasi_baa'  
-            ])
+        $services = CustomerService::with(['customer.user', 'spk', 'baa'])
+            ->whereHas('customer', function ($query) {
+                $query->whereIn('status', [
+                    'proses_instalasi', 
+                    'proses_aktivasi', 
+                    'review_baa',      
+                    'menunggu_baa', 
+                    'verifikasi_baa'  
+                ]);
+            })
             ->latest()
             ->paginate(10);
 
         return view('livewire.noc.tracking.index', [
-            'customers' => $customers
+            'services' => $services
         ]);
     }
 }

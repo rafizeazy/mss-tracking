@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('baas', function (Blueprint $table) {
+        // baa
+        Schema::create('baa', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('spk_id')->constrained()->cascadeOnDelete();
-            
+            $table->foreignId('service_id')->constrained('customer_services')->cascadeOnDelete();
+            $table->foreignId('spk_id')->constrained('spk')->cascadeOnDelete();
             $table->string('baa_number')->unique();
             
-            // Data NOC
+            // NOC Data
             $table->string('noc_name');
             $table->string('noc_position');
             $table->string('noc_department');
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('speedtest_image_path')->nullable();
             $table->string('signed_baa_path')->nullable();
             
-            // Data perangkat (multi-row JSON)
+            // Device Data (multi-row JSON)
             $table->json('devices')->nullable(); 
             
             $table->timestamps();
@@ -36,6 +36,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('baas');
+        Schema::dropIfExists('baa');
     }
 };

@@ -182,7 +182,7 @@
     <div class="section-header">4. Penanggung Jawab Teknis</div>
     <table class="data-table">
         <tr><td class="label-col">Kontak Teknis</td><td>{{ strtoupper($customer->technical_name ?? '-') }}</td></tr>
-        <tr><td class="label-col">Alamat Instalasi</td><td>{{ strtoupper($customer->installation_address ?? '-') }}</td></tr>
+        <tr><td class="label-col">Alamat Instalasi</td><td>{{ strtoupper($service->installation_address ?? $customer->installation_address ?? '-') }}</td></tr>
         <tr><td class="label-col">Alamat Email</td><td>{{ $customer->technical_email ?? '-' }}</td></tr>
         <tr><td class="label-col">Nomor Handphone</td><td>{{ $customer->technical_phone ?? '-' }}</td></tr>
     </table>
@@ -190,18 +190,18 @@
 
     <div class="section-header">5. Provider Support Information</div>
     <table class="data-table">
-        <tr><td class="label-col">Account Manager</td><td><strong>{{ $customer->service?->marketing_name ?? 'Tegar Setya Anggara' }}</strong> ({{ $customer->service?->marketing_phone ?? '0856-0029-9019' }})</td></tr>
+        <tr><td class="label-col">Account Manager</td><td><strong>{{ $service->marketing_name ?? 'Tegar Setya Anggara' }}</strong> ({{ $service->marketing_phone ?? '0856-0029-9019' }})</td></tr>
         <tr><td class="label-col">Technical Support</td><td><strong>021-397 00 444</strong> / admin.office@mediasolusisukses.co.id</td></tr>
     </table>
 
     <div class="section-header">6. Detail Layanan / Service Details</div>
     <table class="data-table">
-        <tr><td class="label-col">A. Tipe Layanan</td><td>{{ $customer->service?->service_type ?? 'Internet Dedicated 1:1' }}</td></tr>
-        <tr><td class="label-col">B. Kapasitas Bandwidth*</td><td>{{ $customer->service?->bandwidth ?? '-' }}</td></tr>
-        <tr><td class="label-col">C. Biaya Instalasi*</td><td>Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}</td></tr>
-        <tr><td class="label-col">D. Biaya Bulanan*</td><td>Rp {{ number_format($customer->service?->monthly_fee ?? 0, 0, ',', '.') }}</td></tr>
-        <tr><td class="label-col">E. Masa Berlangganan</td><td> {{ $customer->service?->term_of_service ?? 0 }} Tahun ({{ ($customer->service?->term_of_service ?? 0) * 12 }} Bulan)</td></tr>
-        <tr><td class="label-col">F. Service Level Agreement (SLA)</td><td>{{ $customer->service?->sla ?? '99.5%' }}</td></tr>
+        <tr><td class="label-col">A. Tipe Layanan</td><td>{{ $service->service_type ?? 'Internet Dedicated 1:1' }}</td></tr>
+        <tr><td class="label-col">B. Kapasitas Bandwidth*</td><td>{{ $service->bandwidth ?? '-' }}</td></tr>
+        <tr><td class="label-col">C. Biaya Instalasi*</td><td>Rp {{ number_format($service->registration_fee ?? 0, 0, ',', '.') }}</td></tr>
+        <tr><td class="label-col">D. Biaya Bulanan*</td><td>Rp {{ number_format($service->monthly_fee ?? 0, 0, ',', '.') }}</td></tr>
+        <tr><td class="label-col">E. Masa Berlangganan</td><td> {{ $service->term_of_service ?? 0 }} Tahun ({{ ($service->term_of_service ?? 0) * 12 }} Bulan)</td></tr>
+        <tr><td class="label-col">F. Service Level Agreement (SLA)</td><td>{{ $service->sla ?? '99.5%' }}</td></tr>
     </table>
 
     <div class="agreement-text">

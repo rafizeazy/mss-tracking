@@ -46,9 +46,13 @@ class Dashboard extends Component
         ]);
         
         $path = $this->payment_proof->store('payment_proofs', 'public');
-        $this->customer->invoiceRegistrasi()->update([
-            'payment_proof_file_path' => $path,
-        ]);
+        
+        if ($this->customer->invoiceRegistrasi) {
+            $this->customer->invoiceRegistrasi->update([
+                'payment_proof_file_path' => $path,
+            ]);
+        }
+        
         $this->customer->update([
             'status' => 'verifikasi_pembayaran',
         ]);
@@ -69,7 +73,10 @@ class Dashboard extends Component
 
         $path = $this->signed_baa->store('baa/signed', 'public');
         
-        $this->customer->baa->update(['signed_baa_path' => $path]);
+        if ($this->customer->baa) {
+            $this->customer->baa->update(['signed_baa_path' => $path]);
+        }
+
         $this->customer->update(['status' => 'verifikasi_baa']);
 
         broadcast(new CustomerUpdated());

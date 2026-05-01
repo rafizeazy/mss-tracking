@@ -101,14 +101,12 @@
                             </h5>
                         </div>
                         <div class="boron-card-body p-5 md:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            {{-- BAA Original --}}
-                            <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                            <a href="{{ route('noc.baa', $customer->service?->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
                                 <i class="ti ti-file-certificate text-3xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-2 transition-colors dark:group-hover:text-[#60addf]"></i>
                                 <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Original</h6>
                                 <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">Format Kosong</span>
                             </a>
                     
-                            {{-- BAA Signed --}}
                             @if($customer->baa && $customer->baa->signed_baa_path)
                                 <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#70bb63]/50 bg-[#70bb63]/5 hover:bg-[#70bb63]/10 hover:shadow-md transition-all group dark:border-[#70bb63]/30 dark:bg-[#1e1f27]">
                                     <i class="ti ti-file-check text-3xl text-[#70bb63] mb-2"></i>
@@ -117,7 +115,7 @@
                                 </a>
                             @endif
                     
-                            <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#ebb751] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                            <a href="{{ route('customer.invoice', $customer->service?->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#ebb751] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
                                 <i class="ti ti-file-invoice text-3xl text-[#a1a9b1] group-hover:text-[#ebb751] mb-2 transition-colors"></i>
                                 <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Invoice Registrasi</h6>
                                 <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generated</span>
@@ -129,7 +127,7 @@
                                     <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Bukti Transfer</h6>
                                     <span class="text-[10px] text-[#60addf] font-bold mt-1 bg-[#60addf]/10 px-2 py-0.5 rounded">Verifikasi Lunas</span>
                                 </a>
-                            @elseif($customer->service?->registration_fee == 0)
+                            @elseif(!is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
                                 <div class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-[#70bb63] bg-[#70bb63]/5 dark:bg-[#70bb63]/10 dark:border-[#70bb63]/30">
                                     <i class="ti ti-gift text-3xl text-[#70bb63] mb-2"></i>
                                     <h6 class="font-bold text-sm text-[#70bb63] text-center">Bukti Transfer</h6>
@@ -237,8 +235,9 @@
                     </div>
 
                     <div class="boron-card shadow-sm rounded-2xl">
-                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d]">
+                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Ringkasan Layanan') }}</h5>
+                            <button x-data @click="$dispatch('open-detail-modal')" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
                         </div>
                         <div class="boron-card-body p-5">
                             <div class="flex items-center gap-4 mb-5">
@@ -263,6 +262,30 @@
                                         {{ $customer->customer_number ?? 'Menunggu BAA' }}
                                     </span>
                                 </li>
+                                
+                                @if($customer->status !== 'menunggu_verifikasi')
+                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                        <span class="text-[#8a969c]">Biaya Registrasi</span>
+                                        <span class="font-bold md:font-medium text-[#313a46] dark:text-white">
+                                            @if(!is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
+                                                <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
+                                            @else
+                                                Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}
+                                            @endif
+                                        </span>
+                                    </li>
+                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                        <span class="text-[#8a969c]">Biaya Bulanan</span>
+                                        <span class="font-bold md:font-medium text-[#ebb751]">Rp {{ number_format($customer->service?->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                    </li>
+                                    <li class="flex justify-between items-start border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                        <span class="text-[#8a969c] mt-0.5">Marketing Sales</span>
+                                        <div class="text-right">
+                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white block leading-tight">{{ $customer->service?->marketing_name ?? '-' }}</span>
+                                            <span class="text-[10px] text-[#8a969c]">{{ $customer->service?->marketing_phone ?? '-' }}</span>
+                                        </div>
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                     </div>
@@ -279,7 +302,7 @@
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">Alamat Instalasi</p>
-                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->installation_address ?? $customer->company_address ?? '-' }}</p>
+                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->service?->installation_address ?? $customer->company_address ?? '-' }}</p>
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">PIC Teknis/Kontak</p>
@@ -347,8 +370,9 @@
                 <div class="space-y-6 md:space-y-8 mt-2 lg:mt-0">
                     
                     <div class="boron-card shadow-sm rounded-2xl">
-                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d]">
+                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Data Registrasi (Nonaktif)') }}</h5>
+                            <button x-data @click="$dispatch('open-detail-modal')" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
                         </div>
                         <div class="boron-card-body p-5">
                             <ul class="space-y-4 md:space-y-5 text-sm md:text-[13px]">
@@ -362,7 +386,7 @@
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">Alamat Instalasi Terakhir</p>
-                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->installation_address ?? $customer->company_address ?? '-' }}</p>
+                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->service?->installation_address ?? $customer->company_address ?? '-' }}</p>
                                 </li>
                             </ul>
                         </div>
@@ -468,7 +492,7 @@
                         <div>
                             <h5 class="text-sm md:text-base font-bold text-[#4a8a3f] dark:text-[#70bb63]">Layanan Sedang Diproses NOC</h5>
                             <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">
-                                @if($customer->service?->registration_fee == 0)
+                                @if($customer->status !== 'menunggu_verifikasi' && !is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
                                     Pendaftaran Anda mendapatkan promo Gratis Biaya Registrasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.
                                 @else
                                     Pembayaran Anda telah sukses dikonfirmasi. Saat ini tim NOC (Teknis) kami sedang menyusun jadwal dan memproses instalasi fisik di lokasi Anda.
@@ -494,12 +518,14 @@
                             $totalSteps = count($statusOrder);
                             $percentage = round(($currentIndex / ($totalSteps - 1)) * 100);
                             
+                            $isFree = $customer->status !== 'menunggu_verifikasi' && !is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0;
+                            
                             $workflows = [
                                 ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'desc' => 'Tim kami sedang memverifikasi data dan layanan Anda.', 'icon' => 'ti-shield-check'],
                                 ['id' => 'menunggu_invoice', 'title' => 'Pembuatan Invoice', 'desc' => 'Pembuatan invoice registrasi/instalasi oleh tim Finance.', 'icon' => 'ti-file-invoice'],
-                                ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => $customer->service?->registration_fee == 0 ? 'Biaya instalasi/registrasi digratiskan (Free). Tahap pembayaran dilewati.' : 'Penerbitan tagihan awal dan menunggu pembayaran Anda.', 'icon' => 'ti-receipt'],
-                                ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => $customer->service?->registration_fee == 0 ? 'Otomatis terverifikasi karena program registrasi gratis.' : 'Tim Finance memverifikasi keabsahan pembayaran Anda.', 'icon' => 'ti-search'],
-                                ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => $customer->service?->registration_fee == 0 ? 'Layanan langsung diteruskan ke tim Instalasi NOC.' : 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
+                                ['id' => 'menunggu_pembayaran', 'title' => 'Menunggu Pembayaran', 'desc' => $isFree ? 'Biaya instalasi/registrasi digratiskan (Free). Tahap pembayaran dilewati.' : 'Penerbitan tagihan awal dan menunggu pembayaran Anda.', 'icon' => 'ti-receipt'],
+                                ['id' => 'verifikasi_pembayaran', 'title' => 'Cek Bukti Transfer', 'desc' => $isFree ? 'Otomatis terverifikasi karena program registrasi gratis.' : 'Tim Finance memverifikasi keabsahan pembayaran Anda.', 'icon' => 'ti-search'],
+                                ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'desc' => $isFree ? 'Layanan langsung diteruskan ke tim Instalasi NOC.' : 'Verifikasi pembayaran oleh departemen Finance selesai.', 'icon' => 'ti-cash'],
                                 ['id' => 'proses_instalasi', 'title' => 'Proses Instalasi', 'desc' => 'Pemasangan perangkat fisik di lokasi Anda oleh tim NOC.', 'icon' => 'ti-router'],
                                 ['id' => 'proses_aktivasi', 'title' => 'Proses Aktivasi & Setting', 'desc' => 'Konfigurasi jaringan dan aktivasi bandwidth internet Anda.', 'icon' => 'ti-wifi'],
                                 ['id' => 'review_baa', 'title' => 'Pembuatan Dokumen', 'desc' => 'Pembuatan Berita Acara Aktivasi (BAA) oleh tim kami.', 'icon' => 'ti-file-description'],
@@ -595,15 +621,15 @@
                                             <div class="w-full">
                                                 <h5 class="text-base md:text-lg font-bold {{ $state === 'active' ? 'text-[#313a46] dark:text-white' : ($state === 'completed' ? 'text-[#313a46] dark:text-white' : 'text-[#a1a9b1] dark:text-[#6c757d]') }}">
                                                     {{ $step['title'] }}
-                                                    @if($step['id'] === 'menunggu_pembayaran' && $customer->service?->registration_fee == 0)
+                                                    @if($step['id'] === 'menunggu_pembayaran' && $isFree)
                                                         <span class="ml-2 inline-block shrink-0 text-[10px] font-bold text-[#70bb63] bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded-full align-middle uppercase tracking-wider">Registrasi Gratis</span>
                                                     @endif
                                                 </h5>
                                                 <p class="text-[13px] md:text-sm mt-0.5 md:mt-1 {{ $state === 'active' ? 'text-[#313a46] dark:text-white font-medium' : ($state === 'completed' ? 'text-[#8a969c]' : 'text-[#a1a9b1]/70 dark:text-[#6c757d]/70') }}">{{ $step['desc'] }}</p>
 
-                                                @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && $customer->service?->registration_fee != 0)
+                                                @if($state === 'active' && $step['id'] === 'menunggu_pembayaran' && !$isFree)
                                                     <div class="mt-5 w-full">
-                                                        <a href="{{ route('customer.invoice', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
+                                                        <a href="{{ route('customer.invoice', $customer->service?->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
                                                             <i class="ti ti-file-invoice text-lg"></i> Lihat Tagihan Invoice
                                                         </a>
                                                         <div class="relative mt-2.5">
@@ -638,7 +664,7 @@
 
                                                 @if($state === 'active' && $step['id'] === 'menunggu_baa')
                                                     <div class="mt-5 w-full">
-                                                        <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
+                                                        <a href="{{ route('noc.baa', $customer->service?->id) }}" target="_blank" class="w-full flex justify-center items-center gap-2 bg-[#60addf]/10 text-[#60addf] border border-[#60addf]/30 px-4 py-3 rounded-full text-sm font-bold hover:bg-[#60addf] hover:text-white transition-all shadow-sm">
                                                             <i class="ti ti-download text-lg"></i> 1. Download BAA
                                                         </a>
                                                         <div class="relative mt-2.5">
@@ -687,10 +713,56 @@
                 </div>
 
                 <div class="space-y-6 md:space-y-8 mt-2 lg:mt-0">
-                    
+                    <div class="boron-card shadow-sm rounded-2xl overflow-hidden border-0">
+                        <div class="bg-[#60addf] text-white p-5 flex items-center gap-4">
+                            <i class="ti ti-headset text-3xl"></i>
+                            <div>
+                                <h5 class="font-bold text-lg">Butuh Bantuan?</h5>
+                                <p class="text-xs text-white/80 mt-0.5">Hubungi tim kami kapan saja.</p>
+                            </div>
+                        </div>
+                        <div class="boron-card-body p-0 divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
+                            <a href="https://wa.me/62812xxxxxx" target="_blank" class="flex items-center justify-between p-4 md:p-5 hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors group">
+                                <div class="flex items-center gap-4">
+                                    <div class="size-11 rounded-full bg-[#f8f9fa] border border-[#dee2e6] flex items-center justify-center text-[#8a969c] group-hover:bg-[#60addf]/10 group-hover:text-[#60addf] group-hover:border-[#60addf]/30 transition-all dark:bg-[#15151b] dark:border-[#37394d]"><i class="ti ti-messages text-xl"></i></div>
+                                    <div>
+                                        <p class="font-bold text-[#313a46] dark:text-white text-sm">Customer Service</p>
+                                        <p class="text-[11px] text-[#8a969c] mt-0.5">Pertanyaan Umum / Info</p>
+                                    </div>
+                                </div>
+                                <i class="ti ti-chevron-right text-[#a1a9b1] group-hover:text-[#60addf] group-hover:translate-x-1 transition-all"></i>
+                            </a>
+                            
+                            <a href="https://wa.me/62812xxxxxx" target="_blank" class="flex items-center justify-between p-4 md:p-5 hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors group">
+                                <div class="flex items-center gap-4">
+                                    <div class="size-11 rounded-full bg-[#f8f9fa] border border-[#dee2e6] flex items-center justify-center text-[#8a969c] group-hover:bg-[#ebb751]/10 group-hover:text-[#ebb751] group-hover:border-[#ebb751]/30 transition-all dark:bg-[#15151b] dark:border-[#37394d]"><i class="ti ti-receipt-2 text-xl"></i></div>
+                                    <div>
+                                        <p class="font-bold text-[#313a46] dark:text-white text-sm">Tim Finance</p>
+                                        <p class="text-[11px] text-[#8a969c] mt-0.5">Tagihan & Pembayaran</p>
+                                    </div>
+                                </div>
+                                <i class="ti ti-chevron-right text-[#a1a9b1] group-hover:text-[#ebb751] group-hover:translate-x-1 transition-all"></i>
+                            </a>
+
+                            <a href="https://wa.me/62812xxxxxx" target="_blank" class="flex items-center justify-between p-4 md:p-5 hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors group">
+                                <div class="flex items-center gap-4">
+                                    <div class="size-11 rounded-full bg-[#f8f9fa] border border-[#dee2e6] flex items-center justify-center text-[#8a969c] group-hover:bg-[#ed6060]/10 group-hover:text-[#ed6060] group-hover:border-[#ed6060]/30 transition-all dark:bg-[#15151b] dark:border-[#37394d]"><i class="ti ti-router text-xl"></i></div>
+                                    <div>
+                                        <p class="font-bold text-[#313a46] dark:text-white text-sm">Tim NOC (Teknis 24/7)</p>
+                                        <p class="text-[11px] text-[#8a969c] mt-0.5">Komplain / Gangguan</p>
+                                    </div>
+                                </div>
+                                <i class="ti ti-chevron-right text-[#a1a9b1] group-hover:text-[#ed6060] group-hover:translate-x-1 transition-all"></i>
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="boron-card shadow-sm rounded-2xl">
-                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d]">
+                        <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Ringkasan Layanan') }}</h5>
+                            @if($customer->status !== 'menunggu_verifikasi')
+                                <button x-data @click="$dispatch('open-detail-modal')" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                            @endif
                         </div>
                         <div class="boron-card-body p-5">
                             <div class="flex items-center gap-4 mb-5">
@@ -715,6 +787,30 @@
                                         {{ $customer->customer_number ?? 'Menunggu BAA' }}
                                     </span>
                                 </li>
+                                
+                                @if($customer->status !== 'menunggu_verifikasi')
+                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                        <span class="text-[#8a969c]">Biaya Registrasi</span>
+                                        <span class="font-bold md:font-medium text-[#313a46] dark:text-white">
+                                            @if(!is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
+                                                <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
+                                            @else
+                                                Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}
+                                            @endif
+                                        </span>
+                                    </li>
+                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                        <span class="text-[#8a969c]">Biaya Bulanan</span>
+                                        <span class="font-bold md:font-medium text-[#ebb751]">Rp {{ number_format($customer->service?->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                    </li>
+                                    <li class="flex justify-between items-start border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                        <span class="text-[#8a969c] mt-0.5">Marketing Sales</span>
+                                        <div class="text-right">
+                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white block leading-tight">{{ $customer->service?->marketing_name ?? '-' }}</span>
+                                            <span class="text-[10px] text-[#8a969c]">{{ $customer->service?->marketing_phone ?? '-' }}</span>
+                                        </div>
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                     </div>
@@ -731,7 +827,7 @@
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">Alamat Instalasi</p>
-                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->installation_address ?? $customer->company_address ?? '-' }}</p>
+                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->service?->installation_address ?? $customer->company_address ?? '-' }}</p>
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">PIC Teknis/Kontak</p>
@@ -744,6 +840,7 @@
 
                 </div>
             </div>
+            
         @endif
     @endif
 
@@ -752,4 +849,6 @@
             100% { transform: translateX(100%); }
         }
     </style>
+    
+    @include('livewire.customer.modalDetailData')
 </div>

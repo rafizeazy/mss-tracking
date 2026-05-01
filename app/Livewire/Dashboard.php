@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -59,27 +59,43 @@ class Dashboard extends Component
             $this->comparisonLabel = 'vs Bulan Lalu';
         }
 
-        $currPendaftar = Customer::whereBetween('created_at', [$currentStart, $currentEnd])->count();
-        $prevPendaftar = Customer::whereBetween('created_at', [$prevStart, $prevEnd])->count();
+        $currPendaftar = CustomerService::whereBetween('created_at', [$currentStart, $currentEnd])->count();
+        $prevPendaftar = CustomerService::whereBetween('created_at', [$prevStart, $prevEnd])->count();
 
-        $currAktif = Customer::where('status', 'selesai')->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
-        $prevAktif = Customer::where('status', 'selesai')->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
+        $currAktif = CustomerService::whereHas('customer', function ($q) {
+            $q->where('status', 'selesai');
+        })->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
+        
+        $prevAktif = CustomerService::whereHas('customer', function ($q) {
+            $q->where('status', 'selesai');
+        })->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
 
-        // MENGECUALIKAN 'berhenti' DARI PERHITUNGAN PROSES
-        $currProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti'])->whereBetween('created_at', [$currentStart, $currentEnd])->count();
-        $prevProses = Customer::whereNotIn('status', ['selesai', 'ditolak', 'berhenti'])->whereBetween('created_at', [$prevStart, $prevEnd])->count();
+        $currProses = CustomerService::whereHas('customer', function ($q) {
+            $q->whereNotIn('status', ['selesai', 'ditolak', 'berhenti']);
+        })->whereBetween('created_at', [$currentStart, $currentEnd])->count();
+        
+        $prevProses = CustomerService::whereHas('customer', function ($q) {
+            $q->whereNotIn('status', ['selesai', 'ditolak', 'berhenti']);
+        })->whereBetween('created_at', [$prevStart, $prevEnd])->count();
 
-        // MENGHITUNG KHUSUS UNTUK PELANGGAN 'berhenti'
-        $currBerhenti = Customer::where('status', 'berhenti')->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
-        $prevBerhenti = Customer::where('status', 'berhenti')->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
+        $currBerhenti = CustomerService::whereHas('customer', function ($q) {
+            $q->where('status', 'berhenti');
+        })->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
+        
+        $prevBerhenti = CustomerService::whereHas('customer', function ($q) {
+            $q->where('status', 'berhenti');
+        })->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
 
-        $totalKeseluruhan = Customer::where('status', 'selesai')->count();
+        $totalKeseluruhan = CustomerService::whereHas('customer', function ($q) {
+            $q->where('status', 'selesai');
+        })->count();
 
         $calcChange = function($curr, $prev) {
             if ($prev == 0) return ['val' => $curr > 0 ? 100 : 0, 'up' => true];
             $diff = $curr - $prev;
             return ['val' => round(abs($diff / $prev) * 100, 1), 'up' => $diff >= 0];
         };
+        
         $this->stats = [
             'pendaftar' => ['total' => $currPendaftar, 'change' => $calcChange($currPendaftar, $prevPendaftar)],
             'aktif'     => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
@@ -88,12 +104,14 @@ class Dashboard extends Component
             'total_all' => ['total' => $totalKeseluruhan]
         ];
 
-        $yearlyPendaftar = Customer::selectRaw('MONTH(created_at) as month, count(*) as total')
+        $yearlyPendaftar = CustomerService::selectRaw('MONTH(created_at) as month, count(*) as total')
             ->whereYear('created_at', $year)
             ->groupBy('month')->pluck('total', 'month')->toArray();
 
-        $yearlyAktif = Customer::selectRaw('MONTH(updated_at) as month, count(*) as total')
-            ->where('status', 'selesai')
+        $yearlyAktif = CustomerService::selectRaw('MONTH(updated_at) as month, count(*) as total')
+            ->whereHas('customer', function ($q) {
+                $q->where('status', 'selesai');
+            })
             ->whereYear('updated_at', $year)
             ->groupBy('month')->pluck('total', 'month')->toArray();
 

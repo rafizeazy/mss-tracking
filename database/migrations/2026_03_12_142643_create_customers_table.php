@@ -40,7 +40,6 @@ return new class extends Migration
             $table->string('technical_name')->nullable();
             $table->string('technical_email')->nullable(); 
             $table->string('technical_phone')->nullable();
-            $table->text('installation_address')->nullable();
             
             // 4. File Pendukung Legalitas
             $table->string('ktp_file_path')->nullable();

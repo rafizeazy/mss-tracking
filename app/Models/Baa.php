@@ -9,13 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Baa extends Model
 {
     use HasFactory;
+
+    protected $table = 'baa';
+
     protected $guarded = ['id'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -24,16 +22,13 @@ class Baa extends Model
         ];
     }
 
-    public function customer(): BelongsTo
+    public function service(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(CustomerService::class, 'service_id');
     }
 
-    /**
-     * Relasi balik ke tabel Spks
-     */
     public function spk(): BelongsTo
     {
-        return $this->belongsTo(Spk::class);
+        return $this->belongsTo(Spk::class, 'spk_id');
     }
 }

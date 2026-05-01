@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('invoice_registrasi', function (Blueprint $table) {
             $table->id();
             
-            // Relasi ke tabel customers
-            $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
+            // Foreign key to customer_services table
+            $table->foreignId('service_id')->constrained('customer_services')->cascadeOnDelete();
             
-            // Data Tagihan & Pembayaran
+            // Billing & Payment Data
             $table->string('invoice_number')->unique();
             $table->timestamp('invoice_generated_at')->nullable();
             $table->string('payment_proof_file_path')->nullable();

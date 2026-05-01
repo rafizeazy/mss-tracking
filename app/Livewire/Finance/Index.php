@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Finance;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -31,31 +31,34 @@ class Index extends Component
 
     public function render()
     {
-        $customers = Customer::with(['user', 'service', 'invoiceRegistrasi'])
-            ->whereIn('status', [
-                'menunggu_invoice', 
-                'menunggu_pembayaran', 
-                'verifikasi_pembayaran', 
-                'pembayaran_disetujui', 
-                'proses_instalasi', 
-                'proses_aktivasi', 
-                'review_baa',      
-                'menunggu_baa', 
-                'verifikasi_baa'
-            ])
-            ->where(function($query) {
-                if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhereHas('invoiceRegistrasi', function($q) {
-                              $q->where('invoice_number', 'like', '%' . $this->search . '%');
-                          });
-                }
+        $services = CustomerService::with(['customer.user', 'invoiceRegistrasi'])
+            ->whereHas('customer', function ($query) {
+                $query->whereIn('status', [
+                    'menunggu_invoice', 
+                    'menunggu_pembayaran', 
+                    'verifikasi_pembayaran', 
+                    'pembayaran_disetujui', 
+                    'proses_instalasi', 
+                    'proses_aktivasi', 
+                    'review_baa',      
+                    'menunggu_baa', 
+                    'verifikasi_baa'
+                ]);
+            })
+            ->when($this->search, function ($query) {
+                $query->where(function ($sub) {
+                    $sub->whereHas('customer', function ($q) {
+                        $q->where('company_name', 'like', '%' . $this->search . '%');
+                    })->orWhereHas('invoiceRegistrasi', function ($q) {
+                        $q->where('invoice_number', 'like', '%' . $this->search . '%');
+                    });
+                });
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.finance.tracking.index', [
-            'customers' => $customers
+            'services' => $services
         ]);
     }
 }

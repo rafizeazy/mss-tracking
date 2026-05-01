@@ -84,7 +84,7 @@
                                     </span>
                                 </td>
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
-                                    <a href="{{ route('marketing.tracking.show', $customer->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
+                                    <a href="{{ route('marketing.tracking.show', $customer->service?->id ?? $customer->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
                                         <i class="ti ti-arrow-right md:hidden mr-1 text-lg"></i> 
                                         {{ $showCancelled ? 'Lihat Detail' : 'Detail & Proses' }}
                                     </a>

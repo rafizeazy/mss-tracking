@@ -187,7 +187,7 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Jalur Metro</label>
-                                            <div class="w-full rounded-[0.4rem] border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-sm font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->jalur_metro ?? '-' }}</div>
+                                            <div class="w-full rounded-[0.4rem] border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-sm font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->metro_link ?? '-' }}</div>
                                         </div>
                                         <div>
                                             <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">SLA</label>
@@ -358,7 +358,7 @@
                                             <div class="w-full rounded-[0.4rem] border border-[#e7e9eb] bg-white px-3 py-1.5 text-sm font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#1e1e2a] dark:text-white">{{ $selectedCustomer->technical_phone ?? '-' }}</div>
                                         </div>
                                         <div>
-                                            <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Alamat Instalasi Router</label>
+                                            <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Alamat Instalasi</label>
                                             <div class="w-full rounded-[0.4rem] border border-[#e7e9eb] bg-white px-3 py-1.5 text-sm font-medium text-[#313a46] min-h-[50px] dark:border-[#37394d] dark:bg-[#1e1e2a] dark:text-white">{{ $selectedCustomer->installation_address ?? 'Sama dengan perusahaan' }}</div>
                                         </div>
                                     </div>

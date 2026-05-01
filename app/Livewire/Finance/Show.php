@@ -4,6 +4,7 @@ namespace App\Livewire\Finance;
 
 use App\Events\CustomerUpdated;
 use App\Models\Customer;
+use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -13,6 +14,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Show extends Component
 {
+    public CustomerService $service;
     public Customer $customer;
     public $showInvoicePreview = false;
     
@@ -22,34 +24,37 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->customer = Customer::with(['user', 'service', 'invoiceRegistrasi'])->findOrFail($id);
+        $this->service = CustomerService::with(['customer.user', 'invoiceRegistrasi'])->findOrFail($id);
+        $this->customer = $this->service->customer;
         $this->calculateTotals();
     }
 
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshData()
     {
+        $this->service->refresh();
         $this->customer->refresh();
+        $this->calculateTotals();
     }
 
     public function calculateTotals()
     {
-        $this->subtotal = $this->customer->service?->registration_fee ?? 0;
+        $this->subtotal = $this->service->registration_fee ?? 0;
         $this->ppn = 0;
         $this->grand_total = $this->subtotal;
     }
 
     public function generatePreview()
     {
-        if (!$this->customer->invoiceRegistrasi || !$this->customer->invoiceRegistrasi->invoice_number) {
-            $this->customer->invoiceRegistrasi()->updateOrCreate(
-                ['customer_id' => $this->customer->id],
+        if (!$this->service->invoiceRegistrasi || !$this->service->invoiceRegistrasi->invoice_number) {
+            $this->service->invoiceRegistrasi()->updateOrCreate(
+                ['service_id' => $this->service->id],
                 [
                     'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
                     'invoice_generated_at' => now()
                 ]
             );
-            $this->customer->refresh();
+            $this->service->refresh();
         }
 
         $this->showInvoicePreview = true;
@@ -70,7 +75,7 @@ class Show extends Component
 
     public function markAsFree()
     {
-        $this->customer->service()->update([
+        $this->service->update([
             'registration_fee' => 0,
         ]);
 
@@ -80,6 +85,7 @@ class Show extends Component
 
         broadcast(new CustomerUpdated());
 
+        $this->service->refresh();
         $this->customer->refresh();
         $this->calculateTotals();
         

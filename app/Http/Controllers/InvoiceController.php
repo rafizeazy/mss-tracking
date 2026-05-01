@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,7 +11,9 @@ class InvoiceController extends Controller
 {
     public function streamCustomerInvoice(int $id): \Illuminate\View\View
     {
-        $customer = Customer::with(['user', 'service'])->findOrFail($id);
+        $service = CustomerService::with(['customer.user', 'invoiceRegistrasi'])->findOrFail($id);
+        $customer = $service->customer;
+        
         $user = auth()->user();
         $isCustomer = false;
         
@@ -25,22 +27,23 @@ class InvoiceController extends Controller
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
         }
 
-        $subtotal = $customer->service?->registration_fee ?? 0;
+        $subtotal = $service->registration_fee ?? 0;
         $ppn = 0;
         $grandTotal = $subtotal + $ppn;
-        
-        return view('customer.invoice', compact('customer', 'subtotal', 'ppn', 'grandTotal'));
+
+        return view('customer.invoice', compact('customer', 'service', 'subtotal', 'ppn', 'grandTotal'));
     }
 
     public function streamInvoice($id)
     {
-        $customer = Customer::with(['user', 'baa', 'service', 'invoiceRegistrasi'])->findOrFail($id);
+        $service = CustomerService::with(['customer.user', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
+        $customer = $service->customer;
 
-        if (!$customer->baa) {
+        if (!$service->baa) {
             abort(404, 'BAA belum tersedia, Invoice belum dapat dicetak.');
         }
         
-        $activationDate = Carbon::parse($customer->baa->activation_date);
+        $activationDate = Carbon::parse($service->baa->activation_date);
         $trialEndDate = $activationDate->copy()->addDays(7);
         $prorateStartDate = $trialEndDate->copy()->addDay();
         $endOfMonth = $prorateStartDate->copy()->endOfMonth();
@@ -48,7 +51,7 @@ class InvoiceController extends Controller
         $daysInMonth = $prorateStartDate->daysInMonth;
         $billableDays = $prorateStartDate->diffInDays($endOfMonth) + 1;
 
-        $monthlyFee = $customer->service?->monthly_fee ?? 0;
+        $monthlyFee = $service->monthly_fee ?? 0;
         $prorateAmount = ($monthlyFee / $daysInMonth) * $billableDays;
         
         $ppn = $prorateAmount * 0.11;
@@ -68,11 +71,12 @@ class InvoiceController extends Controller
         ];
         
         $pdf = Pdf::loadView('pdf.invoice-cetak', [
+            'service' => $service,
             'customer' => $customer,
             'invoiceData' => $invoiceData
         ]);
-        
-        $invoiceNumber = $customer->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
+
+        $invoiceNumber = $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
         $namaFile = 'INV-' . str_replace('/', '-', $invoiceNumber) . '.pdf';
         
         return $pdf->stream($namaFile);

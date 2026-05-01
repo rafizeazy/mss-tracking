@@ -8,20 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('spks', function (Blueprint $table) {
+        Schema::create('spk', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('service_id')->constrained('customer_services')->cascadeOnDelete();
+            
             $table->string('spk_number')->unique();
-            $table->string('job_type')->default('Aktivasi Baru');
+            $table->string('job_type')->default('New Activation');
             $table->string('customer_type')->nullable();
             $table->date('due_date')->nullable();
             $table->text('notes')->nullable();
+            
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('spks');
+        Schema::dropIfExists('spk');
     }
 };

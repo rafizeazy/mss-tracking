@@ -89,7 +89,7 @@ class Index extends Component
             'service_type' => $customerToEdit->service->service_type ?? '',
             'bandwidth' => $customerToEdit->service->bandwidth ?? '',
             'term_of_service' => $customerToEdit->service->term_of_service ?? '',
-            'jalur_metro' => $customerToEdit->service->jalur_metro ?? '',
+            'metro_link' => $customerToEdit->service->metro_link ?? '',
             'registration_fee' => $customerToEdit->service->registration_fee ?? '',
             'monthly_fee' => $customerToEdit->service->monthly_fee ?? '',
             'marketing_name' => $customerToEdit->service->marketing_name ?? '',
@@ -130,7 +130,7 @@ class Index extends Component
             'editData.service_type' => 'required|string',
             'editData.bandwidth' => 'required|string', 
             'editData.term_of_service' => 'nullable|numeric',
-            'editData.jalur_metro' => 'nullable|string',
+            'editData.metro_link' => 'nullable|string',
             'editData.registration_fee' => 'nullable|numeric',
             'editData.monthly_fee' => 'nullable|numeric',
             'editData.marketing_name' => 'nullable|string|max:255',
@@ -138,12 +138,12 @@ class Index extends Component
         ]);
 
         $updateData = Arr::except($this->editData, [
-            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
+            'service_type', 'bandwidth', 'term_of_service', 'metro_link', 
             'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
         ]);
 
         $serviceData = Arr::only($this->editData, [
-            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
+            'service_type', 'bandwidth', 'term_of_service', 'metro_link', 
             'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
         ]);
 

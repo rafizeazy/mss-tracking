@@ -3,6 +3,7 @@
 namespace App\Livewire\Marketing\Datapelanggan;
 
 use App\Models\Customer;
+use App\Models\CustomerService;
 use App\Events\CustomerUpdated;
 use Illuminate\Support\Arr;
 use Livewire\Attributes\Layout;
@@ -10,23 +11,29 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 
 #[Title('Marketing - Data Pelanggan Aktif')]
 #[Layout('layouts.app')]
 class Index extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $search = '';
 
     public $showModal = false;
-    public $selectedCustomer = null;
+    public $selectedService = null;
 
     public $isEditingCustomer = false;
     public $editData = [];
+    
+    public $new_ktp_path;
+    public $new_npwp_path;
+    public $new_nib_path;
+    public $new_certificate_path;
 
     public $showArsipModal = false;
-    public $customerForArsip = null;
+    public $serviceForArsip = null;
 
     public $showBerhentiOnly = false;
 
@@ -39,37 +46,53 @@ class Index extends Component
 
     public function viewDetail($id)
     {
-        $this->selectedCustomer = Customer::with(['user', 'spk', 'baa', 'service'])->find($id);
+        $this->selectedService = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])->find($id);
         $this->showModal = true;
     }
 
     public function closeModal()
     {
         $this->showModal = false;
-        $this->selectedCustomer = null;
+        $this->selectedService = null;
     }
 
     public function openArsip($id)
     {
-        $this->customerForArsip = Customer::with(['spk', 'baa', 'service'])->find($id);
+        $this->serviceForArsip = CustomerService::with(['customer', 'spk', 'baa', 'invoiceRegistrasi'])->find($id);
         $this->showArsipModal = true;
     }
 
     public function closeArsip()
     {
         $this->showArsipModal = false;
-        $this->customerForArsip = null;
+        $this->serviceForArsip = null;
     }
 
     public function editCustomer($id)
     {
-        $customerToEdit = Customer::with('service')->findOrFail($id);
+        $serviceToEdit = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
+        $customerToEdit = $serviceToEdit->customer;
+        
+        $this->selectedService = $serviceToEdit;
         
         $this->editData = [
+            'user_name' => $customerToEdit->user->name ?? '',
+            'user_email' => $customerToEdit->user->email ?? '',
+            'phone' => $customerToEdit->phone,
             'ktp_number' => $customerToEdit->ktp_number,
             'gender' => $customerToEdit->gender,
             'position' => $customerToEdit->position,
-            'phone' => $customerToEdit->phone,
+            
+            'bandwidth' => $serviceToEdit->bandwidth ?? '',
+            'term_of_service' => $serviceToEdit->term_of_service ?? '',
+            'service_type' => $serviceToEdit->service_type ?? '',
+            'installation_address' => $serviceToEdit->installation_address ?? $customerToEdit->installation_address,
+            'customer_type' => $serviceToEdit->spk->customer_type ?? '',
+            'activation_date' => $serviceToEdit->baa && $serviceToEdit->baa->activation_date ? $serviceToEdit->baa->activation_date->format('Y-m-d') : null,
+            'metro_link' => $serviceToEdit->metro_link ?? '',
+            'sla' => $serviceToEdit->sla ?? '',
+            'registration_fee' => (int) ($serviceToEdit->registration_fee ?? 0),
+            'monthly_fee' => (int) ($serviceToEdit->monthly_fee ?? 0),
             
             'company_name' => $customerToEdit->company_name,
             'business_type' => $customerToEdit->business_type,
@@ -79,6 +102,10 @@ class Index extends Component
             'city' => $customerToEdit->city,
             'province' => $customerToEdit->province,
             'postal_code' => $customerToEdit->postal_code,
+            'customer_number' => $customerToEdit->customer_number ?? '',
+            'invoice_number' => $serviceToEdit->invoiceRegistrasi->invoice_number ?? '',
+            'spk_number' => $serviceToEdit->spk->spk_number ?? '',
+            'baa_number' => $serviceToEdit->baa->baa_number ?? '',
             
             'finance_name' => $customerToEdit->finance_name,
             'finance_email' => $customerToEdit->finance_email, 
@@ -88,35 +115,41 @@ class Index extends Component
             'technical_name' => $customerToEdit->technical_name,
             'technical_email' => $customerToEdit->technical_email, 
             'technical_phone' => $customerToEdit->technical_phone,
-            'installation_address' => $customerToEdit->installation_address,
             
-            'service_type' => $customerToEdit->service->service_type ?? '',
-            'bandwidth' => $customerToEdit->service->bandwidth ?? '',
-            'term_of_service' => $customerToEdit->service->term_of_service ?? '',
-            'jalur_metro' => $customerToEdit->service->jalur_metro ?? '',
-            
-            'registration_fee' => $customerToEdit->service->registration_fee ?? '',
-            'monthly_fee' => $customerToEdit->service->monthly_fee ?? '',
-            'marketing_name' => $customerToEdit->service->marketing_name ?? '',
-            'marketing_phone' => $customerToEdit->service->marketing_phone ?? '',
+            'marketing_name' => $serviceToEdit->marketing_name ?? '',
+            'marketing_phone' => $serviceToEdit->marketing_phone ?? '',
         ];
         
         $this->isEditingCustomer = true;
     }
 
-    // Fungsi Edit Data Pelanggan
     public function updateCustomer()
     {
-        if (!$this->selectedCustomer && !$this->isEditingCustomer) return;
+        if (!$this->selectedService && !$this->isEditingCustomer) return;
         
-        $customerId = $this->selectedCustomer ? $this->selectedCustomer->id : Customer::where('phone', $this->editData['phone'])->first()->id;
-        $customerToUpdate = Customer::find($customerId);
+        $serviceToUpdate = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])->find($this->selectedService->id);
+        $customerToUpdate = $serviceToUpdate->customer;
+        $userToUpdate = $customerToUpdate->user;
 
         $this->validate([
+            'editData.user_name' => 'required|string|max:255',
+            'editData.user_email' => 'required|email|max:255',
+            'editData.phone' => 'required|string|max:20',
             'editData.ktp_number' => 'nullable|string',
             'editData.gender' => 'nullable|in:L,P',
             'editData.position' => 'nullable|string',
-            'editData.phone' => 'required|string|max:20',
+            
+            'editData.bandwidth' => 'required|string', 
+            'editData.term_of_service' => 'nullable|numeric',
+            'editData.service_type' => 'required|string',
+            'editData.installation_address' => 'nullable|string',
+            'editData.customer_type' => 'nullable|string',
+            'editData.activation_date' => 'nullable|date',
+            'editData.metro_link' => 'nullable|string',
+            'editData.sla' => 'nullable|string',
+            'editData.registration_fee' => 'nullable|numeric',
+            'editData.monthly_fee' => 'nullable|numeric',
+            
             'editData.company_name' => 'required|string|max:255',
             'editData.business_type' => 'nullable|string',
             'editData.npwp_number' => 'nullable|string',
@@ -125,50 +158,110 @@ class Index extends Component
             'editData.city' => 'nullable|string',
             'editData.province' => 'nullable|string',
             'editData.postal_code' => 'nullable|string',
+            'editData.customer_number' => 'nullable|string',
+            'editData.invoice_number' => 'nullable|string',
+            
             'editData.finance_name' => 'nullable|string|max:255',
             'editData.finance_email' => 'nullable|email|max:255', 
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
+            
             'editData.technical_name' => 'nullable|string|max:255',
             'editData.technical_email' => 'nullable|email|max:255', 
             'editData.technical_phone' => 'nullable|string|max:20',
-            'editData.installation_address' => 'nullable|string',
-            'editData.service_type' => 'required|string',
-            'editData.bandwidth' => 'required|string', 
-            'editData.term_of_service' => 'nullable|numeric',
-            'editData.jalur_metro' => 'nullable|string',
-            'editData.registration_fee' => 'nullable|numeric',
-            'editData.monthly_fee' => 'nullable|numeric',
+            
             'editData.marketing_name' => 'nullable|string|max:255',
             'editData.marketing_phone' => 'nullable|string|max:20',
+            
+            'new_ktp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'new_npwp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'new_nib_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'new_certificate_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
-        $updateData = Arr::except($this->editData, [
-            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
-            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
-        ]);
+        if ($userToUpdate) {
+            $userToUpdate->update([
+                'name' => $this->editData['user_name'],
+                'email' => $this->editData['user_email'],
+            ]);
+        }
 
-        $serviceData = Arr::only($this->editData, [
-            'service_type', 'bandwidth', 'term_of_service', 'jalur_metro', 
-            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
-        ]);
+        $customerUpdateData = [
+            'phone' => $this->editData['phone'],
+            'ktp_number' => $this->editData['ktp_number'],
+            'gender' => $this->editData['gender'],
+            'position' => $this->editData['position'],
+            'company_name' => $this->editData['company_name'],
+            'business_type' => $this->editData['business_type'],
+            'npwp_number' => $this->editData['npwp_number'],
+            'company_phone' => $this->editData['company_phone'],
+            'company_address' => $this->editData['company_address'],
+            'city' => $this->editData['city'],
+            'province' => $this->editData['province'],
+            'postal_code' => $this->editData['postal_code'],
+            'customer_number' => $this->editData['customer_number'],
+            'finance_name' => $this->editData['finance_name'],
+            'finance_email' => $this->editData['finance_email'],
+            'finance_phone' => $this->editData['finance_phone'],
+            'billing_address' => $this->editData['billing_address'],
+            'technical_name' => $this->editData['technical_name'],
+            'technical_email' => $this->editData['technical_email'],
+            'technical_phone' => $this->editData['technical_phone'],
+        ];
 
-        $serviceData['registration_fee'] = empty($serviceData['registration_fee']) ? 0 : $serviceData['registration_fee'];
-        $serviceData['monthly_fee']      = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
-        $serviceData['term_of_service']  = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
+        if ($this->new_ktp_path) {
+            $customerUpdateData['ktp_file_path'] = $this->new_ktp_path->store('documents/ktp', 'public');
+        }
+        if ($this->new_npwp_path) {
+            $customerUpdateData['npwp_file_path'] = $this->new_npwp_path->store('documents/npwp', 'public');
+        }
+        if ($this->new_nib_path) {
+            $customerUpdateData['nib_file_path'] = $this->new_nib_path->store('documents/nib', 'public');
+        }
+        if ($this->new_certificate_path) {
+            $customerUpdateData['certificate_file_path'] = $this->new_certificate_path->store('documents/certificate', 'public');
+        }
 
-        $customerToUpdate->update($updateData);
+        $customerToUpdate->update($customerUpdateData);
 
-        $customerToUpdate->service()->updateOrCreate(
-            ['customer_id' => $customerToUpdate->id],
-            $serviceData
-        );
+        $serviceData = [
+            'bandwidth' => $this->editData['bandwidth'],
+            'term_of_service' => empty($this->editData['term_of_service']) ? null : $this->editData['term_of_service'],
+            'service_type' => $this->editData['service_type'],
+            'installation_address' => $this->editData['installation_address'],
+            'metro_link' => $this->editData['metro_link'],
+            'sla' => $this->editData['sla'],
+            'registration_fee' => empty($this->editData['registration_fee']) ? 0 : $this->editData['registration_fee'],
+            'monthly_fee' => empty($this->editData['monthly_fee']) ? 0 : $this->editData['monthly_fee'],
+            'marketing_name' => $this->editData['marketing_name'],
+            'marketing_phone' => $this->editData['marketing_phone'],
+        ];
+
+        $serviceToUpdate->update($serviceData);
+
+        if ($serviceToUpdate->spk) {
+            $serviceToUpdate->spk->update([
+                'customer_type' => $this->editData['customer_type']
+            ]);
+        }
+
+        if ($serviceToUpdate->baa && !empty($this->editData['activation_date'])) {
+            $serviceToUpdate->baa->update([
+                'activation_date' => $this->editData['activation_date']
+            ]);
+        }
+
+        if ($serviceToUpdate->invoiceRegistrasi) {
+            $serviceToUpdate->invoiceRegistrasi->update([
+                'invoice_number' => $this->editData['invoice_number']
+            ]);
+        }
 
         if(class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated());
         }
         
-        if($this->selectedCustomer) $this->selectedCustomer->refresh();
+        $this->selectedService->refresh();
 
         $this->isEditingCustomer = false;
         $this->dispatch('notify', type: 'success', message: 'Arsip data pelanggan berhasil diperbarui!');
@@ -177,13 +270,13 @@ class Index extends Component
     public function cancelEdit()
     {
         $this->isEditingCustomer = false;
+        $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
     }
 
-    // Fungsi Memberhentikan Pelanggan
     public function berhentikanPelanggan($id)
     {
-        $customer = Customer::findOrFail($id);
-        $customer->update(['status' => 'berhenti']);
+        $service = CustomerService::with('customer')->findOrFail($id);
+        $service->customer->update(['status' => 'berhenti']);
 
         if(class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated());
@@ -196,19 +289,22 @@ class Index extends Component
     {
         $statusToFetch = $this->showBerhentiOnly ? 'berhenti' : 'selesai';
 
-        $customers = Customer::with(['user', 'spk', 'baa', 'service'])
-            ->where('status', $statusToFetch)
-            ->where(function($query) {
+        $services = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])
+            ->whereHas('customer', function ($query) use ($statusToFetch) {
+                $query->where('status', $statusToFetch);
+                
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
+                    $query->where(function($q) {
+                        $q->where('company_name', 'like', '%' . $this->search . '%')
                           ->orWhere('customer_number', 'like', '%' . $this->search . '%');
+                    });
                 }
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.marketing.datapelanggan.index', [
-            'customers' => $customers
+            'services' => $services
         ]);
     }
 }

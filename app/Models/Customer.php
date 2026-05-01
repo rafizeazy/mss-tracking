@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Customer extends Model
 {
@@ -15,25 +16,44 @@ class Customer extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function spk(): HasOne
-    {
-        return $this->hasOne(Spk::class);
-    }
-    
-    public function baa(): HasOne
-    {
-        return $this->hasOne(Baa::class);
-    }
-
-    // Relasike tabel customer_services
     public function service(): HasOne
     {
         return $this->hasOne(CustomerService::class);
     }
 
-    // Relasi ke tabel invoice_registrasi
-    public function invoiceRegistrasi(): HasOne
+    public function spk(): HasOneThrough
     {
-        return $this->hasOne(InvoiceRegistrasi::class);
+        return $this->hasOneThrough(
+            Spk::class,
+            CustomerService::class,
+            'customer_id',
+            'service_id',
+            'id',
+            'id'
+        );
+    }
+    
+    public function baa(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Baa::class,
+            CustomerService::class,
+            'customer_id',
+            'service_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function invoiceRegistrasi(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            InvoiceRegistrasi::class,
+            CustomerService::class,
+            'customer_id',
+            'service_id',
+            'id',
+            'id'
+        );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Livewire\Noc\Tracking;
 
 use App\Models\Customer;
+use App\Models\CustomerService;
 use App\Events\CustomerUpdated;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -15,6 +16,7 @@ class Show extends Component
 {
     use WithFileUploads;
 
+    public CustomerService $service;
     public Customer $customer;
     
     public $customer_number;
@@ -32,7 +34,9 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->customer = Customer::with(['user', 'spk', 'baa', 'service'])->findOrFail($id);
+        $this->service = CustomerService::with(['customer.user', 'spk', 'baa'])->findOrFail($id);
+        $this->customer = $this->service->customer;
+
         $this->customer_number = $this->customer->customer_number;
         $this->noc_name = auth()->user()->name;
         $this->activation_date = date('Y-m-d');
@@ -62,7 +66,7 @@ class Show extends Component
     public function editBaa()
     {
         $this->isEditingBaa = true;
-        $baa = $this->customer->baa;
+        $baa = $this->service->baa;
         if ($baa) {
             $this->noc_name = $baa->noc_name;
             $this->noc_position = $baa->noc_position;
@@ -86,23 +90,23 @@ class Show extends Component
             'devices.*.qty' => 'required|numeric|min:1',
             'devices.*.sn' => 'required|string',
         ];
-        if (!$this->customer->baa || $this->noc_signature) $rules['noc_signature'] = 'required|image|max:1024';
-        if (!$this->customer->baa || $this->speedtest_image) $rules['speedtest_image'] = 'required|image|max:2048';
+        if (!$this->service->baa || $this->noc_signature) $rules['noc_signature'] = 'required|image|max:1024';
+        if (!$this->service->baa || $this->speedtest_image) $rules['speedtest_image'] = 'required|image|max:2048';
 
         $this->validate($rules);
 
-        $signaturePath = $this->customer->baa->noc_signature_path ?? null;
-        $speedtestPath = $this->customer->baa->speedtest_image_path ?? null;
+        $signaturePath = $this->service->baa->noc_signature_path ?? null;
+        $speedtestPath = $this->service->baa->speedtest_image_path ?? null;
 
         if ($this->noc_signature) $signaturePath = $this->noc_signature->store('baa/signatures', 'public');
         if ($this->speedtest_image) $speedtestPath = $this->speedtest_image->store('baa/speedtests', 'public');
 
-        $baaNumber = $this->customer->baa->baa_number ?? \App\Services\DocumentNumberService::generateBaaNumber();
+        $baaNumber = $this->service->baa->baa_number ?? \App\Services\DocumentNumberService::generateBaaNumber();
 
-        $this->customer->baa()->updateOrCreate(
-            ['customer_id' => $this->customer->id],
+        $this->service->baa()->updateOrCreate(
+            ['service_id' => $this->service->id],
             [
-                'spk_id' => $this->customer->spk->id,
+                'spk_id' => $this->service->spk->id,
                 'baa_number' => $baaNumber,
                 'noc_name' => $this->noc_name,
                 'noc_position' => $this->noc_position,
@@ -124,6 +128,7 @@ class Show extends Component
 
         $this->isEditingBaa = false;
         $this->customer->refresh();
+        $this->service->refresh();
         $this->dispatch('notify', type: 'success', message: 'BAA berhasil di-generate! Silakan periksa PDF-nya sebelum dikirim ke pelanggan.');
     }
 

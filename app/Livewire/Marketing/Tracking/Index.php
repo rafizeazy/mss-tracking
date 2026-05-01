@@ -46,11 +46,11 @@ class Index extends Component
             $query->whereNotIn('status', ['selesai', 'berhenti', 'dibatalkan', 'ditolak']);
         }
 
-        $customers = $query->where(function($q) {
-                if ($this->search) {
-                    $q->where('company_name', 'like', '%' . $this->search . '%')
-                      ->orWhere('phone', 'like', '%' . $this->search . '%');
-                }
+        $customers = $query->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('company_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('phone', 'like', '%' . $this->search . '%');
+                });
             })
             ->latest()
             ->paginate(10);
