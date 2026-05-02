@@ -2,8 +2,8 @@
     <div class="w-full max-w-4xl">
 
         <div class="mb-8 text-center">
-            <div class="mx-auto mb-4 flex size-16 items-center justify-center bg-[#f6f7fb]">
-                <img src="{{ asset('logo/Logo MSS.png') }}" alt="Logo MSS" class="h-30 w-30 object-contain">
+            <div class="mx-auto mb-4 flex items-center justify-center">
+                <img src="{{ asset('logo/Logo MSS.png') }}" alt="Logo MSS" class="object-contain" style="width: 96px; height: auto;">
             </div>
             <h2 class="text-2xl font-bold text-[#313a46] dark:text-white">Registrasi Layanan Internet</h2>
             <p class="mt-2 text-sm text-zinc-600">PT Media Solusi Sukses — Silakan lengkapi data registrasi di bawah ini.</p>
@@ -333,6 +333,9 @@
                                     class="block w-full max-w-[200px] text-xs file:mr-2 file:rounded file:border-0 file:bg-[#669776]/10 file:px-2 file:py-1 file:font-medium file:text-[#669776]">
                             </div>
                             @error('certificate_file') <p class="text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                            <p wire:loading wire:target="ktp_file,npwp_file,nib_file,certificate_file" class="text-xs font-medium text-[#ebb751]">
+                                <i class="ti ti-loader-2 animate-spin"></i> Mengunggah dokumen...
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -421,8 +424,8 @@
                     Berikutnya <i class="ti ti-chevron-right"></i>
                 </button>
             @else
-                <button type="button" wire:click="submit"
-                    class="btn-boron btn-boron-primary flex items-center gap-2 px-8 py-2.5 text-sm shadow-lg shadow-[#669776]/30">
+                <button type="button" wire:click="submit" wire:loading.attr="disabled" wire:target="ktp_file,npwp_file,nib_file,certificate_file,submit"
+                    class="btn-boron btn-boron-primary flex items-center gap-2 px-8 py-2.5 text-sm shadow-lg shadow-[#669776]/30 disabled:cursor-not-allowed disabled:opacity-60">
                     <i class="ti ti-send"></i> Kirim Formulir
                 </button>
             @endif
