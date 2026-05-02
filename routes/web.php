@@ -11,6 +11,10 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/customer/invoice/{id}/pdf', [InvoiceController::class, 'streamInvoice'])->name('customer.invoice.pdf');
 });
 
+Route::middleware(['auth', 'role:customer,marketing,finance,noc,super_admin'])->group(function () {
+    Route::get('customer/invoice/{id}', [InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
+});
+
 // ROUTE UMUM (Semua role internal — customer dikecualikan)
 Route::middleware(['auth', 'verified', 'role:marketing,finance,noc,super_admin'])->group(function () {
     Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
@@ -19,7 +23,6 @@ Route::middleware(['auth', 'verified', 'role:marketing,finance,noc,super_admin']
     Route::get('marketing/data-pelanggan', \App\Livewire\Marketing\DataPelanggan\Index::class)->name('marketing.datapelanggan.index');
     Route::get('finance/data-pelanggan', \App\Livewire\Finance\DataPelanggan\Index::class)->name('finance.datapelanggan.index');
     Route::get('noc/data-pelanggan', \App\Livewire\Noc\DataPelanggan\Index::class)->name('noc.datapelanggan.index');
-    Route::get('customer/invoice/{id}', [\App\Http\Controllers\InvoiceController::class, 'streamCustomerInvoice'])->name('customer.invoice');
 });
 
 Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
