@@ -40,7 +40,7 @@ class Dashboard extends Component
         $this->loadDashboardData();
     }
 
-    #[On('echo:mss-updates,CustomerUpdated')]
+    #[On('echo-private:mss-updates,CustomerUpdated')]
     public function refreshData()
     {
         $this->loadDashboardData();

@@ -79,7 +79,7 @@ class Show extends Component
         }
     }
 
-    #[On('echo:mss-updates,CustomerUpdated')]
+    #[On('echo-private:mss-updates,CustomerUpdated')]
     public function refreshData()
     {
         $this->service->refresh();

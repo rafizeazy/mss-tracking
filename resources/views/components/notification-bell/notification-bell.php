@@ -6,7 +6,7 @@ use Livewire\Component;
 
 new class extends Component
 {
-    #[On('echo:mss-updates,CustomerUpdated')]
+    #[On('echo-private:mss-updates,CustomerUpdated')]
     public function refreshNotif()
     {
         $this->dispatch('$refresh');

@@ -25,7 +25,7 @@ class Dashboard extends Component
         $this->loadCustomer();
     }
 
-    #[On('echo:mss-updates,CustomerUpdated')]
+    #[On('echo-private:mss-updates,CustomerUpdated')]
     public function loadCustomer()
     {
         $this->customer = Customer::with(['baa', 'service', 'invoiceRegistrasi'])

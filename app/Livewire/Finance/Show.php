@@ -35,7 +35,7 @@ class Show extends Component
         $this->calculateTotals();
     }
 
-    #[On('echo:mss-updates,CustomerUpdated')]
+    #[On('echo-private:mss-updates,CustomerUpdated')]
     public function refreshData()
     {
         $this->service->refresh();

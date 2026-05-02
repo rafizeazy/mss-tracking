@@ -29,7 +29,7 @@ class Index extends Component
         $this->resetPage();
     }
 
-    #[On('echo:mss-updates,CustomerUpdated')]
+    #[On('echo-private:mss-updates,CustomerUpdated')]
     public function refreshTabel(): void {}
 
     public function render()

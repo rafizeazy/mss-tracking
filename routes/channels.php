@@ -7,6 +7,5 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('mss-updates', function ($user) {
-    $role = $user->role instanceof \App\Enums\Role ? $user->role->value : strtolower($user->role);
-    return $role !== 'customer';
+    return $user !== null;
 });
