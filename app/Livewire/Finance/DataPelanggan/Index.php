@@ -188,6 +188,7 @@ class Index extends Component
 
         $customers = Customer::with(['user', 'spk', 'baa', 'service'])
             ->where('status', $statusToFetch)
+            ->whereHas('service')
             ->where(function ($query) {
                 if ($this->search) {
                     $query->where('company_name', 'like', '%'.$this->search.'%')
