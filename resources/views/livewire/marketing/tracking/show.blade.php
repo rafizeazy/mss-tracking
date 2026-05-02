@@ -239,7 +239,7 @@
                                     isCustom: false,
                                     init() {
                                         const predefined = ['Lokal Link', 'Telkom', 'Lintas Arta', 'Indosat', 'MV. Net Telkom', 'Fiber Star', 'Iforte'];
-                                        const current = @js($jalur_metro);
+                                        const current = @js($metro_link);
                                         this.isCustom = current !== '' && current !== null && !predefined.includes(current);
                                     }
                                 }">

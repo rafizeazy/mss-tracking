@@ -245,7 +245,7 @@
                 <div class="p-6 bg-[#fcfcfd] dark:bg-[#1e1f27]">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         
-                        <a href="{{ route('form.formulir', $customerForArsip->id) }}" target="_blank" class="flex flex-col items-center justify-center p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#1e5d87] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] dark:hover:border-[#60addf]">
+                        <a href="{{ route('form.formulir', $customerForArsip->service->id) }}" target="_blank" class="flex flex-col items-center justify-center p-5 rounded-xl border border-[#dee2e6] bg-white hover:border-[#1e5d87] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d] dark:hover:border-[#60addf]">
                             <i class="ti ti-file-text text-4xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-3 transition-colors dark:group-hover:text-[#60addf]"></i>
                             <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Formulir Registrasi</h6>
                         </a>
@@ -259,11 +259,14 @@
 
                         {{-- Dokumen Terminate Jika Ada --}}
                         @php
-                            $terminateReq = \App\Models\ServiceRequest::with('bau')
-                                ->where('customer_id', $customerForArsip->id)
-                                ->where('request_type', 'Terminate')
-                                ->where('status', 'selesai')
-                                ->first();
+                            $serviceRequestModel = 'App\\Models\\ServiceRequest';
+                            $terminateReq = class_exists($serviceRequestModel)
+                                ? $serviceRequestModel::with('bau')
+                                    ->where('customer_id', $customerForArsip->id)
+                                    ->where('request_type', 'Terminate')
+                                    ->where('status', 'selesai')
+                                    ->first()
+                                : null;
                         @endphp
                         
                         @if($terminateReq && $terminateReq->bau && $terminateReq->bau->signed_bau_path)

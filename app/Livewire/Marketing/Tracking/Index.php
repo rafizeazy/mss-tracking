@@ -43,7 +43,8 @@ class Index extends Component
 
     public function render()
     {
-        $query = Customer::with(['user', 'service', 'invoiceRegistrasi', 'baa']);
+        $query = Customer::with(['user', 'service', 'invoiceRegistrasi', 'baa'])
+            ->whereHas('service');
         
         if ($this->showCancelled) {
             $query->whereIn('status', ['dibatalkan', 'ditolak']);

@@ -303,7 +303,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         
                         @if($customerForArsip->spk)
-                            <a href="{{ route('marketing.spk', $customerForArsip->id) }}" target="_blank" class="flex flex-col items-center justify-center p-6 rounded-xl border border-[#dee2e6] bg-white hover:border-[#60addf] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d]">
+                            <a href="{{ route('marketing.spk', $customerForArsip->service->id) }}" target="_blank" class="flex flex-col items-center justify-center p-6 rounded-xl border border-[#dee2e6] bg-white hover:border-[#60addf] hover:shadow-md transition-all group dark:bg-[#15151b] dark:border-[#37394d]">
                                 <i class="ti ti-file-description text-5xl text-[#a1a9b1] group-hover:text-[#60addf] mb-4 transition-colors"></i>
                                 <h6 class="font-bold text-base text-[#313a46] dark:text-white text-center">SPK (Perintah Kerja)</h6>
                                 <span class="text-xs text-[#8a969c] mt-1">Cetak PDF</span>

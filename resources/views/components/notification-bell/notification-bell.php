@@ -21,32 +21,44 @@ new class extends Component
         // NOTIFIKASI MARKETING & SUPER ADMIN
         if ($role === \App\Enums\Role::Marketing || $user->isSuperAdmin()) {
             
-            $verifikasi = Customer::where('status', 'menunggu_verifikasi')->latest()->get();
+            $verifikasi = Customer::with('service')->where('status', 'menunggu_verifikasi')->latest()->get();
             foreach($verifikasi as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Persetujuan Form Registrasi', 
                     'desc' => "Perusahaan: {$c->company_name} menunggu verifikasi data.", 
-                    'url' => route('marketing.tracking.show', $c->id), 
+                    'url' => route('marketing.tracking.show', $c->service->id),
                     'icon' => 'ti-shield-check', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
                 ]);
             }
             
-            $spk = Customer::where('status', 'pembayaran_disetujui')->latest()->get();
+            $spk = Customer::with('service')->where('status', 'pembayaran_disetujui')->latest()->get();
             foreach($spk as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Kirim SPK Baru', 
                     'desc' => "Perusahaan: {$c->company_name} menunggu penerbitan SPK.", 
-                    'url' => route('marketing.tracking.show', $c->id), 
+                    'url' => route('marketing.tracking.show', $c->service->id),
                     'icon' => 'ti-file-description', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10'
                 ]);
             }
             
-            $baa = Customer::where('status', 'verifikasi_baa')->latest()->get();
+            $baa = Customer::with('service')->where('status', 'verifikasi_baa')->latest()->get();
             foreach($baa as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Verifikasi BAA Final', 
                     'desc' => "Perusahaan: {$c->company_name} telah mengunggah BAA final.", 
-                    'url' => route('marketing.tracking.show', $c->id), 
+                    'url' => route('marketing.tracking.show', $c->service->id),
                     'icon' => 'ti-file-check', 'color' => 'text-[#70bb63]', 'bg' => 'bg-[#70bb63]/10'
                 ]);
             }
@@ -55,22 +67,30 @@ new class extends Component
         // NOTIFIKASI FINANCE & SUPER ADMIN
         if ($role === \App\Enums\Role::Finance || $user->isSuperAdmin()) {
             
-            $invoice = Customer::where('status', 'menunggu_invoice')->latest()->get();
+            $invoice = Customer::with('service')->where('status', 'menunggu_invoice')->latest()->get();
             foreach($invoice as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Pengiriman Invoice Baru', 
                     'desc' => "Perusahaan: {$c->company_name} menunggu penerbitan Invoice.", 
-                    'url' => route('finance.tracking.show', $c->id), 
+                    'url' => route('finance.tracking.show', $c->service->id),
                     'icon' => 'ti-file-invoice', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
                 ]);
             }
             
-            $payment = Customer::where('status', 'verifikasi_pembayaran')->latest()->get();
+            $payment = Customer::with('service')->where('status', 'verifikasi_pembayaran')->latest()->get();
             foreach($payment as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Cek Bukti Pembayaran', 
                     'desc' => "Perusahaan: {$c->company_name} telah melakukan transfer.", 
-                    'url' => route('finance.tracking.show', $c->id), 
+                    'url' => route('finance.tracking.show', $c->service->id),
                     'icon' => 'ti-cash', 'color' => 'text-[#60addf]', 'bg' => 'bg-[#60addf]/10'
                 ]);
             }
@@ -80,22 +100,30 @@ new class extends Component
         if ($role === \App\Enums\Role::Noc || $user->isSuperAdmin()) {
             
             // Tugas Aktivasi Baru
-            $instalasi = Customer::where('status', 'proses_instalasi')->latest()->get();
+            $instalasi = Customer::with('service')->where('status', 'proses_instalasi')->latest()->get();
             foreach($instalasi as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Tugas SPK Instalasi', 
                     'desc' => "Instalasi untuk: {$c->company_name} siap dikerjakan.", 
-                    'url' => route('noc.tracking.show', $c->id), 
+                    'url' => route('noc.tracking.show', $c->service->id),
                     'icon' => 'ti-router', 'color' => 'text-[#ed6060]', 'bg' => 'bg-[#ed6060]/10'
                 ]);
             }
             
-            $reviewBaa = Customer::where('status', 'review_baa')->latest()->get();
+            $reviewBaa = Customer::with('service')->where('status', 'review_baa')->latest()->get();
             foreach($reviewBaa as $c) {
+                if (! $c->service) {
+                    continue;
+                }
+
                 $notifications->push([
                     'title' => 'Review BAA Internal', 
                     'desc' => "Form BAA: {$c->company_name} menunggu di-review.", 
-                    'url' => route('noc.tracking.show', $c->id), 
+                    'url' => route('noc.tracking.show', $c->service->id),
                     'icon' => 'ti-file-certificate', 'color' => 'text-[#ebb751]', 'bg' => 'bg-[#ebb751]/10'
                 ]);
             }
