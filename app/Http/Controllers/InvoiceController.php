@@ -22,7 +22,7 @@ class InvoiceController extends Controller
             $isCustomer = strtolower($user->role) === 'customer';
         }
 
-        if ($isCustomer && $customer->user_id !== $user->id) {
+        if ($isCustomer && (int) $customer->user_id !== (int) $user->id) {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
         }
 
@@ -47,7 +47,7 @@ class InvoiceController extends Controller
             $isCustomer = strtolower($user->role) === 'customer';
         }
 
-        if ($isCustomer && $customer->user_id !== $user->id) {
+        if ($isCustomer && (int) $customer->user_id !== (int) $user->id) {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
         }
 
