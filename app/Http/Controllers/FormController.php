@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 
@@ -10,9 +10,11 @@ class FormController extends Controller
 {
     public function cetakFormulir($id)
     {
-        $customer = Customer::with('user')->findOrFail($id);
+        $service = CustomerService::with('customer.user')->findOrFail($id);
+        $customer = $service->customer;
 
         $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
+            'service' => $service,
             'customer' => $customer,
         ]);
 

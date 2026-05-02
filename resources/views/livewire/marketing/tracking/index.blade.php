@@ -8,8 +8,6 @@
                 {{ $showCancelled ? __('Daftar pelanggan yang pengajuannya telah dibatalkan atau ditolak.') : __('Daftar pelanggan baru yang menunggu verifikasi data dan dokumen.') }}
             </p>
         </div>
-        
-        {{-- TOMBOL TOGGLE REGISTRASI BATAL --}}
         <div class="flex items-center gap-2">
             <button wire:click="toggleCancelled" class="btn-boron !py-2 text-sm font-medium transition-colors border {{ $showCancelled ? 'bg-[#1e5d87]/10 text-[#1e5d87] border-[#1e5d87]/20 hover:bg-[#1e5d87]/20' : 'bg-[#ed6060]/10 text-[#ed6060] border-[#ed6060]/20 hover:bg-[#ed6060]/20' }}">
                 @if($showCancelled)
@@ -66,8 +64,8 @@
                                 <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">Layanan</span>
                                     <div class="text-right md:text-left">
-                                        <p class="font-bold md:font-medium text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white">{{ $customer->bandwidth }}</p>
-                                        <p class="text-[11px] md:text-xs text-[#8a969c]">{{ $customer->service_type }}</p>
+                                        <p class="font-bold md:font-medium text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white">{{ $customer->service?->bandwidth ?? '-' }}</p>
+                                        <p class="text-[11px] md:text-xs text-[#8a969c]">{{ $customer->service?->service_type ?? '-' }}</p>
                                     </div>
                                 </td>
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap pb-1 md:pb-0">
@@ -95,7 +93,7 @@
                                     </span>
                                 </td>
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
-                                    <a href="{{ route('marketing.tracking.show', $customer->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
+                                    <a href="{{ route('marketing.tracking.show', $customer->service?->id ?? $customer->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
                                         <i class="ti ti-arrow-right md:hidden mr-1 text-lg"></i> 
                                         {{ $showCancelled ? 'Lihat Detail' : 'Detail & Proses' }}
                                     </a>

@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
     public function streamCustomerInvoice(int $id): \Illuminate\View\View
     {
-        $customer = Customer::with('user')->findOrFail($id);
+        $service = CustomerService::with(['customer.user', 'invoiceRegistrasi'])->findOrFail($id);
+        $customer = $service->customer;
+
         $user = auth()->user();
         $isCustomer = false;
-        
+
         if ($user->role instanceof \App\Enums\Role) {
             $isCustomer = $user->role === \App\Enums\Role::Customer;
         } else {
@@ -25,38 +26,46 @@ class InvoiceController extends Controller
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
         }
 
-        $subtotal = $customer->registration_fee ?? 0;
+        $subtotal = $service->registration_fee ?? 0;
         $ppn = 0;
         $grandTotal = $subtotal + $ppn;
-        return view('customer.invoice', compact('customer', 'subtotal', 'ppn', 'grandTotal'));
+
+        return view('customer.invoice', compact('customer', 'service', 'subtotal', 'ppn', 'grandTotal'));
     }
+
     public function streamInvoice($id)
     {
-        $customer = Customer::with(['user', 'baa'])->findOrFail($id);
+        $service = CustomerService::with(['customer.user', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
+        $customer = $service->customer;
 
         $user = auth()->user();
-        $isCustomer = $user->role instanceof \App\Enums\Role
-            ? $user->role === \App\Enums\Role::Customer
-            : strtolower($user->role) === 'customer';
+        $isCustomer = false;
+
+        if ($user->role instanceof \App\Enums\Role) {
+            $isCustomer = $user->role === \App\Enums\Role::Customer;
+        } else {
+            $isCustomer = strtolower($user->role) === 'customer';
+        }
 
         if ($isCustomer && $customer->user_id !== $user->id) {
             abort(403, 'ANDA TIDAK MEMILIKI AKSES KE INVOICE INI.');
         }
 
-        if (!$customer->baa) {
+        if (! $service->baa) {
             abort(404, 'BAA belum tersedia, Invoice belum dapat dicetak.');
         }
-        $activationDate = Carbon::parse($customer->baa->activation_date);
+
+        $activationDate = Carbon::parse($service->baa->activation_date);
         $trialEndDate = $activationDate->copy()->addDays(7);
         $prorateStartDate = $trialEndDate->copy()->addDay();
         $endOfMonth = $prorateStartDate->copy()->endOfMonth();
-        
+
         $daysInMonth = $prorateStartDate->daysInMonth;
         $billableDays = $prorateStartDate->diffInDays($endOfMonth) + 1;
 
-        $monthlyFee = $customer->monthly_fee ?? 0;
+        $monthlyFee = $service->monthly_fee ?? 0;
         $prorateAmount = ($monthlyFee / $daysInMonth) * $billableDays;
-        
+
         $ppn = $prorateAmount * 0.11;
         $grandTotal = $prorateAmount + $ppn;
 
@@ -72,14 +81,19 @@ class InvoiceController extends Controller
             'ppn' => $ppn,
             'grand_total' => $grandTotal,
         ];
+
         $pdf = Pdf::loadView('customer.invoice', [
+            'service' => $service,
             'customer' => $customer,
             'subtotal' => $prorateAmount,
             'ppn' => $ppn,
             'grandTotal' => $grandTotal,
             'invoiceData' => $invoiceData,
         ]);
-        $namaFile = 'INV-' . str_replace('/', '-', $customer->invoice_number ?? 'DRAFT') . '.pdf';
+
+        $invoiceNumber = $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
+        $namaFile = 'INV-'.str_replace('/', '-', $invoiceNumber).'.pdf';
+
         return $pdf->stream($namaFile);
     }
 }

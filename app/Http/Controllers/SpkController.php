@@ -2,23 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class SpkController extends Controller
 {
     public function streamSpk($id)
     {
-        $customer = Customer::with('spk')->findOrFail($id);
+        $service = CustomerService::with(['customer', 'spk'])->findOrFail($id);
 
-        if (! $customer->spk) {
-            abort(404, 'SPK belum di-generate untuk pelanggan ini.');
+        if (! $service->spk) {
+            abort(404, 'SPK belum di-generate untuk layanan ini.');
         }
 
         $pdf = Pdf::loadView('pdf.spk', [
-            'customer' => $customer,
+            'service' => $service,
+            'customer' => $service->customer,
+            'spk' => $service->spk,
         ]);
 
-        return $pdf->download('SPK-NOC-'.$customer->company_name.'.pdf');
+        return $pdf->stream('SPK-NOC-'.$service->customer->company_name.'.pdf');
     }
 }

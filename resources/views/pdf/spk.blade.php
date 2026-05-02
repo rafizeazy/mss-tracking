@@ -9,7 +9,6 @@
             margin: 30px 40px; 
         }
         
-        /* Tipografi Dasar Dokumen Resmi */
         body { 
             font-family: Arial, Helvetica, sans-serif; 
             color: #000000; 
@@ -19,7 +18,6 @@
         
         h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
 
-        /* KOP SURAT */
         .kop-surat { 
             width: 100%; 
             border-bottom: 3px solid #000; 
@@ -41,7 +39,6 @@
             margin-bottom: 2px;
         }
 
-        /* JUDUL DOKUMEN */
         .judul-dokumen {
             text-align: center;
             margin-bottom: 15px;
@@ -58,7 +55,6 @@
             text-transform: uppercase;
         }
 
-        /* TABEL STANDAR RESMI */
         .tabel-resmi {
             width: 100%;
             border-collapse: collapse;
@@ -75,7 +71,6 @@
             background-color: #f4f4f4;
         }
 
-        /* JUDUL BAGIAN (SECTION) */
         .judul-bagian {
             background-color: #1e5d87;
             color: #ffffff;
@@ -87,7 +82,6 @@
             border: 1px solid #1e5d87;
         }
 
-        /* KOTAK INSTRUKSI */
         .kotak-instruksi {
             border: 1px solid #000;
             border-top: none;
@@ -152,15 +146,15 @@
     <table class="tabel-resmi">
         <tr>
             <td class="label-col" style="width: 18%;">Nomor SPK</td>
-            <td style="width: 32%; font-weight: bold;">{{ $customer->spk->spk_number ?? '-' }}</td>
+            <td style="width: 32%; font-weight: bold;">{{ $spk->spk_number ?? '-' }}</td>
             <td class="label-col" style="width: 18%;">Tanggal Terbit</td>
-            <td style="width: 32%;">{{ $customer->spk->created_at ? $customer->spk->created_at->format('d F Y') : date('d F Y') }}</td>
+            <td style="width: 32%;">{{ $spk->created_at ? $spk->created_at->format('d F Y') : date('d F Y') }}</td>
         </tr>
         <tr>
             <td class="label-col">Target Selesai</td>
-            <td style="color: #d32f2f; font-weight: bold;">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d F Y') : '-' }}</td>
+            <td style="color: #d32f2f; font-weight: bold;">{{ $spk->due_date ? \Carbon\Carbon::parse($spk->due_date)->format('d F Y') : '-' }}</td>
             <td class="label-col">Diterbitkan Oleh</td>
-            <td>{{ $customer->marketing_name ?? 'Administration' }}</td>
+            <td>{{ $service->marketing_name ?? 'Administration' }}</td>
         </tr>
     </table>
 
@@ -176,23 +170,23 @@
         </tr>
         <tr>
             <td class="label-col">Kategori Pelanggan</td>
-            <td>{{ $customer->spk->customer_type ?? '-' }}</td>
+            <td>{{ $spk->customer_type ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label-col">Jenis Layanan</td>
-            <td>{{ $customer->service_type ?? '-' }}</td>
+            <td>{{ $service->service_type ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label-col">Kapasitas Bandwidth</td>
-            <td style="font-weight: bold; font-size: 12px;">{{ $customer->bandwidth }}</td>
+            <td style="font-weight: bold; font-size: 12px;">{{ $service->bandwidth }}</td>
         </tr>
         <tr>
             <td class="label-col">Vendor Jalur Metro</td>
-            <td>{{ $customer->jalur_metro ?? '-' }}</td>
+            <td>{{ $service->metro_link ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label-col">Jenis Pekerjaan</td>
-            <td style="font-weight: bold;">{{ $customer->spk->job_type ?? 'Aktivasi Baru' }}</td>
+            <td style="font-weight: bold;">{{ $spk->job_type ?? 'New Activation' }}</td>
         </tr>
     </table>
 
@@ -200,7 +194,7 @@
     <table class="tabel-resmi" style="border-top: none;">
         <tr>
             <td class="label-col">Alamat Pemasangan</td>
-            <td style="line-height: 1.4;">{{ $customer->installation_address ?? $customer->company_address }}</td>
+            <td style="line-height: 1.4;">{{ $service->installation_address ?? $customer->company_address }}</td>
         </tr>
         <tr>
             <td class="label-col">PIC Teknis (Lokasi)</td>
@@ -212,13 +206,13 @@
         </tr>
         <tr>
             <td class="label-col">PIC Sales/Marketing</td>
-            <td>{{ $customer->marketing_name ?? '-' }} ({{ $customer->marketing_phone ?? '-' }})</td>
+            <td>{{ $service->marketing_name ?? '-' }} ({{ $service->marketing_phone ?? '-' }})</td>
         </tr>
     </table>
 
     <div class="judul-bagian">3. Instruksi Khusus Pekerjaan NOC</div>
     <div class="kotak-instruksi">
-        {!! nl2br(e($customer->spk->notes ?? 'Tim NOC diminta untuk melakukan proses penyediaan layanan sesuai dengan spesifikasi di atas. Pekerjaan mencakup penarikan kabel, instalasi perangkat (OLT/Router), aktivasi bandwidth, dan pengujian stabilitas koneksi sebelum dilakukan serah terima Berita Acara (BAA) kepada pelanggan.')) !!}
+        {!! nl2br(e($spk->notes ?? 'Tim NOC diminta untuk melakukan proses penyediaan layanan sesuai dengan spesifikasi di atas. Pekerjaan mencakup penarikan kabel, instalasi perangkat (OLT/Router), aktivasi bandwidth, dan pengujian stabilitas koneksi sebelum dilakukan serah terima Berita Acara (BAA) kepada pelanggan.')) !!}
     </div>
 
     <table class="tabel-ttd">
@@ -234,11 +228,10 @@
                 <div class="ruang-ttd">
                     <img src="{{ public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Marketing" onerror="this.style.display='none';">
                 </div>
-                <div class="nama-ttd">{{ $customer->marketing_name ?? 'Administration' }}</div>
+                <div class="nama-ttd">{{ $service->marketing_name ?? 'Administration' }}</div>
                 <div class="jabatan-ttd">Admin Marketing</div>
             </td>
         </tr>
     </table>
-
 </body>
 </html>

@@ -29,6 +29,7 @@ class Index extends Component
         $this->search = $query;
         $this->resetPage();
     }
+    
     public function toggleCancelled()
     {
         $this->showCancelled = !$this->showCancelled;
@@ -42,18 +43,19 @@ class Index extends Component
 
     public function render()
     {
-        $query = Customer::with('user');
+        $query = Customer::with(['user', 'service', 'invoiceRegistrasi', 'baa']);
+        
         if ($this->showCancelled) {
             $query->whereIn('status', ['dibatalkan', 'ditolak']);
         } else {
             $query->whereNotIn('status', ['selesai', 'berhenti', 'dibatalkan', 'ditolak']);
         }
 
-        $customers = $query->where(function($q) {
-                if ($this->search) {
-                    $q->where('company_name', 'like', '%' . $this->search . '%')
-                      ->orWhere('phone', 'like', '%' . $this->search . '%');
-                }
+        $customers = $query->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('company_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('phone', 'like', '%' . $this->search . '%');
+                });
             })
             ->latest()
             ->paginate(10);

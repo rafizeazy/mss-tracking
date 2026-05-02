@@ -28,7 +28,10 @@ class Dashboard extends Component
     #[On('echo:mss-updates,CustomerUpdated')]
     public function loadCustomer()
     {
-        $this->customer = Customer::where('user_id', auth()->id())->latest()->first();
+        $this->customer = Customer::with(['baa', 'service', 'invoiceRegistrasi'])
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->first();
     }
 
     public function viewInvoice(): void
@@ -44,8 +47,13 @@ class Dashboard extends Component
         
         $path = $this->payment_proof->store('payment_proofs', 'public');
         
+        if ($this->customer->invoiceRegistrasi) {
+            $this->customer->invoiceRegistrasi->update([
+                'payment_proof_file_path' => $path,
+            ]);
+        }
+        
         $this->customer->update([
-            'payment_proof_file_path' => $path,
             'status' => 'verifikasi_pembayaran',
         ]);
 
@@ -65,7 +73,10 @@ class Dashboard extends Component
 
         $path = $this->signed_baa->store('baa/signed', 'public');
         
-        $this->customer->baa->update(['signed_baa_path' => $path]);
+        if ($this->customer->baa) {
+            $this->customer->baa->update(['signed_baa_path' => $path]);
+        }
+
         $this->customer->update(['status' => 'verifikasi_baa']);
 
         broadcast(new CustomerUpdated());

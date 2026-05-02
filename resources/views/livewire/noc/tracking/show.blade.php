@@ -15,32 +15,31 @@
             <i class="ti ti-check mr-1"></i> {{ session('success') }}
         </div>
     @endif
-
     <div class="grid gap-6 xl:grid-cols-3">
         <div class="space-y-6 xl:col-span-2">
             
             <div class="boron-card">
                 <div class="boron-card-header bg-[#f8f9fa] border-b border-[#e7e9eb] pb-3 dark:bg-[#1e1f27] dark:border-[#37394d] flex justify-between items-center">
                     <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf]"><i class="ti ti-file-description mr-1"></i> Detail Surat Perintah Kerja (SPK)</h5>
-                    <a href="{{ route('marketing.spk', $customer->id) }}" target="_blank" class="btn-boron btn-boron-primary !py-1 !px-3 text-xs shadow-md">
+                    <a href="{{ route('marketing.spk', $service->id) }}" target="_blank" class="btn-boron btn-boron-primary !py-1 !px-3 text-xs shadow-md">
                         <i class="ti ti-download mr-1"></i> Unduh PDF SPK
                     </a>
                 </div>
                 <div class="boron-card-body p-5">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5 border-b border-dashed border-[#e7e9eb] pb-5 dark:border-[#37394d]">
-                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Nomor SPK</p><p class="font-bold text-[#313a46] dark:text-white">{{ $customer->spk->spk_number ?? '-' }}</p></div>
-                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Jenis Pekerjaan</p><p class="font-bold text-[#313a46] dark:text-white">{{ $customer->spk->job_type ?? '-' }}</p></div>
+                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Nomor SPK</p><p class="font-bold text-[#313a46] dark:text-white">{{ $service->spk->spk_number ?? '-' }}</p></div>
+                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Jenis Pekerjaan</p><p class="font-bold text-[#313a46] dark:text-white">{{ $service->spk->job_type ?? '-' }}</p></div>
                         <div>
                             <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
-                            <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
-                            <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
+                            <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $service->bandwidth ?? '-' }}</p>
+                            <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $service->service_type ?? '-' }}</p>
                         </div>
-                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Tenggat (Due)</p><p class="font-bold text-[#ed6060]">{{ $customer->spk->due_date ? \Carbon\Carbon::parse($customer->spk->due_date)->format('d M Y') : '-' }}</p></div>
+                        <div><p class="text-xs text-[#8a969c] uppercase mb-1">Tenggat (Due)</p><p class="font-bold text-[#ed6060]">{{ $service->spk->due_date ? \Carbon\Carbon::parse($service->spk->due_date)->format('d M Y') : '-' }}</p></div>
                     </div>
                     <div>
                         <p class="text-xs text-[#8a969c] uppercase mb-2 font-semibold">Instruksi Pekerjaan:</p>
                         <div class="rounded bg-[#f8f9fa] p-4 text-sm text-[#4c4c5c] border border-[#dee2e6] dark:bg-[#15151b] dark:border-[#37394d] dark:text-[#aab8c5] italic">
-                            "{{ $customer->spk->notes ?? 'Tidak ada instruksi khusus.' }}"
+                            "{{ $service->spk->notes ?? 'Tidak ada instruksi khusus.' }}"
                         </div>
                     </div>
                 </div>
@@ -51,12 +50,26 @@
                     <h5 class="font-semibold text-[#313a46] dark:text-white">Lokasi & Kontak Teknis</h5>
                 </div>
                 <div class="boron-card-body p-5 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                    <div class="col-span-2"><p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Instalasi</p><p class="font-medium text-[#313a46] dark:text-white">{{ $customer->installation_address ?? $customer->company_address }}</p></div>
-                    <div><p class="text-xs text-[#8a969c] uppercase mb-1">Nama PIC Teknis</p><p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_name ?? $customer->user->name }}</p></div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Instalasi</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $service->installation_address ?? $customer->installation_address ?? $customer->company_address }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Nama PIC Teknis</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_name ?? $customer->user?->name ?? '-' }}</p>
+                    </div>
                     <div>
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Kontak & Email</p>
-                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_phone ?? $customer->phone }}</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_phone ?? $customer->phone ?? '-' }}</p>
                         <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->technical_email ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 border-t border-dashed border-[#e7e9eb] pt-4 mt-2 dark:border-[#37394d]">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Marketing / Sales</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $service->marketing_name ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 border-t border-dashed border-[#e7e9eb] pt-4 mt-2 dark:border-[#37394d]">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">No. Handphone Sales</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $service->marketing_phone ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -172,7 +185,7 @@
                         </p>
                         
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2.5 dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d]">
+                            <a href="{{ route('noc.baa', $service->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2.5 dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d]">
                                 <i class="ti ti-file-pdf text-[#ed6060] text-lg"></i> 1. Lihat PDF BAA
                             </a>
                             <button wire:click="editBaa" class="w-full btn-boron btn-boron-outline-secondary flex justify-center gap-2 !py-2.5">
@@ -217,8 +230,8 @@
                         <h6 class="font-bold text-[#4a8a3f] dark:text-[#70bb63] mb-1">Internet UP & BAA Terbit</h6>
                         <p class="text-sm text-[#8a969c] mb-5">ID Pelanggan: <strong class="text-[#313a46] dark:text-white">{{ $customer->customer_number }}</strong></p>
                         
-                        @if($customer->baa)
-                            <a href="{{ route('noc.baa', $customer->id) }}" target="_blank" class="w-full btn-boron btn-boron-outline-primary flex justify-center gap-2 !py-2.5">
+                        @if($service->baa)
+                            <a href="{{ route('noc.baa', $service->id) }}" target="_blank" class="w-full btn-boron btn-boron-outline-primary flex justify-center gap-2 !py-2.5">
                                 <i class="ti ti-file-pdf text-lg text-[#ed6060]"></i> Lihat / Cetak BAA
                             </a>
                         @endif

@@ -6,7 +6,7 @@
             </h4>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('form.formulir', $customer->id) }}" target="_blank" class="btn-boron !py-1.5 flex items-center gap-1 bg-[#1e5d87]/10 text-[#1e5d87] hover:bg-[#1e5d87]/20 border border-[#1e5d87]/20 transition-colors font-medium dark:bg-[#60addf]/10 dark:text-[#60addf] dark:border-[#60addf]/20">
+            <a href="{{ route('form.formulir', $service->id) }}" target="_blank" class="btn-boron !py-1.5 flex items-center gap-1 bg-[#1e5d87]/10 text-[#1e5d87] hover:bg-[#1e5d87]/20 border border-[#1e5d87]/20 transition-colors font-medium dark:bg-[#60addf]/10 dark:text-[#60addf] dark:border-[#60addf]/20">
                 <i class="ti ti-file-text"></i> Cetak Formulir
             </a>
             <a href="{{ route('finance.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
@@ -36,16 +36,49 @@
                     <h5 class="font-semibold text-[#313a46] dark:text-white">Ringkasan Data (Telah Disetujui Marketing)</h5>
                 </div>
                 <div class="boron-card-body p-5 grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+                    
+                    <!-- Data Perusahaan & Pendaftar -->
                     <div class="col-span-2 sm:col-span-1">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Nama Perusahaan</p>
-                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_name }}</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->company_name ?? '-' }}</p>
                     </div>
                     <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Pendaftar (Pimpinan)</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->user->name ?? '-' }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->position ?? '-' }} | {{ $customer->phone ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Perusahaan</p>
+                        <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->company_address ?? '-' }}</p>
+                    </div>
+            
+                    <!-- Data Layanan & Biaya -->
+                    <div class="col-span-2 sm:col-span-1 border-t border-dashed border-[#e7e9eb] pt-4 dark:border-[#37394d]">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">Kapasitas & Layanan</p>
-                        <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
-                        <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $customer->service_type }}</p>
+                        <p class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $service->bandwidth ?? '-' }}</p>
+                        <p class="text-[10px] text-[#8a969c] leading-tight mt-0.5">{{ $service->service_type ?? '-' }}</p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1 border-t border-dashed border-[#e7e9eb] pt-4 dark:border-[#37394d]">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Jalur Metro (Vendor)</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $service->metro_link ?? '-' }}</p>
                     </div>
                     <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Biaya Registrasi</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">
+                            @if(!is_null($service->registration_fee) && (float)$service->registration_fee === 0.0)
+                                <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
+                            @else
+                                Rp {{ number_format($service->registration_fee ?? 0, 0, ',', '.') }}
+                            @endif
+                        </p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Biaya Bulanan</p>
+                        <p class="font-bold text-[#ebb751]">Rp {{ number_format($service->monthly_fee ?? 0, 0, ',', '.') }}</p>
+                    </div>
+            
+                    <!-- Data Keuangan & Marketing -->
+                    <div class="col-span-2 sm:col-span-1 border-t border-dashed border-[#e7e9eb] pt-4 dark:border-[#37394d]">
                         <p class="text-xs text-[#8a969c] uppercase mb-1">PIC Keuangan</p>
                         <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->finance_name ?? '-' }}</p>
                         <p class="text-xs text-[#8a969c] mt-0.5">
@@ -53,14 +86,20 @@
                             @if($customer->finance_email) | {{ $customer->finance_email }} @endif
                         </p>
                     </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Penagihan (Invoice)</p>
-                        <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->billing_address ?? $customer->company_address }}</p>
+                    <div class="col-span-2 sm:col-span-1 border-t border-dashed border-[#e7e9eb] pt-4 dark:border-[#37394d]">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Marketing Sales</p>
+                        <p class="font-medium text-[#313a46] dark:text-white">{{ $service->marketing_name ?? '-' }}</p>
+                        <p class="text-xs text-[#8a969c] mt-0.5">{{ $service->marketing_phone ?? '-' }}</p>
                     </div>
+                    <div class="col-span-2 border-t border-dashed border-[#e7e9eb] pt-4 dark:border-[#37394d]">
+                        <p class="text-xs text-[#8a969c] uppercase mb-1">Alamat Penagihan (Invoice)</p>
+                        <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->billing_address ?? $customer->company_address ?? '-' }}</p>
+                    </div>
+                    
                 </div>
             </div>
             
-            @if($customer->payment_proof_file_path)
+            @if($service->invoiceRegistrasi?->payment_proof_file_path)
                 <div class="boron-card {{ $customer->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
                     <div class="boron-card-header {{ $customer->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
                         <h5 class="font-bold {{ $customer->status === 'verifikasi_pembayaran' ? 'text-[#b58c3d] dark:text-[#ebb751]' : 'text-[#313a46] dark:text-white' }}">
@@ -72,12 +111,12 @@
                     </div>
                     <div class="boron-card-body p-5 bg-[#f8f9fa] dark:bg-[#15151b]">
                         <div x-data="{ openImage: false }" class="w-full flex justify-center">
-                            <img @click="openImage = true" src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
+                            <img @click="openImage = true" src="{{ asset('storage/' . $service->invoiceRegistrasi->payment_proof_file_path) }}" alt="Bukti Transfer" class="max-w-full max-h-[500px] rounded border border-[#dee2e6] shadow-sm cursor-zoom-in hover:opacity-90 transition-opacity dark:border-[#37394d]">
                             <div x-show="openImage" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" x-transition.opacity>
                                 <button @click="openImage = false" class="absolute top-4 right-4 text-white hover:text-gray-300">
                                     <i class="ti ti-x text-4xl"></i>
                                 </button>
-                                <img src="{{ asset('storage/' . $customer->payment_proof_file_path) }}" alt="Bukti Transfer Zoom" @click.away="openImage = false" class="max-h-[90vh] max-w-[90vw] rounded shadow-2xl">
+                                <img src="{{ asset('storage/' . $service->invoiceRegistrasi->payment_proof_file_path) }}" alt="Bukti Transfer Zoom" @click.away="openImage = false" class="max-h-[90vh] max-w-[90vw] rounded shadow-2xl">
                             </div>
                         </div>
                         <p class="text-center text-xs text-[#8a969c] mt-3"><i class="ti ti-zoom-in"></i> Klik gambar untuk memperbesar</p>
@@ -90,7 +129,7 @@
                     <div class="flex justify-between items-start border-b border-[#e7e9eb] pb-6 dark:border-[#37394d]">
                         <div>
                             <h2 class="text-2xl font-bold text-[#313a46] dark:text-white uppercase tracking-wider">INVOICE</h2>
-                            <p class="text-sm text-[#8a969c] mt-1">INV-REG-{{ date('Ymd') }}-{{ str_pad($customer->id, 3, '0', STR_PAD_LEFT) }}</p>
+                            <p class="text-sm text-[#8a969c] mt-1">{{ $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }}</p>
                         </div>
                         <div class="text-right">
                             <h4 class="font-bold text-[#313a46] dark:text-white">PT Media Solusi Sukses</h4>
@@ -121,10 +160,10 @@
                                 <tr>
                                     <td class="p-3">
                                         Biaya Registrasi / Instalasi Awal Jaringan<br>
-                                        <small class="text-[#8a969c] font-semibold">{{ $customer->bandwidth }}</small><br>
-                                        <small class="text-[#8a969c]">{{ $customer->service_type }}</small>
+                                        <small class="text-[#8a969c] font-semibold">{{ $service->bandwidth ?? '-' }}</small><br>
+                                        <small class="text-[#8a969c]">{{ $service->service_type ?? '-' }}</small>
                                     </td>
-                                    <td class="p-3 text-right font-medium text-[#313a46] dark:text-white">{{ number_format($customer->registration_fee, 0, ',', '.') }}</td>
+                                    <td class="p-3 text-right font-medium text-[#313a46] dark:text-white">{{ number_format($service->registration_fee ?? 0, 0, ',', '.') }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -338,6 +377,12 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if($customer->status === 'ditolak')
+                        <div class="mt-4 rounded bg-[#ed6060]/10 p-3 text-center text-sm font-semibold text-[#ed6060]">
+                            <i class="ti ti-x"></i> Registrasi Ditolak oleh Marketing
+                        </div>
+                    @endif
                 </div>
             </div>
 

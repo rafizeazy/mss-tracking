@@ -7,22 +7,20 @@
             <p class="mt-0.5 text-sm text-[#8a969c]">ID: <span class="font-medium text-[#ebb751]">{{ $customer->customer_number ?? 'Belum Diterbitkan (Menunggu BAA)' }}</span> | Tgl Daftar: {{ $customer->created_at->format('d M Y, H:i') }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            @if($customer->spk)
-                <a href="{{ route('form.formulir', $customer->id) }}" target="_blank" class="btn-boron !py-1.5 flex items-center gap-1 bg-[#1e5d87]/10 text-[#1e5d87] hover:bg-[#1e5d87]/20 border border-[#1e5d87]/20 transition-colors font-medium dark:bg-[#60addf]/10 dark:text-[#60addf] dark:border-[#60addf]/20">
-                    <i class="ti ti-file-text"></i> Cetak Formulir
-                </a>
-            @endif
 
             <button wire:click="editCustomer" class="btn-boron btn-boron-secondary !py-1.5 flex items-center gap-1 bg-[#f8f9fa] text-[#4c4c5c] hover:bg-[#e7e9eb] border border-[#dee2e6] dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
                 <i class="ti ti-edit"></i> Edit Data
             </button>
+            <a href="{{ route('form.formulir', $service->id) }}" target="_blank" class="btn-boron !py-1.5 flex items-center gap-1 bg-[#1e5d87]/10 text-[#1e5d87] hover:bg-[#1e5d87]/20 border border-[#1e5d87]/20 transition-colors font-medium dark:bg-[#60addf]/10 dark:text-[#60addf] dark:border-[#60addf]/20">
+                <i class="ti ti-file-text"></i> Cetak Formulir
+            </a>
 
             @if(!in_array($customer->status, ['selesai', 'dibatalkan', 'ditolak']))
                 <button wire:click="cancelRegistration" wire:confirm="Yakin ingin membatalkan pengajuan ini? Data tidak akan tampil lagi di antrean." class="btn-boron !py-1.5 flex items-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
                     <i class="ti ti-ban"></i> Batalkan Pengajuan
                 </button>
             @endif
-
+            
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
                 <i class="ti ti-arrow-left"></i> Kembali ke Antrean
             </a>
@@ -150,10 +148,6 @@
                             <p class="text-xs text-[#8a969c] uppercase">Kontak & Email</p>
                             <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->technical_phone ?? '-' }} <br> {{ $customer->technical_email ?? '-' }}</p>
                         </div>
-                        <div>
-                            <p class="text-xs text-[#8a969c] uppercase">Alamat Instalasi Router</p>
-                            <p class="font-medium text-[#313a46] dark:text-white">{{ $customer->installation_address ?? 'Sama dengan alamat perusahaan' }}</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -166,15 +160,20 @@
                     <div class="flex items-center gap-6 mb-6">
                         <div class="flex-1 rounded-[0.3rem] border border-[#60addf]/30 bg-[#60addf]/5 p-4">
                             <p class="text-xs text-[#60addf] uppercase font-semibold mb-1">Paket Layanan Dipilih</p>
-                            <p class="text-lg font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->bandwidth }}</p>
-                            <p class="text-xs text-[#1e5d87]/70 dark:text-[#60addf]/70">{{ $customer->service_type }}</p>
+                            <p class="text-lg font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $service->bandwidth ?? '-' }}</p>
+                            <p class="text-xs text-[#1e5d87]/70 dark:text-[#60addf]/70">{{ $service->service_type ?? '-' }}</p>
                         </div>
                         <div class="flex-1 rounded-[0.3rem] border border-[#ebb751]/30 bg-[#ebb751]/5 p-4">
                             <p class="text-xs text-[#ebb751] uppercase font-semibold mb-1">Durasi Kontrak</p>
-                            <p class="text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">{{ $customer->term_of_service }} Tahun ({{ $customer->term_of_service * 12 }} Bulan)</p>
+                            <p class="text-lg font-bold text-[#b58c3d] dark:text-[#ebb751]">{{ $service->term_of_service ?? '-' }} Tahun ({{ ($service->term_of_service ?? 0) * 12 }} Bulan)</p>
                         </div>
                     </div>
-
+            
+                    <div class="mb-6 p-4 rounded bg-[#f8f9fa] border border-[#dee2e6] dark:bg-[#1e1f27] dark:border-[#37394d]">
+                        <p class="text-[11px] font-bold text-[#8a969c] uppercase mb-1">Alamat Instalasi Layanan</p>
+                        <p class="text-sm font-medium text-[#313a46] dark:text-white">{{ $service->installation_address ?? $customer->installation_address ?? 'Sama dengan alamat perusahaan' }}</p>
+                    </div>
+            
                     <p class="text-xs text-[#8a969c] uppercase mb-3 font-semibold border-b border-dashed border-[#e7e9eb] pb-2 dark:border-[#37394d]">Pemeriksaan Dokumen Legal</p>
                     <div class="grid sm:grid-cols-2 gap-4">
                         @php
@@ -185,7 +184,7 @@
                                 ['label' => 'Sertifikat Standar', 'path' => $customer->certificate_file_path],
                             ];
                         @endphp
-
+            
                         @foreach($documents as $doc)
                             <div class="flex items-center justify-between rounded bg-[#f8f9fa] px-4 py-3 border border-[#dee2e6] dark:bg-[#1e1f27] dark:border-[#37394d]">
                                 <div class="flex items-center gap-3">
@@ -246,9 +245,9 @@
                                 }">
                                     <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">Vendor Jalur Metro</label>
                                     <select 
-                                        wire:model="jalur_metro" 
+                                        wire:model="metro_link" 
                                         x-show="!isCustom" 
-                                        @change="$event.target.value === 'Lainnya' ? (isCustom = true, $wire.set('jalur_metro', '')) : isCustom = false"
+                                        @change="$event.target.value === 'Lainnya' ? (isCustom = true, $wire.set('metro_link', '')) : isCustom = false"
                                         class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]"
                                     >
                                         <option value="">Pilih Jalur Metro...</option>
@@ -263,12 +262,12 @@
                                     </select>
                                     
                                     <div x-show="isCustom" style="display: none;" class="flex gap-2">
-                                        <input type="text" wire:model="jalur_metro" placeholder="Ketik nama vendor jalur metro..." class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
-                                        <button type="button" @click="isCustom = false; $wire.set('jalur_metro', '')" class="px-2 text-[#ed6060] hover:bg-[#ed6060]/10 rounded" title="Batal isi manual">
+                                        <input type="text" wire:model="metro_link" placeholder="Ketik nama vendor jalur metro..." class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
+                                        <button type="button" @click="isCustom = false; $wire.set('metro_link', '')" class="px-2 text-[#ed6060] hover:bg-[#ed6060]/10 rounded" title="Batal isi manual">
                                             <i class="ti ti-x"></i>
                                         </button>
                                     </div>
-                                    @error('jalur_metro') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                                    @error('metro_link') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
@@ -383,9 +382,9 @@
                             </button>
                         </form>
 
-                        @if($customer->spk)
+                        @if($service->spk)
                             <div class="mt-5 pt-5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] space-y-3">
-                                <a href="{{ route('marketing.spk', $customer->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 text-sm dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
+                                <a href="{{ route('marketing.spk', $service->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 text-sm dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
                                     <i class="ti ti-file-pdf text-[#ed6060]"></i> Lihat / Cetak PDF SPK
                                 </a>
                                 <button wire:click="sendToNoc" wire:confirm="Pastikan PDF SPK sudah sesuai. Lanjutkan kirim ke Dashboard NOC?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
@@ -407,7 +406,7 @@
                             Pelanggan telah mengunggah BAA yang ditandatangani. Silakan cek keabsahan tanda tangannya.
                         </p>
                         
-                        <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 mb-4 dark:bg-[#1e1f27] dark:text-white">
+                        <a href="{{ asset('storage/' . $service->baa->signed_baa_path) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 mb-4 dark:bg-[#1e1f27] dark:text-white">
                             <i class="ti ti-eye text-[#1e5d87]"></i> Cek File TTD Pelanggan
                         </a>
 

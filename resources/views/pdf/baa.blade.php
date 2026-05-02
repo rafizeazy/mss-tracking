@@ -4,13 +4,11 @@
     <meta charset="utf-8">
     <title>BAA - {{ $customer->company_name }}</title>
     <style>
-        /* Pengaturan Halaman A4 & Margin Presisi */
         @page { 
             size: A4 portrait;
             margin: 30px 40px; 
         }
         
-        /* Tipografi Resmi (Font yang sama dengan SPK) */
         body { 
             font-family: Arial, Helvetica, sans-serif; 
             color: #000000; 
@@ -20,7 +18,6 @@
         
         h1, h2, h3, h4, h5, p { margin: 0; padding: 0; }
         
-        /* KOP SURAT */
         .kop-surat { 
             width: 100%; 
             border-bottom: 3px solid #000; 
@@ -41,7 +38,6 @@
             text-transform: uppercase;
         }
         
-        /* JUDUL DOKUMEN */
         .judul-dokumen { 
             text-align: center; 
             margin-bottom: 15px; 
@@ -58,13 +54,11 @@
             font-weight: bold; 
         }
 
-        /* PARAGRAF TEKS */
         .paragraf { 
             text-align: justify; 
             margin-bottom: 10px; 
         }
         
-        /* TABEL INFORMASI RESMI */
         .tabel-resmi { 
             width: 100%; 
             border-collapse: collapse; 
@@ -81,7 +75,6 @@
             background-color: #f4f4f4; 
         }
 
-        /* TABEL LAMPIRAN PERANGKAT */
         .tabel-perangkat th { 
             background-color: #1e5d87; 
             color: #ffffff; 
@@ -91,7 +84,6 @@
         }
         .tabel-perangkat tr:nth-child(even) { background-color: #f8f9fa; }
 
-        /* AREA TANDA TANGAN */
         .tabel-ttd { 
             width: 100%; 
             text-align: center; 
@@ -121,7 +113,6 @@
             margin-top: 2px; 
         }
 
-        /* CATATAN KAKI */
         .footer-note { 
             font-size: 10px; 
             font-style: italic; 
@@ -130,7 +121,6 @@
             padding-top: 5px;
         }
 
-        /* PEMISAH HALAMAN (PAGE 2) */
         .page-break { page-break-before: always; }
         
         .attachment-title { 
@@ -155,7 +145,7 @@
 <body>
     @php
         \Carbon\Carbon::setLocale('id');
-        $date = \Carbon\Carbon::parse($customer->baa->activation_date);
+        $date = \Carbon\Carbon::parse($baa->activation_date);
         $hari = $date->translatedFormat('l');
         $tanggal = $date->format('d');
         $bulan = $date->translatedFormat('F');
@@ -178,7 +168,7 @@
 
     <div class="judul-dokumen">
         <h1>Berita Acara Aktivasi</h1>
-        <p>Nomor: {{ $customer->baa->baa_number }}</p>
+        <p>Nomor: {{ $baa->baa_number }}</p>
     </div>
 
     <div class="paragraf">
@@ -186,10 +176,10 @@
     </div>
 
     <table class="tabel-resmi"> 
-        <tr><td class="label-col">Nama</td><td style="text-transform: uppercase;">{{ $customer->baa->noc_name }}</td></tr>
-        <tr><td class="label-col">Jabatan</td><td style="text-transform: uppercase;">{{ $customer->baa->noc_position }}</td></tr>
-        <tr><td class="label-col">Departemen</td><td style="text-transform: uppercase;">{{ $customer->baa->noc_department }}</td></tr>
-        <tr><td class="label-col">Lokasi Kerja</td><td>{{ $customer->baa->noc_location }}</td></tr>
+        <tr><td class="label-col">Nama</td><td style="text-transform: uppercase;">{{ $baa->noc_name }}</td></tr>
+        <tr><td class="label-col">Jabatan</td><td style="text-transform: uppercase;">{{ $baa->noc_position }}</td></tr>
+        <tr><td class="label-col">Departemen</td><td style="text-transform: uppercase;">{{ $baa->noc_department }}</td></tr>
+        <tr><td class="label-col">Lokasi Kerja</td><td>{{ $baa->noc_location }}</td></tr>
     </table>
 
     <div class="paragraf">
@@ -209,9 +199,9 @@
     </div>
 
     <table class="tabel-resmi">
-        <tr><td class="label-col">Alamat Instalasi</td><td style="line-height: 1.4;">{{ $customer->installation_address ?? $customer->company_address }}</td></tr>
-        <tr><td class="label-col">Jenis Layanan</td><td><strong>{{ ucwords($customer->service_type) }}</strong></td></tr>
-        <tr><td class="label-col">Kapasitas Bandwidth</td><td><strong>{{ $customer->bandwidth }}</strong></td></tr>
+        <tr><td class="label-col">Alamat Instalasi</td><td style="line-height: 1.4;">{{ $service->installation_address ?? $customer->company_address }}</td></tr>
+        <tr><td class="label-col">Jenis Layanan</td><td>{{ ucwords($service->service_type ?? '-') }}</td></tr>
+        <tr><td class="label-col">Kapasitas Bandwidth</td><td>{{ $service->bandwidth ?? '-' }}</td></tr>
         <tr><td class="label-col">Status Layanan</td><td><strong>Aktif dan Terhubung</strong></td></tr>
     </table>
 
@@ -225,12 +215,12 @@
             <td>
                 <div>Mengetahui,<br><strong>PT Media Solusi Sukses</strong></div>
                 <div class="ruang-ttd">
-                    @if($customer->baa->noc_signature_path)
-                        <img src="{{ public_path('storage/' . $customer->baa->noc_signature_path) }}" alt="TTD NOC">
+                    @if($baa->noc_signature_path)
+                        <img src="{{ public_path('storage/' . $baa->noc_signature_path) }}" alt="TTD NOC">
                     @endif
                 </div>
-                <div class="nama-ttd">{{ $customer->baa->noc_name }}</div>
-                <div class="jabatan-ttd">{{ $customer->baa->noc_position }}</div>
+                <div class="nama-ttd">{{ $baa->noc_name }}</div>
+                <div class="jabatan-ttd">{{ $baa->noc_position }}</div>
             </td>
             <td>
                 <div>Menyetujui,<br><strong>Pelanggan (Pihak Kedua)</strong></div>
@@ -272,8 +262,8 @@
             </tr>
         </thead>
         <tbody>
-            @if(is_array($customer->baa->devices) && count($customer->baa->devices) > 0)
-                @foreach($customer->baa->devices as $index => $dev)
+            @if(is_array($baa->devices) && count($baa->devices) > 0)
+                @foreach($baa->devices as $index => $dev)
                 <tr>
                     <td style="text-align: center;">{{ $index + 1 }}</td>
                     <td>{{ $dev['name'] ?? '-' }}</td>
@@ -290,8 +280,8 @@
     </table>
 
     <div class="attachment-title">B. Bukti Pengujian (Speedtest / Link Test)</div>
-    @if($customer->baa->speedtest_image_path)
-        <img src="{{ public_path('storage/' . $customer->baa->speedtest_image_path) }}" class="img-attachment">
+    @if($baa->speedtest_image_path)
+        <img src="{{ public_path('storage/' . $baa->speedtest_image_path) }}" class="img-attachment">
     @else
         <div style="padding: 40px; border: 1px dashed #000; text-align: center; color: #8a969c; background-color: #f8f9fa;">
             Gambar lampiran pengujian tidak tersedia atau belum diunggah oleh tim NOC.

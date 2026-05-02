@@ -2,8 +2,8 @@
     <div class="w-full max-w-4xl">
 
         <div class="mb-8 text-center">
-            <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[#669776]/20">
-                <i class="ti ti-wifi text-2xl text-[#669776]"></i>
+            <div class="mx-auto mb-4 flex size-16 items-center justify-center bg-[#f6f7fb]">
+                <img src="{{ asset('logo/Logo MSS.png') }}" alt="Logo MSS" class="h-30 w-30 object-contain">
             </div>
             <h2 class="text-2xl font-bold text-[#313a46] dark:text-white">Registrasi Layanan Internet</h2>
             <p class="mt-2 text-sm text-zinc-600">PT Media Solusi Sukses — Silakan lengkapi data registrasi di bawah ini.</p>
@@ -13,10 +13,10 @@
             <div class="flex items-center">
                 @php
                     $steps = [
-                        1 => ['label' => 'Data Pendaftar',   'icon' => 'ti-user'],
-                        2 => ['label' => 'Info Perusahaan',  'icon' => 'ti-building'],
-                        3 => ['label' => 'Penanggung Jawab', 'icon' => 'ti-users'],
-                        4 => ['label' => 'Layanan & Dokumen','icon' => 'ti-clipboard-list'],
+                        1 => ['label' => 'Data Pendaftar',   'icon' => 'ti ti-user-circle'],
+                        2 => ['label' => 'Info Perusahaan',  'icon' => 'ti ti-building-skyscraper'],
+                        3 => ['label' => 'Penanggung Jawab', 'icon' => 'ti ti-user-shield'],
+                        4 => ['label' => 'Layanan & Dokumen','icon' => 'ti ti-file-description'],
                     ];
                 @endphp
 
@@ -77,7 +77,7 @@
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium">No. KTP <span class="text-[#ed6060]">*</span></label>
-                        <input type="text" wire:model="ktp_number" maxlength="16"
+                        <input type="text" wire:model="ktp_number" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d]">
                         @error('ktp_number') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                     </div>
@@ -99,7 +99,7 @@
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium">Nomor Handphone <span class="text-[#ed6060]">*</span></label>
-                        <input type="text" wire:model="phone"
+                        <input type="text" wire:model="phone" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d]">
                         @error('phone') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                     </div>
@@ -128,7 +128,7 @@
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-medium">NPWP Perusahaan</label>
-                        <input type="text" wire:model="npwp_number"
+                        <input type="text" wire:model="npwp_number" oninput="this.value = this.value.replace(/[^0-9.-]/g, '')"
                             class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none dark:border-[#37394d]">
                     </div>
                     <div class="md:col-span-2">
@@ -163,9 +163,9 @@
                     <div>
                         <label class="mb-1.5 block text-sm font-medium">Kode Pos &amp; No. Telepon</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" wire:model="postal_code" placeholder="Kode Pos"
+                            <input type="text" wire:model="postal_code" placeholder="Kode Pos" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none dark:border-[#37394d]">
-                            <input type="text" wire:model="company_phone" placeholder="No. Telepon"
+                            <input type="text" wire:model="company_phone" placeholder="No. Telepon" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none dark:border-[#37394d]">
                         </div>
                     </div>
@@ -197,7 +197,7 @@
                         </div>
                         <div>
                             <label class="mb-1 block text-xs font-medium">No. Handphone <span class="text-[#ed6060]">*</span></label>
-                            <input type="text" wire:model="finance_phone"
+                            <input type="text" wire:model="finance_phone" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                             @error('finance_phone') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
@@ -231,15 +231,9 @@
                         </div>
                         <div>
                             <label class="mb-1 block text-xs font-medium">No. Handphone <span class="text-[#ed6060]">*</span></label>
-                            <input type="text" wire:model="technical_phone"
+                            <input type="text" wire:model="technical_phone" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]">
                             @error('technical_phone') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-xs font-medium">Alamat Instalasi <span class="text-[#ed6060]">*</span></label>
-                            <textarea rows="3" wire:model="installation_address"
-                                class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
-                            @error('installation_address') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
@@ -304,6 +298,12 @@
                                     <option value="3">3 Tahun (36 Bulan)</option>
                                 </select>
                                 @error('term_of_service') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium">Alamat Instalasi Layanan <span class="text-[#ed6060]">*</span></label>
+                                <textarea rows="3" wire:model="installation_address" placeholder="masukkan alamat lengkap"
+                                    class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-1.5 text-sm dark:border-[#37394d]"></textarea>
+                                @error('installation_address') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                             </div>
                         </div>
 

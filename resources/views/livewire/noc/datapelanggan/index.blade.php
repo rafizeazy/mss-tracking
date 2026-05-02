@@ -35,8 +35,8 @@
                                 <td class="flex justify-between md:justify-start items-start md:items-center md:table-cell md:px-6 md:py-4">
                                     <span class="text-[10px] font-bold text-[#8a969c] md:hidden uppercase tracking-widest mt-0.5">Layanan</span>
                                     <div class="text-right md:text-left">
-                                        <p class="font-bold md:font-semibold text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white text-sm">{{ $cust->bandwidth }}</p>
-                                        <p class="text-[11px] md:text-xs text-[#8a969c]">{{ $cust->service_type }}</p>
+                                        <p class="font-bold md:font-semibold text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white text-sm">{{ $cust->service?->bandwidth ?? '-' }}</p>
+                                        <p class="text-[11px] md:text-xs text-[#8a969c]">{{ $cust->service?->service_type ?? '-' }}</p>
                                     </div>
                                 </td>
                                 
@@ -46,7 +46,7 @@
                                 </td>
                                 
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 pt-3 md:pt-0 border-t border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] block md:table-cell">
-                                    <div class="flex flex-row md:flex-row items-center justify-center gap-2">
+                                    <div class="flex flex-row md:flex-row items-center justify-center gap-2 flex-wrap">
                                         <button wire:click="viewDetail({{ $cust->id }})" class="flex-1 md:flex-none btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-2.5 md:!py-1.5 !px-3 text-[11px] md:text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
                                             <i class="ti ti-list-details text-base text-[#60addf]"></i> <span class="hidden sm:inline">Detail</span>
                                         </button>
@@ -132,6 +132,16 @@
                                             <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] break-all dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->ktp_number ?? '-' }}</div>
                                         </div>
                                     </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Gender</label>
+                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->gender === 'L' ? 'Laki-laki' : ($selectedCustomer->gender === 'P' ? 'Perempuan' : '-') }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Jabatan</label>
+                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] line-clamp-1 dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->position ?? '-' }}</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -143,26 +153,36 @@
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
                                             <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Kapasitas</label>
-                                            <div class="w-full rounded border border-[#60addf]/40 bg-[#60addf]/10 px-3 py-2 text-[13px] md:text-sm font-bold text-[#1e5d87] dark:text-[#60addf] shadow-inner">{{ $selectedCustomer->bandwidth }}</div>
+                                            <div class="w-full rounded border border-[#60addf]/40 bg-[#60addf]/10 px-3 py-2 text-[13px] md:text-sm font-bold text-[#1e5d87] dark:text-[#60addf] shadow-inner">{{ $selectedCustomer->service?->bandwidth ?? '-' }}</div>
                                         </div>
                                         <div>
-                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Tipe Layanan</label>
-                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service_type }}</div>
+                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Kontrak</label>
+                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->term_of_service ?? '-' }} Tahun</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Tipe Layanan</label>
+                                        <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->service_type ?? '-' }}</div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Tipe Pelanggan</label>
+                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->spk->customer_type ?? '-' }}</div>
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Tgl Aktif</label>
+                                            <div class="w-full rounded border border-[#70bb63]/30 bg-[#70bb63]/10 px-3 py-2 text-[13px] font-bold text-[#4a8a3f] dark:text-[#70bb63]">{{ $selectedCustomer->baa && $selectedCustomer->baa->activation_date ? $selectedCustomer->baa->activation_date->format('d M Y') : '-' }}</div>
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Tgl Aktivasi</label>
-                                            <div class="w-full rounded border border-[#70bb63]/30 bg-[#70bb63]/10 px-3 py-2 text-[13px] font-bold text-[#4a8a3f] dark:text-[#70bb63]">{{ $selectedCustomer->baa && $selectedCustomer->baa->activation_date ? $selectedCustomer->baa->activation_date->format('d M Y') : '-' }}</div>
+                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Jalur Metro</label>
+                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] line-clamp-1 dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->metro_link ?? '-' }}</div>
                                         </div>
                                         <div>
                                             <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">SLA</label>
-                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->sla ?? '-' }}</div>
+                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->sla ?? '-' }}</div>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Jalur Metro / Vendor</label>
-                                        <div class="w-full rounded border border-[#ebb751]/30 bg-[#ebb751]/10 px-3 py-2 text-sm font-bold text-[#b58c3d] tracking-wide dark:text-[#ebb751] shadow-inner">{{ $selectedCustomer->jalur_metro ?? 'Belum Diisi' }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -176,6 +196,16 @@
                                 <div>
                                     <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Nama Instansi/PT</label>
                                     <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-bold text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->company_name }}</div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Bidang Usaha</label>
+                                        <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] line-clamp-1 dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->business_type ?? '-' }}</div>
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">No. NPWP</label>
+                                        <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] break-all dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->npwp_number ?? '-' }}</div>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Telepon Kantor</label>
@@ -191,9 +221,13 @@
                                         <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->city ?? '-' }}</div>
                                     </div>
                                     <div>
-                                        <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Kode Pos</label>
-                                        <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->postal_code ?? '-' }}</div>
+                                        <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Provinsi</label>
+                                        <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] line-clamp-1 dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->province ?? '-' }}</div>
                                     </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Kode Pos</label>
+                                    <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->postal_code ?? '-' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -252,11 +286,11 @@
 
                 <div class="px-5 md:px-6 py-4 md:py-5 border-b border-[#e7e9eb] dark:border-[#37394d] flex justify-between items-center bg-[#f8f9fa] dark:bg-[#15151b]">
                     <div class="flex items-center gap-3">
-                        <div class="flex size-10 md:size-12 items-center justify-center rounded-full bg-[#ebb751]/10 text-[#ebb751] shrink-0">
+                        <div class="flex size-10 md:size-12 items-center justify-center rounded-full bg-[#1e5d87]/10 text-[#1e5d87] shrink-0">
                             <i class="ti ti-folder-open text-xl md:text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-base md:text-lg text-[#313a46] dark:text-white leading-tight">Arsip Dokumen Teknis</h3>
+                            <h3 class="font-bold text-base md:text-lg text-[#313a46] dark:text-white leading-tight">Arsip Dokumen</h3>
                             <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5 line-clamp-1">{{ $customerForArsip->company_name }}</p>
                         </div>
                     </div>
@@ -302,5 +336,4 @@
             </div>
         </div>
     @endif
-
 </div>

@@ -5,6 +5,7 @@ namespace App\Livewire\Finance;
 use App\Events\CustomerUpdated;
 use App\Mail\StatusPelangganBerubah;
 use App\Models\Customer;
+use App\Models\CustomerService;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -15,6 +16,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Show extends Component
 {
+    public CustomerService $service;
+
     public Customer $customer;
 
     public $showInvoicePreview = false;
@@ -27,31 +30,37 @@ class Show extends Component
 
     public function mount($id)
     {
-        $this->customer = Customer::with('user')->findOrFail($id);
+        $this->service = CustomerService::with(['customer.user', 'invoiceRegistrasi'])->findOrFail($id);
+        $this->customer = $this->service->customer;
         $this->calculateTotals();
     }
 
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshData()
     {
+        $this->service->refresh();
         $this->customer->refresh();
+        $this->calculateTotals();
     }
 
     public function calculateTotals()
     {
-        $this->subtotal = $this->customer->registration_fee;
+        $this->subtotal = $this->service->registration_fee ?? 0;
         $this->ppn = 0;
         $this->grand_total = $this->subtotal;
     }
 
     public function generatePreview()
     {
-        if (! $this->customer->invoice_number) {
-            $this->customer->update([
-                'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
-                'invoice_generated_at' => now(),
-            ]);
-            $this->customer->refresh();
+        if (! $this->service->invoiceRegistrasi || ! $this->service->invoiceRegistrasi->invoice_number) {
+            $this->service->invoiceRegistrasi()->updateOrCreate(
+                ['service_id' => $this->service->id],
+                [
+                    'invoice_number' => \App\Services\DocumentNumberService::generateInvoiceNumber(),
+                    'invoice_generated_at' => now(),
+                ]
+            );
+            $this->service->refresh();
         }
 
         $this->showInvoicePreview = true;
@@ -75,16 +84,20 @@ class Show extends Component
 
     public function markAsFree()
     {
-        $this->customer->update([
+        $this->service->update([
             'registration_fee' => 0,
-            'status' => 'pembayaran_disetujui'
         ]);
 
-        broadcast(new CustomerUpdated());
+        $this->customer->update([
+            'status' => 'pembayaran_disetujui',
+        ]);
 
+        broadcast(new CustomerUpdated);
+
+        $this->service->refresh();
         $this->customer->refresh();
         $this->calculateTotals();
-        
+
         $this->dispatch('notify', type: 'success', message: 'Biaya registrasi berhasil digratiskan. Layanan otomatis diteruskan ke tim NOC untuk proses instalasi.');
     }
 

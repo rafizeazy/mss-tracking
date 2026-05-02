@@ -63,7 +63,7 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 md:gap-5">
         
         <div class="boron-card rounded-xl sm:rounded-lg">
             <div class="boron-card-body p-5 md:p-6">
@@ -122,20 +122,55 @@
             </div>
         </div>
 
-        <div class="boron-card bg-[#1e5d87] border-[#1e5d87] text-white rounded-xl sm:rounded-lg overflow-hidden relative">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 size-24 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
-            <div class="boron-card-body p-5 md:p-6 relative z-10">
+        <div class="boron-card rounded-xl sm:rounded-lg">
+            <div class="boron-card-body p-5 md:p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="mb-1 text-[11px] md:text-[10px] font-semibold text-white/70 uppercase">Keseluruhan Aktif</p>
-                        <h3 class="text-2xl md:text-3xl font-black text-white">{{ $stats['total_all']['total'] }}</h3>
+                        <p class="mb-1 text-[11px] md:text-[10px] font-semibold text-[#8a969c] uppercase">Pelanggan Berhenti</p>
+                        <h3 class="text-2xl md:text-3xl font-bold text-[#313a46] dark:text-white">{{ $stats['berhenti']['total'] ?? 0 }}</h3>
                     </div>
-                    <span class="flex size-10 items-center justify-center rounded-full bg-white/20 shrink-0">
-                        <i class="ti ti-server text-lg text-white"></i>
+                    <span class="flex size-10 items-center justify-center rounded-full bg-[#ed6060]/20 shrink-0">
+                        <i class="ti ti-hand-stop text-lg text-[#ed6060]"></i>
                     </span>
                 </div>
-                <div class="mt-4 flex items-center gap-1.5 border-t border-dashed border-white/20 pt-3">
-                    <span class="text-[10px] text-white/80 flex items-center"><i class="ti ti-circle-check text-[#70bb63] mr-1 text-sm"></i> Data real-time sistem</span>
+                <div class="mt-4 flex items-center gap-1.5 border-t border-dashed border-[#e7e9eb] dark:border-[#37394d] pt-3">
+                    <i class="ti {{ ($stats['berhenti']['change']['up'] ?? false) ? 'ti-trending-up text-[#ed6060]' : 'ti-trending-down text-[#70bb63]' }} text-sm"></i>
+                    <span class="text-xs font-bold {{ ($stats['berhenti']['change']['up'] ?? false) ? 'text-[#ed6060]' : 'text-[#70bb63]' }}">{{ $stats['berhenti']['change']['val'] ?? 0 }}%</span>
+                    <span class="text-[10px] text-[#8a969c] ml-1">{{ $comparisonLabel }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="boron-card bg-white border border-[#e7e9eb] dark:border-[#37394d] dark:bg-[#1e1f27] rounded-xl sm:rounded-lg overflow-hidden relative" x-data="{
+            time: '',
+            date: '',
+            updateTime() {
+                const now = new Date();
+                
+                let hours = now.getHours();
+                let minutes = now.getMinutes().toString().padStart(2, '0');
+                let seconds = now.getSeconds().toString().padStart(2, '0');
+                let ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                hours = hours.toString().padStart(2, '0');
+                
+                this.time = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+                const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                this.date = `${hari[now.getDay()]}, ${now.getDate()} ${bulan[now.getMonth()]} ${now.getFullYear()}`;
+            }
+        }" x-init="updateTime(); setInterval(() => updateTime(), 1000)">
+            <div class="boron-card-body p-5 md:p-6 flex flex-col h-full justify-between items-center text-center">
+                <div class="w-full">
+                    <p class="mb-1 text-[11px] md:text-[10px] font-semibold text-[#8a969c] uppercase">Waktu Saat Ini</p>
+                    <h3 class="text-2xl md:text-3xl font-black text-[#1e5d87] dark:text-[#60addf]" x-text="time"></h3>
+                </div>
+                <div class="mt-auto w-full pt-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f8f9fa] dark:bg-white/5 text-[10px] font-bold text-[#8a969c] border border-[#e7e9eb] dark:border-[#37394d]">
+                        <i class="ti ti-calendar text-xs"></i> <span x-text="date"></span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -158,7 +193,8 @@
                     let options = {
                         series: [
                             { name: 'Registrasi Baru', data: [] },
-                            { name: 'Berhasil Aktif', data: [] }
+                            { name: 'Berhasil Aktif', data: [] },
+                            { name: 'Berhenti', data: [] }
                         ],
                         chart: { 
                             type: 'area', 
@@ -167,7 +203,7 @@
                             fontFamily: 'inherit',
                             parentHeightOffset: 0
                         },
-                        colors: ['#60addf', '#70bb63'],
+                        colors: ['#60addf', '#70bb63', '#ed6060'],
                         fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } },
                         dataLabels: { enabled: false },
                         stroke: { curve: 'smooth', width: 2 },
@@ -180,7 +216,6 @@
                         grid: { borderColor: '#e7e9eb', strokeDashArray: 4, padding: { left: 10, right: 10 } }
                     };
 
-                    // Penyesuaian konfigurasi chart untuk layar kecil
                     if(window.innerWidth < 640) {
                         options.xaxis.labels.rotate = -90;
                         options.stroke.width = 2;
@@ -195,14 +230,16 @@
                         let data = JSON.parse(value);
                         this.chart.updateSeries([
                             { name: 'Registrasi Baru', data: data.pendaftar },
-                            { name: 'Berhasil Aktif', data: data.aktif }
+                            { name: 'Berhasil Aktif', data: data.aktif },
+                            { name: 'Berhenti', data: data.berhenti || [] }
                         ]);
                     });
 
                     let initialData = JSON.parse(this.$wire.chartData);
                     this.chart.updateSeries([
                         { name: 'Registrasi Baru', data: initialData.pendaftar },
-                        { name: 'Berhasil Aktif', data: initialData.aktif }
+                        { name: 'Berhasil Aktif', data: initialData.aktif },
+                        { name: 'Berhenti', data: initialData.berhenti || [] }
                     ]);
                 }
             }" class="w-full relative">

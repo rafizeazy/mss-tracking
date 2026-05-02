@@ -240,7 +240,7 @@
                     </div>
                 </header>
 
-                <div class="flex-1 px-4 sm:px-6 w-full">
+                <div class="flex-1 px-4 sm:px-6 w-full max-w-full overflow-x-hidden">
                     {{ $slot }}
                 </div>
 
@@ -373,7 +373,7 @@
         >
             <div
                 x-show="show"
-                class="fixed inset-0 z-9998 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
                 x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100"
@@ -382,7 +382,7 @@
                 x-transition:leave-end="opacity-0"
             >
                 <div
-                    class="mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-2xl dark:bg-[#1e1e2a]"
+                    class="w-full max-w-sm rounded-[0.5rem] bg-white p-6 shadow-2xl dark:bg-[#1e1e2a]"
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 scale-90"
                     x-transition:enter-end="opacity-100 scale-100"
@@ -395,9 +395,9 @@
                         <h5 class="font-semibold text-[#313a46] dark:text-white">Konfirmasi Aksi</h5>
                     </div>
                     <p x-text="message" class="mb-6 text-sm leading-relaxed text-[#4c4c5c] dark:text-[#aab8c5]"></p>
-                    <div class="flex justify-end gap-3">
-                        <button @click="cancel()" x-text="cancelText" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-zinc-100 dark:border-[#37394d] dark:text-white dark:hover:bg-white/5"></button>
-                        <button @click="confirm()" x-text="confirmText" class="btn-boron btn-boron-primary px-4 py-2 text-sm shadow-md shadow-[#669776]/30"></button>
+                    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                        <button @click="cancel()" x-text="cancelText" class="w-full sm:w-auto btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-[#f6f7fb] dark:border-[#37394d] dark:text-white dark:hover:bg-white/5"></button>
+                        <button @click="confirm()" x-text="confirmText" class="w-full sm:w-auto btn-boron btn-boron-primary px-4 py-2 text-sm shadow-md shadow-[#669776]/30"></button>
                     </div>
                 </div>
             </div>

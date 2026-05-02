@@ -5,33 +5,55 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Customer extends Model
 {
     protected $guarded = ['id'];
-
-    protected function casts(): array
-    {
-        return [
-            'invoice_generated_at' => 'datetime',
-            'monthly_fee' => 'decimal:2',
-            'registration_fee' => 'decimal:2',
-            'term_of_service' => 'integer',
-        ];
-    }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function spk(): HasOne
+    public function service(): HasOne
     {
-        return $this->hasOne(Spk::class);
+        return $this->hasOne(CustomerService::class);
+    }
+
+    public function spk(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Spk::class,
+            CustomerService::class,
+            'customer_id',
+            'service_id',
+            'id',
+            'id'
+        );
     }
     
-    public function baa(): HasOne
+    public function baa(): HasOneThrough
     {
-        return $this->hasOne(Baa::class);
+        return $this->hasOneThrough(
+            Baa::class,
+            CustomerService::class,
+            'customer_id',
+            'service_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function invoiceRegistrasi(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            InvoiceRegistrasi::class,
+            CustomerService::class,
+            'customer_id',
+            'service_id',
+            'id',
+            'id'
+        );
     }
 }

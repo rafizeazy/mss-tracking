@@ -2,17 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Spk extends Model
+class InvoiceRegistrasi extends Model
 {
-    use HasFactory;
-
-    protected $table = 'spk';
-
+    protected $table = 'invoice_registrasi'; 
+    
     protected $guarded = ['id'];
 
     public function service(): BelongsTo
@@ -20,8 +16,10 @@ class Spk extends Model
         return $this->belongsTo(CustomerService::class, 'service_id');
     }
 
-    public function baa(): HasOne
+    protected function casts(): array
     {
-        return $this->hasOne(Baa::class, 'spk_id');
+        return [
+            'invoice_generated_at' => 'datetime',
+        ];
     }
 }

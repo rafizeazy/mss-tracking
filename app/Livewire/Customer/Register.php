@@ -5,8 +5,8 @@ namespace App\Livewire\Customer;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -19,48 +19,75 @@ class Register extends Component
     use WithFileUploads;
 
     public int $currentStep = 1;
+
     public int $totalSteps = 4;
 
     public $provinces = [];
+
     public $cities = [];
+
     public string $province_id = '';
+
     public string $city_id = '';
 
     public string $name = '';
+
     public string $email = '';
+
     public string $ktp_number = '';
+
     public string $gender = '';
+
     public string $position = '';
+
     public string $phone = '';
 
     public string $company_name = '';
+
     public string $business_type = '';
+
     public string $npwp_number = '';
+
     public string $company_address = '';
+
     public string $postal_code = '';
+
     public string $company_phone = '';
 
     public string $finance_name = '';
+
     public string $finance_email = '';
+
     public string $billing_address = '';
+
     public string $finance_phone = '';
 
     public string $technical_name = '';
+
     public string $technical_email = '';
+
     public string $installation_address = '';
+
     public string $technical_phone = '';
 
-    public string $service_type = 'Internet Dedicated 1:1'; 
+    public string $service_type = 'Internet Dedicated 1:1';
+
     public string $bandwidth = '';
+
     public string $term_of_service = '1';
 
     public $ktp_file;
+
     public $npwp_file;
+
     public $nib_file;
+
     public $certificate_file;
 
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public bool $accepted_terms = false;
 
     public function mount(): void
@@ -118,12 +145,13 @@ class Register extends Component
                 'finance_phone' => 'required|string|max:20',
                 'technical_name' => 'required|string|max:255',
                 'technical_email' => 'required|email|max:255',
-                'installation_address' => 'required|string',
                 'technical_phone' => 'required|string|max:20',
             ],
             4 => [
+                'service_type' => 'required|string|max:255',
                 'bandwidth' => 'required|string|max:255',
                 'term_of_service' => 'required|integer|in:1,2,3',
+                'installation_address' => 'required|string',
                 'ktp_file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
                 'npwp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
                 'nib_file' => 'nullable|mimes:pdf|max:2048',
@@ -162,12 +190,13 @@ class Register extends Component
                 'technical_name.required' => 'Nama PIC Teknis wajib diisi.',
                 'technical_email.required' => 'Email PIC Teknis wajib diisi.',
                 'technical_email.email' => 'Format email teknis tidak valid.',
-                'installation_address.required' => 'Alamat Instalasi wajib diisi.',
                 'technical_phone.required' => 'Nomor handphone teknis wajib diisi.',
             ],
             4 => [
+                'service_type.required' => 'Jenis layanan wajib dipilih.',
                 'bandwidth.required' => 'Kapasitas Bandwidth wajib dipilih.',
                 'term_of_service.required' => 'Jangka waktu berlangganan wajib dipilih.',
+                'installation_address.required' => 'Alamat Instalasi wajib diisi.',
                 'ktp_file.required' => 'File dokumen KTP wajib diunggah.',
                 'password.required' => 'Password wajib diisi.',
                 'password.min' => 'Password minimal 8 karakter.',
@@ -209,56 +238,61 @@ class Register extends Component
         $nibPath = $this->nib_file ? $this->nib_file->store('documents/nib', 'public') : null;
         $certPath = $this->certificate_file ? $this->certificate_file->store('documents/certificate', 'public') : null;
 
-        $user = User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'role' => 'customer',
-            'email_verified_at' => now(),
-        ]);
-
         $namaProvinsi = DB::table('provinces')->where('id', $this->province_id)->value('name');
         $namaKota = DB::table('regencies')->where('id', $this->city_id)->value('name');
 
-        Customer::create([
-            'user_id' => $user->id,
-            'ktp_number' => $this->ktp_number,
-            'gender' => $this->gender,
-            'position' => $this->position,
-            'phone' => $this->phone,
-            
-            'company_name' => $this->company_name,
-            'business_type' => $this->business_type,
-            'npwp_number' => $this->npwp_number,
-            'company_address' => $this->company_address,
-            'city' => $namaKota,
-            'province' => $namaProvinsi,
-            'postal_code' => $this->postal_code,
-            'company_phone' => $this->company_phone,
-            
-            'finance_name' => $this->finance_name,
-            'finance_email' => $this->finance_email,
-            'billing_address' => $this->billing_address,
-            'finance_phone' => $this->finance_phone,
-            
-            'technical_name' => $this->technical_name,
-            'technical_email' => $this->technical_email,
-            'installation_address' => $this->installation_address,
-            'technical_phone' => $this->technical_phone,
-            
-            'service_type' => $this->service_type, 
-            'bandwidth' => $this->bandwidth,
-            'term_of_service' => (int) $this->term_of_service,
-            
-            'ktp_file_path' => $ktpPath,
-            'npwp_file_path' => $npwpPath,
-            'nib_file_path' => $nibPath,
-            'certificate_file_path' => $certPath,
-            
-            'status' => 'menunggu_verifikasi',
-        ]);
+        DB::transaction(function () use ($ktpPath, $npwpPath, $nibPath, $certPath, $namaProvinsi, $namaKota) {
 
-        Auth::login($user);
+            $user = User::create([
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'role' => 'customer',
+                'email_verified_at' => now(),
+            ]);
+
+            $customer = Customer::create([
+                'user_id' => $user->id,
+                'ktp_number' => $this->ktp_number,
+                'gender' => $this->gender,
+                'position' => $this->position,
+                'phone' => $this->phone,
+
+                'company_name' => $this->company_name,
+                'business_type' => $this->business_type,
+                'npwp_number' => $this->npwp_number,
+                'company_address' => $this->company_address,
+                'city' => $namaKota,
+                'province' => $namaProvinsi,
+                'postal_code' => $this->postal_code,
+                'company_phone' => $this->company_phone,
+
+                'finance_name' => $this->finance_name,
+                'finance_email' => $this->finance_email,
+                'billing_address' => $this->billing_address,
+                'finance_phone' => $this->finance_phone,
+
+                'technical_name' => $this->technical_name,
+                'technical_email' => $this->technical_email,
+                'technical_phone' => $this->technical_phone,
+
+                'ktp_file_path' => $ktpPath,
+                'npwp_file_path' => $npwpPath,
+                'nib_file_path' => $nibPath,
+                'certificate_file_path' => $certPath,
+
+                'status' => 'menunggu_verifikasi',
+            ]);
+
+            $customer->service()->create([
+                'service_type' => $this->service_type,
+                'bandwidth' => $this->bandwidth,
+                'term_of_service' => (int) $this->term_of_service,
+                'installation_address' => $this->installation_address,
+            ]);
+
+            Auth::login($user);
+        });
 
         $this->redirect(route('customer.dashboard'));
     }
