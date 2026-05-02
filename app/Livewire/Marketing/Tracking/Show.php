@@ -3,10 +3,12 @@
 namespace App\Livewire\Marketing\Tracking;
 
 use App\Events\CustomerUpdated;
+use App\Mail\StatusPelangganBerubah;
 use App\Models\Customer;
 use App\Models\CustomerService;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -20,38 +22,53 @@ class Show extends Component
     use WithFileUploads;
 
     public CustomerService $service;
+
     public Customer $customer;
 
     public $service_type;
-    public $bandwidth; 
+
+    public $bandwidth;
+
     public $monthly_fee;
+
     public $registration_fee;
+
     public $sla = '99.5%';
-    public $metro_link; 
+
+    public $metro_link;
+
     public $marketing_name;
+
     public $marketing_phone;
 
     public $job_type = 'Aktivasi Baru';
+
     public $customer_type = '';
+
     public $due_date;
+
     public $spk_notes = 'Tim NOC diminta untuk melakukan proses provisioning layanan sesuai detail di atas, termasuk konfigurasi perangkat jaringan, aktivasi layanan, serta memastikan konektivitas layanan berjalan dengan baik sebelum dilakukan serah terima kepada pelanggan.';
 
     public $isEditingCustomer = false;
+
     public $editData = [];
-    
+
     public $new_ktp_path;
+
     public $new_npwp_path;
+
     public $new_nib_path;
+
     public $new_certificate_path;
 
     public function mount($id)
     {
         $this->service = CustomerService::with(['customer.user', 'spk'])->findOrFail($id);
         $this->customer = $this->service->customer;
-        
+
         $this->service_type = $this->service->service_type ?? '';
-        $this->bandwidth = $this->service->bandwidth ?? ''; 
-        $this->metro_link = $this->service->metro_link ?? ''; 
+        $this->bandwidth = $this->service->bandwidth ?? '';
+        $this->metro_link = $this->service->metro_link ?? '';
         $this->marketing_name = auth()->user()->name;
 
         if ($this->service->spk) {
@@ -73,17 +90,16 @@ class Show extends Component
     {
         // Pastikan kita me-load seluruh relasi agar tidak null
         $this->service->loadMissing(['customer.user', 'customer.spk', 'customer.baa', 'customer.invoiceRegistrasi']);
-        
+
         $this->editData = [
-            // Tambahkan field yang sebelumnya terlewat
             'user_name' => $this->customer->user?->name ?? '',
             'user_email' => $this->customer->user?->email ?? '',
-            
+
             'ktp_number' => $this->customer->ktp_number ?? '',
             'gender' => $this->customer->gender ?? '',
             'position' => $this->customer->position ?? '',
             'phone' => $this->customer->phone ?? '',
-            
+
             'company_name' => $this->customer->company_name ?? '',
             'business_type' => $this->customer->business_type ?? '',
             'npwp_number' => $this->customer->npwp_number ?? '',
@@ -92,42 +108,39 @@ class Show extends Component
             'city' => $this->customer->city ?? '',
             'province' => $this->customer->province ?? '',
             'postal_code' => $this->customer->postal_code ?? '',
-            
-            // Tambahkan data ID Pelanggan dan dokumen
+
             'customer_number' => $this->customer->customer_number ?? '',
             'invoice_number' => $this->customer->invoiceRegistrasi?->invoice_number ?? '',
             'spk_number' => $this->customer->spk?->spk_number ?? '',
             'baa_number' => $this->customer->baa?->baa_number ?? '',
-            
+
             'finance_name' => $this->customer->finance_name ?? '',
-            'finance_email' => $this->customer->finance_email ?? '', 
+            'finance_email' => $this->customer->finance_email ?? '',
             'finance_phone' => $this->customer->finance_phone ?? '',
             'billing_address' => $this->customer->billing_address ?? '',
-            
+
             'technical_name' => $this->customer->technical_name ?? '',
-            'technical_email' => $this->customer->technical_email ?? '', 
+            'technical_email' => $this->customer->technical_email ?? '',
             'technical_phone' => $this->customer->technical_phone ?? '',
-            
+
             'installation_address' => $this->service->installation_address ?? $this->customer->installation_address ?? '',
             'service_type' => $this->service->service_type ?? '',
             'bandwidth' => $this->service->bandwidth ?? '',
             'term_of_service' => $this->service->term_of_service ?? '',
             'metro_link' => $this->service->metro_link ?? '',
-            
-            // Tambahkan field SLA
-            'sla' => $this->service->sla ?? '', 
-            
+
+            'sla' => $this->service->sla ?? '',
+
             'registration_fee' => (int) ($this->service->registration_fee ?? 0),
             'monthly_fee' => (int) ($this->service->monthly_fee ?? 0),
-            
-            // Tambahkan field SPK & BAA (Untuk Form Edit)
+
             'customer_type' => $this->customer->spk?->customer_type ?? '',
             'activation_date' => $this->customer->baa?->activation_date ? $this->customer->baa->activation_date->format('Y-m-d') : null,
-            
+
             'marketing_name' => $this->service->marketing_name ?? '',
             'marketing_phone' => $this->service->marketing_phone ?? '',
         ];
-        
+
         $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
         $this->isEditingCustomer = true;
     }
@@ -141,7 +154,7 @@ class Show extends Component
             'editData.gender' => 'nullable|in:L,P',
             'editData.position' => 'nullable|string',
             'editData.phone' => 'required|string|max:20',
-            
+
             'editData.company_name' => 'required|string|max:255',
             'editData.business_type' => 'nullable|string',
             'editData.npwp_number' => 'nullable|string',
@@ -150,96 +163,102 @@ class Show extends Component
             'editData.city' => 'nullable|string',
             'editData.province' => 'nullable|string',
             'editData.postal_code' => 'nullable|string',
-            
+
             'editData.customer_number' => 'nullable|string',
             'editData.customer_type' => 'nullable|string',
             'editData.activation_date' => 'nullable|date',
-            
+
             'editData.finance_name' => 'nullable|string|max:255',
-            'editData.finance_email' => 'nullable|email|max:255', 
+            'editData.finance_email' => 'nullable|email|max:255',
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
-            
+
             'editData.technical_name' => 'nullable|string|max:255',
-            'editData.technical_email' => 'nullable|email|max:255', 
+            'editData.technical_email' => 'nullable|email|max:255',
             'editData.technical_phone' => 'nullable|string|max:20',
-            
+
             'editData.installation_address' => 'nullable|string',
+
             'editData.service_type' => 'required|string',
-            'editData.bandwidth' => 'required|string', 
+            'editData.bandwidth' => 'required|string',
             'editData.term_of_service' => 'nullable|numeric',
             'editData.metro_link' => 'nullable|string',
             'editData.sla' => 'nullable|string', // Validasi SLA
-            
+
             'editData.registration_fee' => 'nullable|numeric',
             'editData.monthly_fee' => 'nullable|numeric',
             'editData.marketing_name' => 'nullable|string|max:255',
             'editData.marketing_phone' => 'nullable|string|max:20',
-            
-            'new_ktp_path' => 'nullable|file|max:5120',
-            'new_npwp_path' => 'nullable|file|max:5120',
-            'new_nib_path' => 'nullable|file|max:5120',
-            'new_certificate_path' => 'nullable|file|max:5120',
+            'new_ktp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'new_npwp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'new_nib_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'new_certificate_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         // 1. Simpan Pembaruan Nama User (Tabel Users)
         if (isset($this->editData['user_name']) && $this->customer->user) {
             $this->customer->user->update(['name' => $this->editData['user_name']]);
         }
-        
+
         // 2. Simpan Pembaruan Tipe Pelanggan (Tabel SPK)
         if (isset($this->editData['customer_type']) && $this->customer->spk) {
             $this->customer->spk->update(['customer_type' => $this->editData['customer_type']]);
         }
-        
+
         // 3. Simpan Pembaruan Tanggal Aktivasi (Tabel BAA)
-        if (!empty($this->editData['activation_date']) && $this->customer->baa) {
+        if (! empty($this->editData['activation_date']) && $this->customer->baa) {
             $this->customer->baa->update(['activation_date' => $this->editData['activation_date']]);
         }
 
         // 4. Pisahkan Data Khusus Tabel Customer Services (SLA ditambahkan ke sini)
         $serviceData = Arr::only($this->editData, [
             'service_type', 'bandwidth', 'term_of_service', 'metro_link', 'sla',
-            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone', 'installation_address'
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone', 'installation_address',
         ]);
 
         $serviceData['registration_fee'] = empty($serviceData['registration_fee']) ? 0 : $serviceData['registration_fee'];
-        $serviceData['monthly_fee']      = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
-        $serviceData['term_of_service']  = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
+        $serviceData['monthly_fee'] = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
+        $serviceData['term_of_service'] = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
 
         $this->service->update($serviceData);
 
         // 5. Pisahkan Data Tabel Customers, cegah error relasi ter-copy
         $updateData = Arr::except($this->editData, [
-            'user_name', 'user_email', 'invoice_number', 'spk_number', 'baa_number', // Field milik relasi, tidak masuk ke table customers
+            'user_name', 'user_email', 'invoice_number', 'spk_number', 'baa_number',
             'service_type', 'bandwidth', 'term_of_service', 'metro_link', 'sla',
             'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone', 'installation_address',
-            'customer_type', 'activation_date'
+            'customer_type', 'activation_date',
         ]);
-
-        $updateData['installation_address'] = $this->editData['installation_address'];
 
         // Proses Pembaruan Dokumen Pendukung
         if ($this->new_ktp_path) {
-            if ($this->customer->ktp_file_path) Storage::disk('public')->delete($this->customer->ktp_file_path);
+            if ($this->customer->ktp_file_path) {
+                Storage::disk('public')->delete($this->customer->ktp_file_path);
+            }
             $updateData['ktp_file_path'] = $this->new_ktp_path->store('customer_documents', 'public');
         }
         if ($this->new_npwp_path) {
-            if ($this->customer->npwp_file_path) Storage::disk('public')->delete($this->customer->npwp_file_path);
+            if ($this->customer->npwp_file_path) {
+                Storage::disk('public')->delete($this->customer->npwp_file_path);
+            }
             $updateData['npwp_file_path'] = $this->new_npwp_path->store('customer_documents', 'public');
         }
         if ($this->new_nib_path) {
-            if ($this->customer->nib_file_path) Storage::disk('public')->delete($this->customer->nib_file_path);
+            if ($this->customer->nib_file_path) {
+                Storage::disk('public')->delete($this->customer->nib_file_path);
+            }
             $updateData['nib_file_path'] = $this->new_nib_path->store('customer_documents', 'public');
         }
         if ($this->new_certificate_path) {
-            if ($this->customer->certificate_file_path) Storage::disk('public')->delete($this->customer->certificate_file_path);
+            if ($this->customer->certificate_file_path) {
+                Storage::disk('public')->delete($this->customer->certificate_file_path);
+            }
             $updateData['certificate_file_path'] = $this->new_certificate_path->store('customer_documents', 'public');
         }
 
         $this->customer->update($updateData);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->customer->refresh();
         $this->service->refresh();
 
@@ -258,31 +277,34 @@ class Show extends Component
     {
         $this->validate([
             'service_type' => 'required|string|max:255',
-            'bandwidth' => 'required|string|max:255', 
+            'bandwidth' => 'required|string|max:255',
             'monthly_fee' => 'required|numeric|min:0',
             'registration_fee' => 'required|numeric|min:0',
             'sla' => 'required|string|max:50',
-            'metro_link' => 'required|string|max:255', 
+            'metro_link' => 'required|string|max:255',
             'marketing_name' => 'required|string|max:255',
             'marketing_phone' => 'required|string|max:20',
         ]);
 
         $this->service->update([
             'service_type' => $this->service_type,
-            'bandwidth' => $this->bandwidth, 
+            'bandwidth' => $this->bandwidth,
             'monthly_fee' => $this->monthly_fee,
             'registration_fee' => $this->registration_fee,
             'sla' => $this->sla,
-            'metro_link' => $this->metro_link, 
+            'metro_link' => $this->metro_link,
             'marketing_name' => $this->marketing_name,
             'marketing_phone' => $this->marketing_phone,
         ]);
 
         $this->customer->update([
-            'status' => 'menunggu_invoice'
+            'status' => 'menunggu_invoice',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
+
+        Mail::to($this->customer->user->email)
+            ->queue(new StatusPelangganBerubah($this->customer, 'menunggu_invoice'));
 
         $this->dispatch('notify', type: 'success', message: 'Data registrasi disetujui. Tagihan otomatis diteruskan ke Finance.');
     }
@@ -290,10 +312,10 @@ class Show extends Component
     public function reject()
     {
         $this->customer->update([
-            'status' => 'ditolak'
+            'status' => 'ditolak',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'error', message: 'Data registrasi pendaftar telah ditolak.');
     }
 
@@ -321,22 +343,27 @@ class Show extends Component
 
         $this->service->refresh();
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'success', message: 'Data SPK berhasil disimpan. Anda dapat mengecek PDF SPK sekarang.');
     }
 
     public function sendToNoc()
     {
-        if (!$this->service->spk) {
+        if (! $this->service->spk) {
             $this->dispatch('notify', type: 'error', message: 'Harap simpan data SPK terlebih dahulu sebelum mengirim ke NOC.');
+
             return;
         }
 
         $this->customer->update([
-            'status' => 'proses_instalasi'
+            'status' => 'proses_instalasi',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
+
+        Mail::to($this->customer->user->email)
+            ->queue(new StatusPelangganBerubah($this->customer, 'proses_instalasi'));
+
         $this->dispatch('notify', type: 'success', message: 'SPK berhasil dikirim! Status layanan kini berada di tangan tim NOC.');
     }
 
@@ -344,7 +371,11 @@ class Show extends Component
     {
         $this->customer->update(['status' => 'selesai']);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
+
+        Mail::to($this->customer->user->email)
+            ->queue(new StatusPelangganBerubah($this->customer, 'selesai'));
+
         $this->dispatch('notify', type: 'success', message: 'BAA disetujui! Layanan pelanggan telah resmi selesai dan aktif sepenuhnya.');
     }
 
@@ -353,21 +384,22 @@ class Show extends Component
         if ($this->service->baa) {
             $this->service->baa->update(['signed_baa_path' => null]);
         }
-        
+
         $this->customer->update(['status' => 'menunggu_baa']);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'error', message: 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
     }
 
     public function cancelRegistration()
     {
         $this->customer->update([
-            'status' => 'dibatalkan'
+            'status' => 'dibatalkan',
         ]);
 
-        broadcast(new CustomerUpdated());
+        broadcast(new CustomerUpdated);
         session()->flash('success', 'Pengajuan berhasil dibatalkan dan dihapus dari antrean.');
+
         return $this->redirect(route('marketing.tracking.index'), navigate: true);
     }
 

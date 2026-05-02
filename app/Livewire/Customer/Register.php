@@ -5,8 +5,8 @@ namespace App\Livewire\Customer;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -19,66 +19,101 @@ class Register extends Component
     use WithFileUploads;
 
     public int $currentStep = 1;
+
     public int $totalSteps = 4;
 
     public $provinces = [];
+
     public $cities = [];
+
     public string $province_id = '';
+
     public string $city_id = '';
 
     public string $name = '';
+
     public string $email = '';
+
     public string $ktp_number = '';
+
     public string $gender = '';
+
     public string $position = '';
+
     public string $phone = '';
 
     public string $company_name = '';
+
     public string $business_type = '';
+
     public string $npwp_number = '';
+
     public string $company_address = '';
+
     public string $postal_code = '';
+
     public string $company_phone = '';
 
     public string $finance_name = '';
+
     public string $finance_email = '';
+
     public string $billing_address = '';
+
     public string $finance_phone = '';
 
     public string $technical_name = '';
+
     public string $technical_email = '';
+
     public string $installation_address = '';
+
     public string $technical_phone = '';
 
-    public string $service_type = 'Internet Dedicated 1:1'; 
+    public string $service_type = 'Internet Dedicated 1:1';
+
     public string $bandwidth = '';
+
     public string $term_of_service = '1';
 
     public $ktp_file;
+
     public $npwp_file;
+
     public $nib_file;
+
     public $certificate_file;
 
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public bool $accepted_terms = false;
 
-    public function mount()
+    public function mount(): void
     {
-        $this->provinces = DB::table('provinces')->orderBy('name', 'asc')->get();
+        try {
+            $this->provinces = DB::table('provinces')->orderBy('name', 'asc')->get();
+        } catch (\Exception $e) {
+            $this->provinces = collect();
+        }
     }
 
-    public function updatedProvinceId($value)
+    public function updatedProvinceId(string $value): void
     {
-        if (!empty($value)) {
-            $this->cities = DB::table('regencies')
-                ->where('province_id', $value)
-                ->orderBy('name', 'asc')
-                ->get();
+        if (! empty($value)) {
+            try {
+                $this->cities = DB::table('regencies')
+                    ->where('province_id', $value)
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } catch (\Exception $e) {
+                $this->cities = collect();
+            }
         } else {
-            $this->cities = [];
+            $this->cities = collect();
         }
-        
+
         $this->city_id = '';
     }
 
@@ -207,22 +242,22 @@ class Register extends Component
         $namaKota = DB::table('regencies')->where('id', $this->city_id)->value('name');
 
         DB::transaction(function () use ($ktpPath, $npwpPath, $nibPath, $certPath, $namaProvinsi, $namaKota) {
-            
+
             $user = User::create([
                 'name' => $this->name,
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
-                'role' => 'customer', 
+                'role' => 'customer',
                 'email_verified_at' => now(),
             ]);
-            
+
             $customer = Customer::create([
                 'user_id' => $user->id,
                 'ktp_number' => $this->ktp_number,
                 'gender' => $this->gender,
                 'position' => $this->position,
                 'phone' => $this->phone,
-                
+
                 'company_name' => $this->company_name,
                 'business_type' => $this->business_type,
                 'npwp_number' => $this->npwp_number,
@@ -231,27 +266,26 @@ class Register extends Component
                 'province' => $namaProvinsi,
                 'postal_code' => $this->postal_code,
                 'company_phone' => $this->company_phone,
-                
+
                 'finance_name' => $this->finance_name,
                 'finance_email' => $this->finance_email,
                 'billing_address' => $this->billing_address,
                 'finance_phone' => $this->finance_phone,
-                
+
                 'technical_name' => $this->technical_name,
                 'technical_email' => $this->technical_email,
-                'installation_address' => $this->installation_address,
                 'technical_phone' => $this->technical_phone,
-                
+
                 'ktp_file_path' => $ktpPath,
                 'npwp_file_path' => $npwpPath,
                 'nib_file_path' => $nibPath,
                 'certificate_file_path' => $certPath,
-                
+
                 'status' => 'menunggu_verifikasi',
             ]);
 
             $customer->service()->create([
-                'service_type' => $this->service_type, 
+                'service_type' => $this->service_type,
                 'bandwidth' => $this->bandwidth,
                 'term_of_service' => (int) $this->term_of_service,
                 'installation_address' => $this->installation_address,

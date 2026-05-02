@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
@@ -13,10 +12,10 @@ class InvoiceController extends Controller
     {
         $service = CustomerService::with(['customer.user', 'invoiceRegistrasi'])->findOrFail($id);
         $customer = $service->customer;
-        
+
         $user = auth()->user();
         $isCustomer = false;
-        
+
         if ($user->role instanceof \App\Enums\Role) {
             $isCustomer = $user->role === \App\Enums\Role::Customer;
         } else {
@@ -39,21 +38,21 @@ class InvoiceController extends Controller
         $service = CustomerService::with(['customer.user', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
         $customer = $service->customer;
 
-        if (!$service->baa) {
+        if (! $service->baa) {
             abort(404, 'BAA belum tersedia, Invoice belum dapat dicetak.');
         }
-        
+
         $activationDate = Carbon::parse($service->baa->activation_date);
         $trialEndDate = $activationDate->copy()->addDays(7);
         $prorateStartDate = $trialEndDate->copy()->addDay();
         $endOfMonth = $prorateStartDate->copy()->endOfMonth();
-        
+
         $daysInMonth = $prorateStartDate->daysInMonth;
         $billableDays = $prorateStartDate->diffInDays($endOfMonth) + 1;
 
         $monthlyFee = $service->monthly_fee ?? 0;
         $prorateAmount = ($monthlyFee / $daysInMonth) * $billableDays;
-        
+
         $ppn = $prorateAmount * 0.11;
         $grandTotal = $prorateAmount + $ppn;
 
@@ -69,16 +68,19 @@ class InvoiceController extends Controller
             'ppn' => $ppn,
             'grand_total' => $grandTotal,
         ];
-        
+
         $pdf = Pdf::loadView('pdf.invoice-cetak', [
             'service' => $service,
             'customer' => $customer,
-            'invoiceData' => $invoiceData
+            'subtotal' => $prorateAmount,
+            'ppn' => $ppn,
+            'grandTotal' => $grandTotal,
+            'invoiceData' => $invoiceData,
         ]);
 
         $invoiceNumber = $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
-        $namaFile = 'INV-' . str_replace('/', '-', $invoiceNumber) . '.pdf';
-        
+        $namaFile = 'INV-'.str_replace('/', '-', $invoiceNumber).'.pdf';
+
         return $pdf->stream($namaFile);
     }
 }

@@ -15,14 +15,14 @@ class FormController extends Controller
 
         $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
             'service' => $service,
-            'customer' => $customer
+            'customer' => $customer,
         ]);
 
         $pdf->setPaper('A4', 'portrait');
 
-        $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->user->name;
-        $fileName = 'FORMULIR-BERLANGGANAN-' . strtoupper(Str::slug($namaPerusahaanAtauOrang)) . '.pdf';
+        $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->user?->name;
+        $fileName = 'FORMULIR-BERLANGGANAN-'.strtoupper(Str::slug($namaPerusahaanAtauOrang)).'.pdf';
 
-        return $pdf->stream($fileName);
+        return $pdf->download($fileName);
     }
 }

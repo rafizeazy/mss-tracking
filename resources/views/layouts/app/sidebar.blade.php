@@ -33,14 +33,14 @@
                 @mouseenter="sidebarHovered = true"
                 @mouseleave="sidebarHovered = false"
             >
-                <div class="flex h-[70px] items-center border-b border-[#343a40] px-0 dark:border-[#37394d] sidebar-logo">
+                <div class="flex h-[70px] items-center border-b border-zinc-800 px-0 dark:border-[#37394d] sidebar-logo">
                     <a href="{{ auth()->user()->role === \App\Enums\Role::Customer ? route('customer.dashboard') : route('dashboard') }}" class="flex items-center gap-2.5 w-full" wire:navigate>
                         <span class="sidebar-icon-center shrink-0 flex items-center justify-center">
                             <x-app-logo-icon class="size-5 fill-current text-white" />
                         </span>
                         <span class="text-base font-semibold text-white sidebar-label whitespace-nowrap">{{ config('app.name', 'MSS') }}</span>
                     </a>
-                    <button @click="sidebarMobileOpen = false" class="ml-auto p-1 text-[#8a969c] hover:text-white lg:hidden">
+                    <button @click="sidebarMobileOpen = false" class="ml-auto p-1 text-zinc-600hover:text-white lg:hidden">
                         <i class="ti ti-x text-lg"></i>
                     </button>
                 </div>
@@ -152,14 +152,14 @@
                     </a>
                 </nav>
 
-                <div class="border-t border-[#343a40] p-4 dark:border-[#37394d]">
+                <div class="border-t border-zinc-800 p-4 dark:border-[#37394d]">
                     <div class="flex items-center gap-3">
                         <span class="sidebar-icon-center shrink-0 flex size-8 items-center justify-center rounded-full bg-[#669776]/20 text-xs font-bold text-[#669776]">
                             {{ auth()->user()->initials() }}
                         </span>
                         <div class="flex-1 truncate sidebar-label">
                             <p class="truncate text-sm font-medium text-white">{{ auth()->user()->name }}</p>
-                            <p class="truncate text-[11px] text-[#8a969c]">{{ auth()->user()->role->label() }}</p>
+                            <p class="truncate text-[11px] text-zinc-600">{{ auth()->user()->role->label() }}</p>
                         </div>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
 
                     <div class="hidden flex-1 sm:block sm:max-w-xs" x-data>
                         <div class="relative">
-                            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a9b1]"></i>
+                            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"></i>
                             <input type="text" 
                                 @input.debounce.500ms="$dispatch('trigger-search', { query: $event.target.value })"
                                 placeholder="Cari di halaman ini..."
@@ -202,7 +202,7 @@
                                     {{ auth()->user()->initials() }}
                                 </span>
                                 <span class="hidden font-medium sm:inline dark:text-[#aab8c5]">{{ Str::words(auth()->user()->name, 2, '') }}</span>
-                                <i class="ti ti-chevron-down text-xs text-[#a1a9b1]" :class="open ? 'rotate-180' : ''" style="transition: transform 0.2s;"></i>
+                                <i class="ti ti-chevron-down text-xs text-zinc-500" :class="open ? 'rotate-180' : ''" style="transition: transform 0.2s;"></i>
                             </button>
 
                             <div x-show="open" @click.away="open = false"
@@ -216,17 +216,17 @@
                                 class="absolute right-0 mt-2 w-52 origin-top-right rounded-[0.3rem] border border-[#dee2e6] bg-white py-1 shadow-lg dark:border-[#37394d] dark:bg-[#1e1f27]"
                                 style="box-shadow: 5px 7px 0 #6c757d;"
                             >
-                                <div class="border-b border-dashed border-[#e7e9eb] px-4 py-3 dark:border-[#37394d]">
+                                <div class="border-b border-dashed border-zinc-300 px-4 py-3 dark:border-[#37394d]">
                                     <p class="text-sm font-semibold text-[#313a46] dark:text-white">{{ auth()->user()->name }}</p>
-                                    <p class="text-xs text-[#8a969c]">{{ auth()->user()->email }}</p>
+                                    <p class="text-xs text-zinc-600">{{ auth()->user()->email }}</p>
                                 </div>
 
-                                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center gap-2 px-4 py-2 text-sm text-[#4c4c5c] hover:bg-[#f6f7fb] dark:text-[#aab8c5] dark:hover:bg-white/5">
+                                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center gap-2 px-4 py-2 text-sm text-[#4c4c5c] hover:bg-zinc-100 dark:text-[#aab8c5] dark:hover:bg-white/5">
                                     <i class="ti ti-settings text-base"></i>
                                     {{ __('Settings') }}
                                 </a>
 
-                                <div class="border-t border-dashed border-[#e7e9eb] dark:border-[#37394d]">
+                                <div class="border-t border-dashed border-zinc-300 dark:border-[#37394d]">
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-sm text-[#ed6060] hover:bg-[#ed6060]/5" data-test="logout-button">
@@ -283,7 +283,7 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
-                class="fixed inset-0 z-[9990] bg-black/40 backdrop-blur-sm"
+                class="fixed inset-0 z-9990 bg-black/40 backdrop-blur-sm"
                 @click="close()"
             ></div>
 
@@ -295,7 +295,7 @@
                 x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-90"
-                class="fixed inset-0 z-[9991] flex items-center justify-center pointer-events-none"
+                class="fixed inset-0 z-9991 flex items-center justify-center pointer-events-none"
                 aria-live="polite"
             >
                 <div class="pointer-events-auto mx-4 w-full max-w-sm rounded-xl bg-white shadow-2xl dark:bg-[#1e1e2a] overflow-hidden">
@@ -326,7 +326,7 @@
                                 <template x-if="toast?.type === 'info'"><i class="ti ti-info-circle"></i></template>
                                 <template x-if="toast?.type === 'warning'"><i class="ti ti-alert-triangle"></i></template>
                             </div>
-                            <button @click="close()" class="text-[#a1a9b1] hover:text-[#313a46] dark:hover:text-white transition-colors mt-0.5">
+                            <button @click="close()" class="text-zinc-500 hover:text-[#313a46] dark:hover:text-white transition-colors mt-0.5">
                                 <i class="ti ti-x text-lg"></i>
                             </button>
                         </div>
@@ -422,12 +422,12 @@
 
             @if(session('success'))
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'success', title: 'Berhasil', message: "{{ session('success') }}", duration: 5000 }
+                    detail: { type: 'success', title: 'Berhasil', message: @json(session('success')), duration: 5000 }
                 }));
             @endif
             @if(session('error'))
                 window.dispatchEvent(new CustomEvent('toast', {
-                    detail: { type: 'error', title: 'Gagal', message: "{{ session('error') }}", duration: 5000 }
+                    detail: { type: 'error', title: 'Gagal', message: @json(session('error')), duration: 5000 }
                 }));
             @endif
         </script>

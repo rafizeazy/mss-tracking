@@ -1,38 +1,44 @@
 <?php
 
-namespace App\Livewire\Marketing\Datapelanggan;
+namespace App\Livewire\Marketing\DataPelanggan;
 
-use App\Models\Customer;
-use App\Models\CustomerService;
 use App\Events\CustomerUpdated;
-use Illuminate\Support\Arr;
+use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 #[Title('Marketing - Data Pelanggan Aktif')]
 #[Layout('layouts.app')]
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     public $search = '';
 
     public $showModal = false;
+
     public $selectedService = null;
 
     public $isEditingCustomer = false;
+
     public $editData = [];
-    
+
+    public $editingCustomerId = null;
+
     public $new_ktp_path;
+
     public $new_npwp_path;
+
     public $new_nib_path;
+
     public $new_certificate_path;
 
     public $showArsipModal = false;
+
     public $serviceForArsip = null;
 
     public $showBerhentiOnly = false;
@@ -72,9 +78,9 @@ class Index extends Component
     {
         $serviceToEdit = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
         $customerToEdit = $serviceToEdit->customer;
-        
+
         $this->selectedService = $serviceToEdit;
-        
+
         $this->editData = [
             'user_name' => $customerToEdit->user->name ?? '',
             'user_email' => $customerToEdit->user->email ?? '',
@@ -82,7 +88,7 @@ class Index extends Component
             'ktp_number' => $customerToEdit->ktp_number,
             'gender' => $customerToEdit->gender,
             'position' => $customerToEdit->position,
-            
+
             'bandwidth' => $serviceToEdit->bandwidth ?? '',
             'term_of_service' => $serviceToEdit->term_of_service ?? '',
             'service_type' => $serviceToEdit->service_type ?? '',
@@ -93,7 +99,7 @@ class Index extends Component
             'sla' => $serviceToEdit->sla ?? '',
             'registration_fee' => (int) ($serviceToEdit->registration_fee ?? 0),
             'monthly_fee' => (int) ($serviceToEdit->monthly_fee ?? 0),
-            
+
             'company_name' => $customerToEdit->company_name,
             'business_type' => $customerToEdit->business_type,
             'npwp_number' => $customerToEdit->npwp_number,
@@ -106,27 +112,30 @@ class Index extends Component
             'invoice_number' => $serviceToEdit->invoiceRegistrasi->invoice_number ?? '',
             'spk_number' => $serviceToEdit->spk->spk_number ?? '',
             'baa_number' => $serviceToEdit->baa->baa_number ?? '',
-            
+
             'finance_name' => $customerToEdit->finance_name,
-            'finance_email' => $customerToEdit->finance_email, 
+            'finance_email' => $customerToEdit->finance_email,
             'finance_phone' => $customerToEdit->finance_phone,
             'billing_address' => $customerToEdit->billing_address,
-            
+
             'technical_name' => $customerToEdit->technical_name,
-            'technical_email' => $customerToEdit->technical_email, 
+            'technical_email' => $customerToEdit->technical_email,
             'technical_phone' => $customerToEdit->technical_phone,
-            
+
             'marketing_name' => $serviceToEdit->marketing_name ?? '',
             'marketing_phone' => $serviceToEdit->marketing_phone ?? '',
         ];
-        
+
+        $this->editingCustomerId = $customerToEdit->id;
         $this->isEditingCustomer = true;
     }
 
     public function updateCustomer()
     {
-        if (!$this->selectedService && !$this->isEditingCustomer) return;
-        
+        if (! $this->selectedService && ! $this->isEditingCustomer) {
+            return;
+        }
+
         $serviceToUpdate = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])->find($this->selectedService->id);
         $customerToUpdate = $serviceToUpdate->customer;
         $userToUpdate = $customerToUpdate->user;
@@ -138,8 +147,8 @@ class Index extends Component
             'editData.ktp_number' => 'nullable|string',
             'editData.gender' => 'nullable|in:L,P',
             'editData.position' => 'nullable|string',
-            
-            'editData.bandwidth' => 'required|string', 
+
+            'editData.bandwidth' => 'required|string',
             'editData.term_of_service' => 'nullable|numeric',
             'editData.service_type' => 'required|string',
             'editData.installation_address' => 'nullable|string',
@@ -149,7 +158,7 @@ class Index extends Component
             'editData.sla' => 'nullable|string',
             'editData.registration_fee' => 'nullable|numeric',
             'editData.monthly_fee' => 'nullable|numeric',
-            
+
             'editData.company_name' => 'required|string|max:255',
             'editData.business_type' => 'nullable|string',
             'editData.npwp_number' => 'nullable|string',
@@ -160,19 +169,19 @@ class Index extends Component
             'editData.postal_code' => 'nullable|string',
             'editData.customer_number' => 'nullable|string',
             'editData.invoice_number' => 'nullable|string',
-            
+
             'editData.finance_name' => 'nullable|string|max:255',
-            'editData.finance_email' => 'nullable|email|max:255', 
+            'editData.finance_email' => 'nullable|email|max:255',
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
-            
+
             'editData.technical_name' => 'nullable|string|max:255',
-            'editData.technical_email' => 'nullable|email|max:255', 
+            'editData.technical_email' => 'nullable|email|max:255',
             'editData.technical_phone' => 'nullable|string|max:20',
-            
+
             'editData.marketing_name' => 'nullable|string|max:255',
             'editData.marketing_phone' => 'nullable|string|max:20',
-            
+
             'new_ktp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'new_npwp_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'new_nib_path' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -241,29 +250,30 @@ class Index extends Component
 
         if ($serviceToUpdate->spk) {
             $serviceToUpdate->spk->update([
-                'customer_type' => $this->editData['customer_type']
+                'customer_type' => $this->editData['customer_type'],
             ]);
         }
 
-        if ($serviceToUpdate->baa && !empty($this->editData['activation_date'])) {
+        if ($serviceToUpdate->baa && ! empty($this->editData['activation_date'])) {
             $serviceToUpdate->baa->update([
-                'activation_date' => $this->editData['activation_date']
+                'activation_date' => $this->editData['activation_date'],
             ]);
         }
 
         if ($serviceToUpdate->invoiceRegistrasi) {
             $serviceToUpdate->invoiceRegistrasi->update([
-                'invoice_number' => $this->editData['invoice_number']
+                'invoice_number' => $this->editData['invoice_number'],
             ]);
         }
 
-        if(class_exists(CustomerUpdated::class)) {
-            broadcast(new CustomerUpdated());
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
         }
-        
+
         $this->selectedService->refresh();
 
         $this->isEditingCustomer = false;
+        $this->editingCustomerId = null;
         $this->dispatch('notify', type: 'success', message: 'Arsip data pelanggan berhasil diperbarui!');
     }
 
@@ -278,8 +288,8 @@ class Index extends Component
         $service = CustomerService::with('customer')->findOrFail($id);
         $service->customer->update(['status' => 'berhenti']);
 
-        if(class_exists(CustomerUpdated::class)) {
-            broadcast(new CustomerUpdated());
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
         }
 
         $this->dispatch('notify', type: 'success', message: 'Status pelanggan berhasil diubah menjadi Berhenti.');
@@ -292,11 +302,11 @@ class Index extends Component
         $services = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])
             ->whereHas('customer', function ($query) use ($statusToFetch) {
                 $query->where('status', $statusToFetch);
-                
+
                 if ($this->search) {
-                    $query->where(function($q) {
-                        $q->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('customer_number', 'like', '%' . $this->search . '%');
+                    $query->where(function ($q) {
+                        $q->where('company_name', 'like', '%'.$this->search.'%')
+                            ->orWhere('customer_number', 'like', '%'.$this->search.'%');
                     });
                 }
             })
@@ -304,7 +314,7 @@ class Index extends Component
             ->paginate(10);
 
         return view('livewire.marketing.datapelanggan.index', [
-            'services' => $services
+            'services' => $services,
         ]);
     }
 }

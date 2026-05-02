@@ -11,7 +11,7 @@ class BaaController extends Controller
     {
         $service = CustomerService::with(['customer', 'baa', 'spk'])->findOrFail($id);
 
-        if (!$service->baa) {
+        if (! $service->baa) {
             abort(404, 'Berita Acara Aktivasi (BAA) belum diterbitkan untuk layanan ini.');
         }
 
@@ -19,13 +19,13 @@ class BaaController extends Controller
             'customer' => $service->customer,
             'service' => $service,
             'baa' => $service->baa,
-            'spk' => $service->spk
+            'spk' => $service->spk,
         ]);
-        
+
         $safeCompanyName = str_replace(['/', '\\'], '-', $service->customer->company_name);
         $safeBaaNumber = str_replace(['/', '\\'], '-', $service->baa->baa_number);
-        
-        $filename = 'BAA-' . $safeCompanyName . '-' . $safeBaaNumber . '.pdf';
+
+        $filename = 'BAA-'.$safeCompanyName.'-'.$safeBaaNumber.'.pdf';
 
         return $pdf->stream($filename);
     }

@@ -3,21 +3,24 @@
 namespace App\Livewire;
 
 use App\Models\CustomerService;
+use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Carbon\Carbon;
 
 #[Title('Dashboard MSS')]
 #[Layout('layouts.app')]
 class Dashboard extends Component
 {
     public $filterMonth;
+
     public $filterYear;
-    
+
     public $chartData = '{"pendaftar":[], "aktif":[]}';
+
     public $stats = [];
+
     public $comparisonLabel = 'vs Bulan Lalu';
 
     public function mount()
@@ -27,8 +30,15 @@ class Dashboard extends Component
         $this->loadDashboardData();
     }
 
-    public function updatedFilterMonth() { $this->loadDashboardData(); }
-    public function updatedFilterYear() { $this->loadDashboardData(); }
+    public function updatedFilterMonth()
+    {
+        $this->loadDashboardData();
+    }
+
+    public function updatedFilterYear()
+    {
+        $this->loadDashboardData();
+    }
 
     #[On('echo:mss-updates,CustomerUpdated')]
     public function refreshData()
@@ -65,7 +75,7 @@ class Dashboard extends Component
         $currAktif = CustomerService::whereHas('customer', function ($q) {
             $q->where('status', 'selesai');
         })->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
-        
+
         $prevAktif = CustomerService::whereHas('customer', function ($q) {
             $q->where('status', 'selesai');
         })->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
@@ -73,7 +83,7 @@ class Dashboard extends Component
         $currProses = CustomerService::whereHas('customer', function ($q) {
             $q->whereNotIn('status', ['selesai', 'ditolak', 'berhenti']);
         })->whereBetween('created_at', [$currentStart, $currentEnd])->count();
-        
+
         $prevProses = CustomerService::whereHas('customer', function ($q) {
             $q->whereNotIn('status', ['selesai', 'ditolak', 'berhenti']);
         })->whereBetween('created_at', [$prevStart, $prevEnd])->count();
@@ -81,7 +91,7 @@ class Dashboard extends Component
         $currBerhenti = CustomerService::whereHas('customer', function ($q) {
             $q->where('status', 'berhenti');
         })->whereBetween('updated_at', [$currentStart, $currentEnd])->count();
-        
+
         $prevBerhenti = CustomerService::whereHas('customer', function ($q) {
             $q->where('status', 'berhenti');
         })->whereBetween('updated_at', [$prevStart, $prevEnd])->count();
@@ -90,18 +100,21 @@ class Dashboard extends Component
             $q->where('status', 'selesai');
         })->count();
 
-        $calcChange = function($curr, $prev) {
-            if ($prev == 0) return ['val' => $curr > 0 ? 100 : 0, 'up' => true];
+        $calcChange = function ($curr, $prev) {
+            if ($prev == 0) {
+                return ['val' => $curr > 0 ? 100 : 0, 'up' => true];
+            }
             $diff = $curr - $prev;
+
             return ['val' => round(abs($diff / $prev) * 100, 1), 'up' => $diff >= 0];
         };
-        
+
         $this->stats = [
             'pendaftar' => ['total' => $currPendaftar, 'change' => $calcChange($currPendaftar, $prevPendaftar)],
-            'aktif'     => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
-            'proses'    => ['total' => $currProses, 'change' => $calcChange($currProses, $prevProses)],
-            'berhenti'  => ['total' => $currBerhenti, 'change' => $calcChange($currBerhenti, $prevBerhenti)],
-            'total_all' => ['total' => $totalKeseluruhan]
+            'aktif' => ['total' => $currAktif, 'change' => $calcChange($currAktif, $prevAktif)],
+            'proses' => ['total' => $currProses, 'change' => $calcChange($currProses, $prevProses)],
+            'berhenti' => ['total' => $currBerhenti, 'change' => $calcChange($currBerhenti, $prevBerhenti)],
+            'total_all' => ['total' => $totalKeseluruhan],
         ];
 
         $yearlyPendaftar = CustomerService::selectRaw('MONTH(created_at) as month, count(*) as total')
@@ -125,7 +138,7 @@ class Dashboard extends Component
 
         $this->chartData = json_encode([
             'pendaftar' => $chartPendaftar,
-            'aktif' => $chartAktif
+            'aktif' => $chartAktif,
         ]);
     }
 

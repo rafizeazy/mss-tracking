@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire\Finance\Datapelanggan;
+namespace App\Livewire\Finance\DataPelanggan;
 
-use App\Models\Customer;
 use App\Events\CustomerUpdated;
+use App\Models\Customer;
 use Illuminate\Support\Arr;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -18,14 +18,19 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
-    
+
     public $showModal = false;
+
     public $selectedCustomer = null;
 
     public $isEditingCustomer = false;
+
     public $editData = [];
 
+    public $editingCustomerId = null;
+
     public $showArsipModal = false;
+
     public $customerForArsip = null;
 
     public $showBerhentiOnly = false;
@@ -64,7 +69,7 @@ class Index extends Component
     public function editCustomer($id)
     {
         $customerToEdit = Customer::with('service')->findOrFail($id);
-        
+
         $this->editData = [
             'ktp_number' => $customerToEdit->ktp_number,
             'gender' => $customerToEdit->gender,
@@ -79,11 +84,11 @@ class Index extends Component
             'province' => $customerToEdit->province,
             'postal_code' => $customerToEdit->postal_code,
             'finance_name' => $customerToEdit->finance_name,
-            'finance_email' => $customerToEdit->finance_email, 
+            'finance_email' => $customerToEdit->finance_email,
             'finance_phone' => $customerToEdit->finance_phone,
             'billing_address' => $customerToEdit->billing_address,
             'technical_name' => $customerToEdit->technical_name,
-            'technical_email' => $customerToEdit->technical_email, 
+            'technical_email' => $customerToEdit->technical_email,
             'technical_phone' => $customerToEdit->technical_phone,
             'installation_address' => $customerToEdit->installation_address,
             'service_type' => $customerToEdit->service->service_type ?? '',
@@ -95,16 +100,18 @@ class Index extends Component
             'marketing_name' => $customerToEdit->service->marketing_name ?? '',
             'marketing_phone' => $customerToEdit->service->marketing_phone ?? '',
         ];
-        
+
+        $this->editingCustomerId = $customerToEdit->id;
         $this->isEditingCustomer = true;
     }
 
     public function updateCustomer()
     {
-        if (!$this->selectedCustomer && !$this->isEditingCustomer) return;
-        
-        $customerId = $this->selectedCustomer ? $this->selectedCustomer->id : Customer::where('phone', $this->editData['phone'])->first()->id;
-        $customerToUpdate = Customer::find($customerId);
+        if (! $this->editingCustomerId) {
+            return;
+        }
+
+        $customerToUpdate = Customer::findOrFail($this->editingCustomerId);
 
         $this->validate([
             'editData.ktp_number' => 'nullable|string',
@@ -120,15 +127,15 @@ class Index extends Component
             'editData.province' => 'nullable|string',
             'editData.postal_code' => 'nullable|string',
             'editData.finance_name' => 'nullable|string|max:255',
-            'editData.finance_email' => 'nullable|email|max:255', 
+            'editData.finance_email' => 'nullable|email|max:255',
             'editData.finance_phone' => 'nullable|string|max:20',
             'editData.billing_address' => 'nullable|string',
             'editData.technical_name' => 'nullable|string|max:255',
-            'editData.technical_email' => 'nullable|email|max:255', 
+            'editData.technical_email' => 'nullable|email|max:255',
             'editData.technical_phone' => 'nullable|string|max:20',
             'editData.installation_address' => 'nullable|string',
             'editData.service_type' => 'required|string',
-            'editData.bandwidth' => 'required|string', 
+            'editData.bandwidth' => 'required|string',
             'editData.term_of_service' => 'nullable|numeric',
             'editData.metro_link' => 'nullable|string',
             'editData.registration_fee' => 'nullable|numeric',
@@ -138,18 +145,20 @@ class Index extends Component
         ]);
 
         $updateData = Arr::except($this->editData, [
-            'service_type', 'bandwidth', 'term_of_service', 'metro_link', 
-            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
+            'service_type', 'bandwidth', 'term_of_service', 'metro_link',
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone',
+            'installation_address',
         ]);
 
         $serviceData = Arr::only($this->editData, [
-            'service_type', 'bandwidth', 'term_of_service', 'metro_link', 
-            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone'
+            'service_type', 'bandwidth', 'term_of_service', 'metro_link',
+            'registration_fee', 'monthly_fee', 'marketing_name', 'marketing_phone',
+            'installation_address',
         ]);
 
         $serviceData['registration_fee'] = empty($serviceData['registration_fee']) ? 0 : $serviceData['registration_fee'];
-        $serviceData['monthly_fee']      = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
-        $serviceData['term_of_service']  = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
+        $serviceData['monthly_fee'] = empty($serviceData['monthly_fee']) ? 0 : $serviceData['monthly_fee'];
+        $serviceData['term_of_service'] = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
 
         $customerToUpdate->update($updateData);
 
@@ -158,19 +167,19 @@ class Index extends Component
             $serviceData
         );
 
-        if(class_exists(CustomerUpdated::class)) {
-            broadcast(new CustomerUpdated());
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
         }
-        
-        if($this->selectedCustomer) $this->selectedCustomer->refresh();
 
         $this->isEditingCustomer = false;
+        $this->editingCustomerId = null;
         $this->dispatch('notify', type: 'success', message: 'Arsip data pelanggan berhasil diperbarui!');
     }
 
     public function cancelEdit()
     {
         $this->isEditingCustomer = false;
+        $this->editingCustomerId = null;
     }
 
     public function render()
@@ -179,17 +188,17 @@ class Index extends Component
 
         $customers = Customer::with(['user', 'spk', 'baa', 'service'])
             ->where('status', $statusToFetch)
-            ->where(function($query) {
+            ->where(function ($query) {
                 if ($this->search) {
-                    $query->where('company_name', 'like', '%' . $this->search . '%')
-                          ->orWhere('customer_number', 'like', '%' . $this->search . '%');
+                    $query->where('company_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_number', 'like', '%'.$this->search.'%');
                 }
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.finance.datapelanggan.index', [
-            'customers' => $customers
+            'customers' => $customers,
         ]);
     }
 }
