@@ -4,6 +4,7 @@ namespace App\Livewire\Marketing\Tracking;
 
 use App\Events\CustomerUpdated;
 use App\Mail\StatusPelangganBerubah;
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use Illuminate\Support\Arr;
@@ -60,6 +61,10 @@ class Show extends Component
     public $new_nib_path;
 
     public $new_certificate_path;
+
+    public string $rejectionReason = '';
+
+    public string $cancellationReason = '';
 
     public function mount($id)
     {
@@ -299,7 +304,11 @@ class Show extends Component
 
         $this->customer->update([
             'status' => 'menunggu_invoice',
+            'status_reason' => null,
+            'status_reason_at' => null,
         ]);
+
+        ActivityLog::record('registration.approved', 'Registrasi disetujui oleh Marketing.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -311,11 +320,23 @@ class Show extends Component
 
     public function reject()
     {
-        $this->customer->update([
-            'status' => 'ditolak',
+        $this->validate([
+            'rejectionReason' => 'required|string|min:5',
+        ], [
+            'rejectionReason.required' => 'Alasan penolakan wajib diisi.',
+            'rejectionReason.min' => 'Alasan penolakan minimal 5 karakter.',
         ]);
 
+        $this->customer->update([
+            'status' => 'ditolak',
+            'status_reason' => $this->rejectionReason,
+            'status_reason_at' => now(),
+        ]);
+
+        ActivityLog::record('registration.rejected', 'Registrasi ditolak oleh Marketing.', $this->customer, $this->rejectionReason);
+
         broadcast(new CustomerUpdated);
+        $this->rejectionReason = '';
         $this->dispatch('notify', type: 'error', message: 'Data registrasi pendaftar telah ditolak.');
     }
 
@@ -357,7 +378,11 @@ class Show extends Component
 
         $this->customer->update([
             'status' => 'proses_instalasi',
+            'status_reason' => null,
+            'status_reason_at' => null,
         ]);
+
+        ActivityLog::record('registration.sent_to_noc', 'SPK dikirim ke tim NOC.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -370,6 +395,8 @@ class Show extends Component
     public function approveBaa()
     {
         $this->customer->update(['status' => 'selesai']);
+
+        ActivityLog::record('baa.approved', 'BAA disetujui dan layanan dinyatakan aktif.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -387,15 +414,28 @@ class Show extends Component
 
         $this->customer->update(['status' => 'menunggu_baa']);
 
+        ActivityLog::record('baa.rejected', 'BAA ditolak dan pelanggan diminta upload ulang.', $this->customer);
+
         broadcast(new CustomerUpdated);
         $this->dispatch('notify', type: 'error', message: 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
     }
 
     public function cancelRegistration()
     {
+        $this->validate([
+            'cancellationReason' => 'required|string|min:5',
+        ], [
+            'cancellationReason.required' => 'Alasan pembatalan wajib diisi.',
+            'cancellationReason.min' => 'Alasan pembatalan minimal 5 karakter.',
+        ]);
+
         $this->customer->update([
             'status' => 'dibatalkan',
+            'status_reason' => $this->cancellationReason,
+            'status_reason_at' => now(),
         ]);
+
+        ActivityLog::record('registration.cancelled', 'Registrasi dibatalkan oleh Marketing.', $this->customer, $this->cancellationReason);
 
         broadcast(new CustomerUpdated);
         session()->flash('success', 'Pengajuan berhasil dibatalkan dan dihapus dari antrean.');

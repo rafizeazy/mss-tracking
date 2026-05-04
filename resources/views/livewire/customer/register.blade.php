@@ -307,35 +307,103 @@
                             </div>
                         </div>
 
-                        <div class="space-y-3 rounded-[0.3rem] border border-dashed border-[#dee2e6] p-4 dark:border-[#37394d]">
+                        <div class="space-y-3 rounded-[0.3rem] border border-dashed border-[#dee2e6] p-4 dark:border-[#37394d]" x-data="{
+                            previewOpen: false,
+                            previewUrl: '',
+                            previewType: '',
+                            previewName: '',
+                            docs: {},
+                            setPreview(key, event) {
+                                const file = event.target.files[0];
+                                if (!file) {
+                                    this.docs[key] = null;
+                                    return;
+                                }
+
+                                const type = file.type.startsWith('image/') ? 'image' : (file.type === 'application/pdf' ? 'pdf' : 'file');
+                                const existing = this.docs[key]?.url;
+                                if (existing) {
+                                    URL.revokeObjectURL(existing);
+                                }
+
+                                this.docs[key] = {
+                                    name: file.name,
+                                    size: (file.size / 1024 / 1024).toFixed(2),
+                                    type,
+                                    url: type === 'file' ? '' : URL.createObjectURL(file),
+                                };
+                            },
+                            openPreview(key) {
+                                const doc = this.docs[key];
+                                if (!doc?.url) {
+                                    return;
+                                }
+
+                                this.previewUrl = doc.url;
+                                this.previewType = doc.type;
+                                this.previewName = doc.name;
+                                this.previewOpen = true;
+                            }
+                        }">
                             <p class="text-xs font-semibold uppercase text-zinc-600">Upload Dokumen Pendukung</p>
                             <div class="flex items-center justify-between gap-3 text-sm">
-                                <span class="font-medium">File KTP <span class="text-[#ed6060]">*</span></span>
-                                <input wire:model="ktp_file" type="file" accept=".jpg,.jpeg,.png,.pdf"
+                                <span class="font-medium">File KTP <span class="text-[#ed6060]">*</span><span class="mt-0.5 block text-[10px] font-normal text-[#8a969c]">JPG, PNG, atau PDF. Maks. 5 MB.</span></span>
+                                <input wire:model="ktp_file" @change="setPreview('ktp', $event)" type="file" accept=".jpg,.jpeg,.png,.pdf"
                                     class="block w-full max-w-[200px] text-xs file:mr-2 file:rounded file:border-0 file:bg-[#669776]/10 file:px-2 file:py-1 file:font-medium file:text-[#669776]">
+                            </div>
+                            <div x-show="docs.ktp" class="flex items-center justify-between rounded bg-[#f8f9fa] px-3 py-2 text-xs dark:bg-white/5" style="display: none;">
+                                <span class="truncate text-[#4c4c5c] dark:text-[#aab8c5]" x-text="`${docs.ktp.name} (${docs.ktp.size} MB)`"></span>
+                                <button type="button" x-show="docs.ktp.url" @click="openPreview('ktp')" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Preview</button>
                             </div>
                             @error('ktp_file') <p class="text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                             <div class="flex items-center justify-between gap-3 text-sm">
-                                <span class="font-medium">File NPWP</span>
-                                <input wire:model="npwp_file" type="file" accept=".jpg,.jpeg,.png,.pdf"
+                                <span class="font-medium">File NPWP<span class="mt-0.5 block text-[10px] font-normal text-[#8a969c]">JPG, PNG, atau PDF. Maks. 5 MB.</span></span>
+                                <input wire:model="npwp_file" @change="setPreview('npwp', $event)" type="file" accept=".jpg,.jpeg,.png,.pdf"
                                     class="block w-full max-w-[200px] text-xs file:mr-2 file:rounded file:border-0 file:bg-[#669776]/10 file:px-2 file:py-1 file:font-medium file:text-[#669776]">
+                            </div>
+                            <div x-show="docs.npwp" class="flex items-center justify-between rounded bg-[#f8f9fa] px-3 py-2 text-xs dark:bg-white/5" style="display: none;">
+                                <span class="truncate text-[#4c4c5c] dark:text-[#aab8c5]" x-text="`${docs.npwp.name} (${docs.npwp.size} MB)`"></span>
+                                <button type="button" x-show="docs.npwp.url" @click="openPreview('npwp')" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Preview</button>
                             </div>
                             @error('npwp_file') <p class="text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                             <div class="flex items-center justify-between gap-3 text-sm">
-                                <span class="font-medium">File NIB</span>
-                                <input wire:model="nib_file" type="file" accept=".pdf"
+                                <span class="font-medium">File NIB<span class="mt-0.5 block text-[10px] font-normal text-[#8a969c]">PDF. Maks. 5 MB.</span></span>
+                                <input wire:model="nib_file" @change="setPreview('nib', $event)" type="file" accept=".pdf"
                                     class="block w-full max-w-[200px] text-xs file:mr-2 file:rounded file:border-0 file:bg-[#669776]/10 file:px-2 file:py-1 file:font-medium file:text-[#669776]">
+                            </div>
+                            <div x-show="docs.nib" class="flex items-center justify-between rounded bg-[#f8f9fa] px-3 py-2 text-xs dark:bg-white/5" style="display: none;">
+                                <span class="truncate text-[#4c4c5c] dark:text-[#aab8c5]" x-text="`${docs.nib.name} (${docs.nib.size} MB)`"></span>
+                                <button type="button" x-show="docs.nib.url" @click="openPreview('nib')" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Preview</button>
                             </div>
                             @error('nib_file') <p class="text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                             <div class="flex items-center justify-between gap-3 text-sm">
-                                <span class="font-medium">Sertifikat Standar</span>
-                                <input wire:model="certificate_file" type="file" accept=".pdf"
+                                <span class="font-medium">Sertifikat Standar<span class="mt-0.5 block text-[10px] font-normal text-[#8a969c]">PDF. Maks. 5 MB.</span></span>
+                                <input wire:model="certificate_file" @change="setPreview('certificate', $event)" type="file" accept=".pdf"
                                     class="block w-full max-w-[200px] text-xs file:mr-2 file:rounded file:border-0 file:bg-[#669776]/10 file:px-2 file:py-1 file:font-medium file:text-[#669776]">
+                            </div>
+                            <div x-show="docs.certificate" class="flex items-center justify-between rounded bg-[#f8f9fa] px-3 py-2 text-xs dark:bg-white/5" style="display: none;">
+                                <span class="truncate text-[#4c4c5c] dark:text-[#aab8c5]" x-text="`${docs.certificate.name} (${docs.certificate.size} MB)`"></span>
+                                <button type="button" x-show="docs.certificate.url" @click="openPreview('certificate')" class="font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Preview</button>
                             </div>
                             @error('certificate_file') <p class="text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                             <p wire:loading wire:target="ktp_file,npwp_file,nib_file,certificate_file" class="text-xs font-medium text-[#ebb751]">
                                 <i class="ti ti-loader-2 animate-spin"></i> Mengunggah dokumen...
                             </p>
+
+                            <div x-show="previewOpen" style="display: none;" class="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-4" x-transition.opacity>
+                                <div class="flex h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-[#1e1f27]">
+                                    <div class="flex items-center justify-between border-b border-[#e7e9eb] px-5 py-4 dark:border-[#37394d]">
+                                        <h3 class="truncate text-sm font-bold text-[#313a46] dark:text-white" x-text="previewName"></h3>
+                                        <button type="button" @click="previewOpen = false" class="rounded-full p-2 text-[#8a969c] hover:bg-[#ed6060]/10 hover:text-[#ed6060]">
+                                            <i class="ti ti-x text-lg"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex-1 overflow-auto bg-[#f8f9fa] p-4 dark:bg-[#15151b]">
+                                        <img x-show="previewType === 'image'" :src="previewUrl" class="mx-auto max-h-full rounded border border-[#dee2e6] object-contain dark:border-[#37394d]" alt="Preview dokumen">
+                                        <iframe x-show="previewType === 'pdf'" :src="previewUrl" class="h-full min-h-[70vh] w-full rounded border border-[#dee2e6] bg-white dark:border-[#37394d]"></iframe>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

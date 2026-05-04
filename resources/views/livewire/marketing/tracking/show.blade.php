@@ -16,9 +16,13 @@
             </a>
 
             @if(!in_array($customer->status, ['selesai', 'dibatalkan', 'ditolak']))
-                <button wire:click="cancelRegistration" wire:confirm="Yakin ingin membatalkan pengajuan ini? Data tidak akan tampil lagi di antrean." class="btn-boron !py-1.5 flex items-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
-                    <i class="ti ti-ban"></i> Batalkan Pengajuan
-                </button>
+                <div class="flex flex-col gap-1">
+                    <textarea wire:model="cancellationReason" rows="1" placeholder="Alasan pembatalan..." class="w-56 rounded-[0.3rem] border border-[#ed6060]/30 bg-white px-3 py-1.5 text-xs focus:border-[#ed6060] focus:outline-none dark:border-[#37394d] dark:bg-[#15151b]"></textarea>
+                    @error('cancellationReason') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
+                    <button wire:click="cancelRegistration" wire:confirm="Yakin ingin membatalkan pengajuan ini? Data tidak akan tampil lagi di antrean." class="btn-boron !py-1.5 flex items-center justify-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
+                        <i class="ti ti-ban"></i> Batalkan Pengajuan
+                    </button>
+                </div>
             @endif
             
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
@@ -327,6 +331,8 @@
                         </form>
                         
                         <div class="mt-3 border-t border-dashed border-[#e7e9eb] pt-3 dark:border-[#37394d]">
+                            <textarea wire:model="rejectionReason" rows="2" placeholder="Alasan penolakan..." class="mb-2 w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm focus:border-[#ed6060] focus:ring-1 focus:ring-[#ed6060] dark:border-[#37394d] dark:bg-[#15151b]"></textarea>
+                            @error('rejectionReason') <span class="mb-2 block text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                             <button type="button" wire:click="reject" wire:confirm="Yakin ingin menolak pendaftaran ini? Aksi ini tidak dapat dibatalkan." class="w-full btn-boron !bg-transparent !text-[#ed6060] hover:!bg-[#ed6060]/10 flex justify-center gap-2 !py-2 transition-colors">
                                 <i class="ti ti-x text-lg"></i> Tolak (Reject)
                             </button>

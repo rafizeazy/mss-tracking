@@ -472,6 +472,9 @@
                         <div>
                             <h5 class="text-sm md:text-base font-bold text-[#a84444] dark:text-[#ed6060]">Pendaftaran Ditolak</h5>
                             <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">Mohon maaf, pendaftaran Anda tidak dapat dilanjutkan saat ini. Silakan hubungi dukungan kami untuk informasi lebih lanjut.</p>
+                            @if($customer->status_reason)
+                                <p class="mt-2 rounded-lg bg-white/60 px-3 py-2 text-xs font-medium text-[#a84444] dark:bg-black/20 dark:text-[#ed6060]">Alasan: {{ $customer->status_reason }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -482,6 +485,9 @@
                         <div>
                             <h5 class="text-sm md:text-base font-bold text-[#a84444] dark:text-[#ed6060]">Pendaftaran Dibatalkan</h5>
                             <p class="mt-1 text-[13px] md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] leading-relaxed">Pengajuan berlangganan Anda telah dibatalkan secara sistem. Silakan hubungi dukungan kami jika Anda ingin mendaftar kembali.</p>
+                            @if($customer->status_reason)
+                                <p class="mt-2 rounded-lg bg-white/60 px-3 py-2 text-xs font-medium text-[#a84444] dark:bg-black/20 dark:text-[#ed6060]">Alasan: {{ $customer->status_reason }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>

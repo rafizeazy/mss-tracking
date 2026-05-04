@@ -91,12 +91,24 @@
                                     <span class="inline-flex rounded border px-2.5 py-1 text-[10px] md:text-[11px] font-bold uppercase {{ $statusFormat['class'] }}">
                                         {{ $statusFormat['label'] }}
                                     </span>
+                                    @if(!in_array($customer->status, ['selesai', 'berhenti', 'dibatalkan', 'ditolak']) && $customer->updated_at->diffInHours(now()) >= 48)
+                                        <span class="mt-1 inline-flex rounded border border-[#ed6060]/20 bg-[#ed6060]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-[#ed6060]">
+                                            SLA {{ $customer->updated_at->diffInHours(now()) }} jam
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
-                                    <a href="{{ route('marketing.tracking.show', $customer->service->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
-                                        <i class="ti ti-arrow-right md:hidden mr-1 text-lg"></i> 
-                                        {{ $showCancelled ? 'Lihat Detail' : 'Detail & Proses' }}
-                                    </a>
+                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+                                        <a href="{{ route('marketing.tracking.show', $customer->service->id) }}" wire:navigate class="w-full md:w-auto inline-flex justify-center items-center btn-boron btn-boron-outline-primary !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded">
+                                            <i class="ti ti-arrow-right md:hidden mr-1 text-lg"></i> 
+                                            {{ $showCancelled ? 'Lihat Detail' : 'Detail & Proses' }}
+                                        </a>
+                                        @if($showCancelled)
+                                            <button wire:click="deleteCancelledRegistration({{ $customer->id }})" wire:confirm="Hapus sementara data registrasi ini dari tampilan?" class="w-full md:w-auto inline-flex justify-center items-center btn-boron !bg-[#ed6060]/10 !text-[#ed6060] hover:!bg-[#ed6060] hover:!text-white !px-4 !py-2.5 md:!px-3 md:!py-1.5 text-sm md:text-xs rounded-lg md:rounded transition-colors">
+                                                <i class="ti ti-trash mr-1 text-base"></i> Hapus
+                                            </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

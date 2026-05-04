@@ -4,6 +4,7 @@ namespace App\Livewire\Finance;
 
 use App\Events\CustomerUpdated;
 use App\Mail\StatusPelangganBerubah;
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use Illuminate\Support\Facades\Mail;
@@ -63,6 +64,8 @@ class Show extends Component
             $this->service->refresh();
         }
 
+        ActivityLog::record('invoice.preview_generated', 'Preview invoice registrasi dibuat.', $this->customer);
+
         $this->showInvoicePreview = true;
     }
 
@@ -70,7 +73,11 @@ class Show extends Component
     {
         $this->customer->update([
             'status' => 'menunggu_pembayaran',
+            'status_reason' => null,
+            'status_reason_at' => null,
         ]);
+
+        ActivityLog::record('invoice.sent', 'Invoice registrasi dikirim ke pelanggan.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -90,7 +97,11 @@ class Show extends Component
 
         $this->customer->update([
             'status' => 'pembayaran_disetujui',
+            'status_reason' => null,
+            'status_reason_at' => null,
         ]);
+
+        ActivityLog::record('payment.free_marked', 'Biaya registrasi digratiskan oleh Finance.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -105,7 +116,11 @@ class Show extends Component
     {
         $this->customer->update([
             'status' => 'pembayaran_disetujui',
+            'status_reason' => null,
+            'status_reason_at' => null,
         ]);
+
+        ActivityLog::record('payment.approved', 'Pembayaran pelanggan dikonfirmasi oleh Finance.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -118,6 +133,8 @@ class Show extends Component
         $this->customer->update([
             'status' => 'menunggu_pembayaran',
         ]);
+
+        ActivityLog::record('payment.rejected', 'Bukti pembayaran ditolak oleh Finance.', $this->customer);
 
         broadcast(new CustomerUpdated);
 

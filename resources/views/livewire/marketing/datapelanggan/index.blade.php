@@ -66,8 +66,15 @@
                                             <i class="ti ti-folder text-base text-[#1e5d87]"></i> Arsip Dok.
                                         </button>
                                         @if($srv->customer->status !== 'berhenti')
-                                            <button wire:click="berhentikanPelanggan({{ $srv->id }})" wire:confirm="Anda yakin ingin memberhentikan layanan untuk pelanggan ini?" class="w-full sm:w-auto btn-boron !bg-[#ed6060]/10 !text-[#ed6060] hover:!bg-[#ed6060] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
+                                            <button wire:click="confirmBerhentikanPelanggan({{ $srv->id }})" class="w-full sm:w-auto btn-boron !bg-[#ed6060]/10 !text-[#ed6060] hover:!bg-[#ed6060] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
                                                 <i class="ti ti-hand-stop text-base"></i> Berhenti
+                                            </button>
+                                        @else
+                                            <button wire:click="aktifkanKembaliPelanggan({{ $srv->id }})" wire:confirm="Aktifkan kembali pelanggan ini?" class="w-full sm:w-auto btn-boron !bg-[#70bb63]/10 !text-[#70bb63] hover:!bg-[#70bb63] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
+                                                <i class="ti ti-rotate-clockwise-2 text-base"></i> Aktifkan
+                                            </button>
+                                            <button wire:click="hapusPelangganBerhenti({{ $srv->id }})" wire:confirm="Hapus sementara data pelanggan ini dari tampilan?" class="w-full sm:w-auto btn-boron !bg-[#ed6060]/10 !text-[#ed6060] hover:!bg-[#ed6060] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
+                                                <i class="ti ti-trash text-base"></i> Hapus
                                             </button>
                                         @endif
                                     </div>
@@ -494,6 +501,28 @@
                             Tutup Arsip
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($stoppingServiceId)
+        <div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" wire:transition.opacity>
+            <div class="w-full max-w-md rounded-2xl border border-[#e7e9eb] bg-white p-6 shadow-2xl dark:border-[#37394d] dark:bg-[#1e1f27]">
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex size-10 items-center justify-center rounded-full bg-[#ed6060]/10 text-[#ed6060]">
+                        <i class="ti ti-hand-stop text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#313a46] dark:text-white">Berhentikan Pelanggan</h3>
+                        <p class="text-xs text-[#8a969c]">Alasan akan tersimpan di audit log.</p>
+                    </div>
+                </div>
+                <textarea wire:model="stopReason" rows="4" placeholder="Tulis alasan berhenti..." class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm focus:border-[#ed6060] focus:outline-none focus:ring-1 focus:ring-[#ed6060] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white"></textarea>
+                @error('stopReason') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                <div class="mt-5 flex justify-end gap-2">
+                    <button wire:click="cancelBerhenti" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-4">Batal</button>
+                    <button wire:click="berhentikanPelanggan" wire:confirm="Anda yakin ingin memberhentikan layanan untuk pelanggan ini?" class="btn-boron bg-[#ed6060] text-white hover:bg-[#c84d4d] !py-2 text-sm px-4 font-bold">Simpan</button>
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@
 namespace App\Livewire\Marketing\DataPelanggan;
 
 use App\Events\CustomerUpdated;
+use App\Models\ActivityLog;
 use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -42,6 +43,10 @@ class Index extends Component
     public $serviceForArsip = null;
 
     public $showBerhentiOnly = false;
+
+    public $stoppingServiceId = null;
+
+    public string $stopReason = '';
 
     #[On('trigger-search')]
     public function updateSearch($query)
@@ -283,16 +288,84 @@ class Index extends Component
         $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
     }
 
-    public function berhentikanPelanggan($id)
+    public function confirmBerhentikanPelanggan(int $id): void
     {
-        $service = CustomerService::with('customer')->findOrFail($id);
-        $service->customer->update(['status' => 'berhenti']);
+        $this->stoppingServiceId = $id;
+        $this->stopReason = '';
+    }
+
+    public function cancelBerhenti(): void
+    {
+        $this->stoppingServiceId = null;
+        $this->stopReason = '';
+    }
+
+    public function berhentikanPelanggan(): void
+    {
+        $this->validate([
+            'stopReason' => 'required|string|min:5',
+        ], [
+            'stopReason.required' => 'Alasan berhenti wajib diisi.',
+            'stopReason.min' => 'Alasan berhenti minimal 5 karakter.',
+        ]);
+
+        $service = CustomerService::with('customer')->findOrFail($this->stoppingServiceId);
+        $service->customer->update([
+            'status' => 'berhenti',
+            'status_reason' => $this->stopReason,
+            'status_reason_at' => now(),
+        ]);
+
+        ActivityLog::record('customer.stopped', 'Layanan pelanggan diberhentikan.', $service->customer, $this->stopReason);
 
         if (class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated);
         }
 
+        $this->cancelBerhenti();
         $this->dispatch('notify', type: 'success', message: 'Status pelanggan berhasil diubah menjadi Berhenti.');
+    }
+
+    public function aktifkanKembaliPelanggan(int $id): void
+    {
+        $service = CustomerService::with('customer')->findOrFail($id);
+
+        if ($service->customer->status !== 'berhenti') {
+            return;
+        }
+
+        $service->customer->update([
+            'status' => 'selesai',
+            'status_reason' => null,
+            'status_reason_at' => null,
+        ]);
+
+        ActivityLog::record('customer.reactivated', 'Pelanggan berhenti diaktifkan kembali.', $service->customer);
+
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
+        }
+
+        $this->dispatch('notify', type: 'success', message: 'Pelanggan berhasil diaktifkan kembali.');
+    }
+
+    public function hapusPelangganBerhenti(int $id): void
+    {
+        $service = CustomerService::with(['customer.baa', 'invoiceRegistrasi'])->findOrFail($id);
+        $customer = $service->customer;
+
+        if ($customer->status !== 'berhenti') {
+            return;
+        }
+
+        ActivityLog::record('customer.soft_deleted', 'Data pelanggan berhenti dihapus sementara.', $customer);
+        $customer->delete();
+
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
+        }
+
+        $this->dispatch('notify', type: 'success', message: 'Data pelanggan berhenti berhasil dihapus sementara.');
     }
 
     public function render()

@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = ['id'];
 
     public function user(): BelongsTo
@@ -32,7 +36,7 @@ class Customer extends Model
             'id'
         );
     }
-    
+
     public function baa(): HasOneThrough
     {
         return $this->hasOneThrough(
@@ -55,5 +59,10 @@ class Customer extends Model
             'id',
             'id'
         );
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

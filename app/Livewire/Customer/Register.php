@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Customer;
 
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -152,10 +153,10 @@ class Register extends Component
                 'bandwidth' => 'required|string|max:255',
                 'term_of_service' => 'required|integer|in:1,2,3',
                 'installation_address' => 'required|string',
-                'ktp_file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
-                'npwp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
-                'nib_file' => 'nullable|mimes:pdf|max:2048',
-                'certificate_file' => 'nullable|mimes:pdf|max:2048',
+                'ktp_file' => 'required|mimes:jpg,jpeg,png,pdf|max:5120',
+                'npwp_file' => 'nullable|mimes:jpg,jpeg,png,pdf|max:5120',
+                'nib_file' => 'nullable|mimes:pdf|max:5120',
+                'certificate_file' => 'nullable|mimes:pdf|max:5120',
                 'password' => 'required|min:8|confirmed',
                 'accepted_terms' => 'accepted',
             ],
@@ -198,6 +199,10 @@ class Register extends Component
                 'term_of_service.required' => 'Jangka waktu berlangganan wajib dipilih.',
                 'installation_address.required' => 'Alamat Instalasi wajib diisi.',
                 'ktp_file.required' => 'File dokumen KTP wajib diunggah.',
+                'ktp_file.max' => 'Ukuran file KTP maksimal 5 MB.',
+                'npwp_file.max' => 'Ukuran file NPWP maksimal 5 MB.',
+                'nib_file.max' => 'Ukuran file NIB maksimal 5 MB.',
+                'certificate_file.max' => 'Ukuran file Sertifikat Standar maksimal 5 MB.',
                 'password.required' => 'Password wajib diisi.',
                 'password.min' => 'Password minimal 8 karakter.',
                 'password.confirmed' => 'Konfirmasi password tidak cocok.',
@@ -292,6 +297,8 @@ class Register extends Component
             ]);
 
             Auth::login($user);
+
+            ActivityLog::record('registration.created', 'Pelanggan mengirim formulir registrasi layanan.', $customer);
         });
 
         $this->redirect(route('customer.dashboard'));

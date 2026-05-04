@@ -4,6 +4,7 @@ namespace App\Livewire\Noc\Tracking;
 
 use App\Events\CustomerUpdated;
 use App\Mail\StatusPelangganBerubah;
+use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use Illuminate\Support\Facades\Mail;
@@ -70,6 +71,8 @@ class Show extends Component
     public function finishInstallation()
     {
         $this->customer->update(['status' => 'proses_aktivasi']);
+
+        ActivityLog::record('installation.finished', 'Instalasi fisik selesai oleh NOC.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -144,7 +147,11 @@ class Show extends Component
         $this->customer->update([
             'customer_number' => $this->customer_number,
             'status' => 'review_baa',
+            'status_reason' => null,
+            'status_reason_at' => null,
         ]);
+
+        ActivityLog::record('baa.generated', 'BAA dibuat atau diperbarui oleh NOC.', $this->customer);
 
         broadcast(new CustomerUpdated);
 
@@ -157,6 +164,8 @@ class Show extends Component
     public function sendBaaToCustomer()
     {
         $this->customer->update(['status' => 'menunggu_baa']);
+
+        ActivityLog::record('baa.sent_to_customer', 'BAA dikirim ke pelanggan untuk ditandatangani.', $this->customer);
 
         broadcast(new CustomerUpdated);
 

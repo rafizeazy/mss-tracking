@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Models\ActivityLog;
 use App\Models\CustomerService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -20,6 +22,10 @@ class Dashboard extends Component
     public $chartData = '{"pendaftar":[], "aktif":[]}';
 
     public $stats = [];
+
+    public $slaAlerts = [];
+
+    public $recentActivityLogs = [];
 
     public $comparisonLabel = 'vs Bulan Lalu';
 
@@ -117,11 +123,17 @@ class Dashboard extends Component
             'total_all' => ['total' => $totalKeseluruhan],
         ];
 
-        $yearlyPendaftar = CustomerService::selectRaw('MONTH(created_at) as month, count(*) as total')
+        $this->loadSlaAlerts();
+        $this->loadRecentActivityLogs();
+
+        $createdMonthExpression = $this->monthSelectExpression('created_at');
+        $updatedMonthExpression = $this->monthSelectExpression('updated_at');
+
+        $yearlyPendaftar = CustomerService::selectRaw($createdMonthExpression.' as month, count(*) as total')
             ->whereYear('created_at', $year)
             ->groupBy('month')->pluck('total', 'month')->toArray();
 
-        $yearlyAktif = CustomerService::selectRaw('MONTH(updated_at) as month, count(*) as total')
+        $yearlyAktif = CustomerService::selectRaw($updatedMonthExpression.' as month, count(*) as total')
             ->whereHas('customer', function ($q) {
                 $q->where('status', 'selesai');
             })
@@ -140,6 +152,57 @@ class Dashboard extends Component
             'pendaftar' => $chartPendaftar,
             'aktif' => $chartAktif,
         ]);
+    }
+
+    protected function monthSelectExpression(string $column): string
+    {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            return "CAST(strftime('%m', {$column}) AS INTEGER)";
+        }
+
+        return "MONTH({$column})";
+    }
+
+    protected function loadRecentActivityLogs(): void
+    {
+        $this->recentActivityLogs = ActivityLog::with(['user', 'customer'])
+            ->latest()
+            ->limit(8)
+            ->get()
+            ->map(fn (ActivityLog $log): array => [
+                'description' => $log->description,
+                'reason' => $log->reason,
+                'user_name' => $log->user?->name ?? 'Sistem',
+                'company_name' => $log->customer?->company_name ?? '-',
+                'created_at' => $log->created_at->diffForHumans(),
+            ])
+            ->toArray();
+    }
+
+    protected function loadSlaAlerts(): void
+    {
+        $thresholdHours = 48;
+
+        $this->slaAlerts = CustomerService::with('customer.user')
+            ->whereHas('customer', function ($query) use ($thresholdHours) {
+                $query->whereNotIn('status', ['selesai', 'berhenti', 'dibatalkan', 'ditolak'])
+                    ->where('updated_at', '<=', now()->subHours($thresholdHours));
+            })
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(function (CustomerService $service) use ($thresholdHours) {
+                return [
+                    'service_id' => $service->id,
+                    'company_name' => $service->customer->company_name,
+                    'status' => $service->customer->status,
+                    'hours' => $service->customer->updated_at->diffInHours(now()),
+                    'threshold_hours' => $thresholdHours,
+                ];
+            })
+            ->toArray();
+
+        $this->stats['sla_overdue'] = ['total' => count($this->slaAlerts)];
     }
 
     public function render()
