@@ -5,10 +5,12 @@ use App\Livewire\Customer\Register;
 use App\Livewire\Marketing\DataPelanggan\Index as MarketingDataPelangganIndex;
 use App\Livewire\Marketing\Tracking\Index as MarketingTrackingIndex;
 use App\Livewire\Marketing\Tracking\Show as MarketingTrackingShow;
+use App\Livewire\Noc\Tracking\Show as NocTrackingShow;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 function createLifecycleCustomer(string $status): array
@@ -47,6 +49,24 @@ it('limits register supporting documents to five megabytes', function () {
         ->set('accepted_terms', true)
         ->call('submit')
         ->assertHasErrors(['ktp_file' => 'max']);
+});
+
+it('restores safe registration draft fields only', function () {
+    Livewire::test(Register::class)
+        ->call('restoreDraft', [
+            'currentStep' => 3,
+            'name' => 'Aditya Roma',
+            'email' => 'aditya@example.com',
+            'company_name' => 'PT Draft Aman',
+            'accepted_terms' => true,
+            'password' => 'jangan-disimpan',
+        ])
+        ->assertSet('currentStep', 3)
+        ->assertSet('name', 'Aditya Roma')
+        ->assertSet('email', 'aditya@example.com')
+        ->assertSet('company_name', 'PT Draft Aman')
+        ->assertSet('accepted_terms', true)
+        ->assertSet('password', '');
 });
 
 it('reactivates stopped customers from marketing customer data', function () {
@@ -108,6 +128,174 @@ it('deletes cancelled registrations softly from marketing tracking', function ()
     $this->assertDatabaseHas('customer_services', ['id' => $service->id]);
 });
 
+it('shows cancellation reason modal before cancelling a registration', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['service' => $service] = createLifecycleCustomer('menunggu_verifikasi');
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingShow::class, ['id' => $service->id])
+        ->assertSet('showCancellationModal', false)
+        ->call('openCancellationModal')
+        ->assertSet('showCancellationModal', true)
+        ->assertSee('Alasan Pembatalan')
+        ->call('closeCancellationModal')
+        ->assertSet('showCancellationModal', false);
+});
+
+it('creates spk from service id without requiring legacy customer id', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['service' => $service] = createLifecycleCustomer('pembayaran_disetujui');
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingShow::class, ['id' => $service->id])
+        ->set('customer_type', 'Government')
+        ->set('due_date', now()->addDay()->format('Y-m-d'))
+        ->set('spk_notes', 'Instruksi pekerjaan untuk tim NOC.')
+        ->call('saveSpkData')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('spk', [
+        'service_id' => $service->id,
+        'customer_type' => 'Government',
+        'job_type' => 'Aktivasi Baru',
+    ]);
+});
+
+it('caches generated spk pdf for faster repeat views', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['service' => $service] = createLifecycleCustomer('pembayaran_disetujui');
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingShow::class, ['id' => $service->id])
+        ->set('customer_type', 'Government')
+        ->set('due_date', now()->addDay()->format('Y-m-d'))
+        ->set('spk_notes', 'Instruksi pekerjaan untuk tim NOC.')
+        ->call('saveSpkData');
+
+    $cachePath = "generated/spk/spk-{$service->id}.pdf";
+    Storage::disk('local')->delete($cachePath);
+
+    $this->actingAs($admin)
+        ->get(route('marketing.spk', $service->id))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect(Storage::disk('local')->exists($cachePath))->toBeTrue();
+    $lastModified = Storage::disk('local')->lastModified($cachePath);
+
+    $this->actingAs($admin)
+        ->get(route('marketing.spk', $service->id))
+        ->assertOk();
+
+    expect(Storage::disk('local')->lastModified($cachePath))->toBe($lastModified);
+});
+
+it('uses local confirmation modal before sending spk to noc', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['service' => $service] = createLifecycleCustomer('pembayaran_disetujui');
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingShow::class, ['id' => $service->id])
+        ->set('customer_type', 'Government')
+        ->set('due_date', now()->addDay()->format('Y-m-d'))
+        ->set('spk_notes', 'Instruksi pekerjaan untuk tim NOC.')
+        ->call('saveSpkData')
+        ->assertSet('showSendToNocModal', false)
+        ->call('openSendToNocModal')
+        ->assertSet('showSendToNocModal', true)
+        ->assertSee('Kirim SPK ke NOC')
+        ->call('closeSendToNocModal')
+        ->assertSet('showSendToNocModal', false)
+        ->assertDontSee('wire:confirm="Pastikan PDF SPK sudah sesuai. Lanjutkan kirim ke Dashboard NOC?', false);
+});
+
+it('uses local confirmation modal before finishing noc installation', function () {
+    $noc = User::factory()->create(['role' => Role::Noc]);
+    ['service' => $service] = createLifecycleCustomer('proses_instalasi');
+    $service->spk()->create([
+        'spk_number' => '001/SPK/TEST/V/2026',
+        'job_type' => 'Aktivasi Baru',
+        'customer_type' => 'Government',
+        'due_date' => now()->addDay()->format('Y-m-d'),
+        'notes' => 'Instruksi pekerjaan NOC.',
+    ]);
+
+    Livewire::actingAs($noc)
+        ->test(NocTrackingShow::class, ['id' => $service->id])
+        ->assertSet('showFinishInstallationModal', false)
+        ->call('openFinishInstallationModal')
+        ->assertSet('showFinishInstallationModal', true)
+        ->assertSee('Instalasi Selesai')
+        ->call('closeFinishInstallationModal')
+        ->assertSet('showFinishInstallationModal', false)
+        ->assertDontSee('wire:confirm="Pastikan perangkat fisik sudah terpasang. Lanjut Aktivasi?', false);
+});
+
+it('creates baa from service id without requiring legacy customer id', function () {
+    Storage::fake('public');
+
+    $noc = User::factory()->create(['role' => Role::Noc]);
+    ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('proses_aktivasi');
+    $spk = $service->spk()->create([
+        'spk_number' => '002/SPK/TEST/V/2026',
+        'job_type' => 'Aktivasi Baru',
+        'customer_type' => 'Government',
+        'due_date' => now()->addDay()->format('Y-m-d'),
+        'notes' => 'Instruksi pekerjaan NOC.',
+    ]);
+
+    Livewire::actingAs($noc)
+        ->test(NocTrackingShow::class, ['id' => $service->id])
+        ->set('customer_number', 'GTEST001')
+        ->set('noc_signature', UploadedFile::fake()->image('signature.png'))
+        ->set('speedtest_image', UploadedFile::fake()->image('speedtest.png'))
+        ->set('devices', [
+            ['name' => 'Router', 'qty' => 1, 'sn' => 'SN-001'],
+        ])
+        ->call('finishActivation')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('baa', [
+        'service_id' => $service->id,
+        'spk_id' => $spk->id,
+        'baa_number' => '001/BAA-MSS/V/2026',
+    ]);
+
+    expect($customer->refresh()->status)->toBe('review_baa');
+});
+
+it('uses local confirmation modal before sending baa to customer', function () {
+    $noc = User::factory()->create(['role' => Role::Noc]);
+    ['service' => $service] = createLifecycleCustomer('review_baa');
+    $spk = $service->spk()->create([
+        'spk_number' => '003/SPK/TEST/V/2026',
+        'job_type' => 'Aktivasi Baru',
+        'customer_type' => 'Government',
+        'due_date' => now()->addDay()->format('Y-m-d'),
+        'notes' => 'Instruksi pekerjaan NOC.',
+    ]);
+    $service->baa()->create([
+        'spk_id' => $spk->id,
+        'baa_number' => '003/BAA-MSS/V/2026',
+        'noc_name' => 'NOC Test',
+        'noc_position' => 'NETWORK OPERATION CENTER',
+        'noc_department' => 'OPERATION',
+        'noc_location' => 'KARAWANG',
+        'activation_date' => now(),
+        'devices' => [['name' => 'Router', 'qty' => 1, 'sn' => 'SN-003']],
+    ]);
+
+    Livewire::actingAs($noc)
+        ->test(NocTrackingShow::class, ['id' => $service->id])
+        ->assertSet('showSendBaaModal', false)
+        ->call('openSendBaaModal')
+        ->assertSet('showSendBaaModal', true)
+        ->assertSee('Kirim BAA ke Pelanggan')
+        ->call('closeSendBaaModal')
+        ->assertSet('showSendBaaModal', false)
+        ->assertDontSee('wire:confirm="Pastikan BAA sudah benar karena akan langsung dikirim ke pelanggan. Lanjutkan?', false);
+});
+
 it('requires a reason when rejecting a registration', function () {
     $admin = User::factory()->create(['role' => Role::SuperAdmin]);
     ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('menunggu_verifikasi');
@@ -128,6 +316,29 @@ it('requires a reason when rejecting a registration', function () {
         'action' => 'registration.rejected',
         'reason' => 'Dokumen legal tidak valid',
     ]);
+});
+
+it('renders invoice template without emoji glyphs', function () {
+    ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('menunggu_pembayaran');
+    $customer->load('user');
+
+    $html = view('customer.invoice', [
+        'customer' => $customer,
+        'service' => $service,
+        'subtotal' => 500000,
+        'ppn' => 0,
+        'grandTotal' => 500000,
+    ])->render();
+
+    expect($html)
+        ->not->toContain('🖨️')
+        ->not->toContain('📞')
+        ->not->toContain('📋')
+        ->not->toContain('📅')
+        ->not->toContain('💳')
+        ->not->toContain('✔️')
+        ->toContain('Cetak / Simpan PDF (A4 Portrait)')
+        ->toContain('Informasi Pembayaran');
 });
 
 it('shows overdue process customers in dashboard sla alerts', function () {

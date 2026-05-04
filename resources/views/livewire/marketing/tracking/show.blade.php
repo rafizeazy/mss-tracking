@@ -16,13 +16,9 @@
             </a>
 
             @if(!in_array($customer->status, ['selesai', 'dibatalkan', 'ditolak']))
-                <div class="flex flex-col gap-1">
-                    <textarea wire:model="cancellationReason" rows="1" placeholder="Alasan pembatalan..." class="w-56 rounded-[0.3rem] border border-[#ed6060]/30 bg-white px-3 py-1.5 text-xs focus:border-[#ed6060] focus:outline-none dark:border-[#37394d] dark:bg-[#15151b]"></textarea>
-                    @error('cancellationReason') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
-                    <button wire:click="cancelRegistration" wire:confirm="Yakin ingin membatalkan pengajuan ini? Data tidak akan tampil lagi di antrean." class="btn-boron !py-1.5 flex items-center justify-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
-                        <i class="ti ti-ban"></i> Batalkan Pengajuan
-                    </button>
-                </div>
+                <button type="button" wire:click="openCancellationModal" class="btn-boron !py-1.5 flex items-center justify-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
+                    <i class="ti ti-ban"></i> Batalkan Pengajuan
+                </button>
             @endif
             
             <a href="{{ route('marketing.tracking.index') }}" wire:navigate class="btn-boron btn-boron-outline-secondary !py-1.5">
@@ -393,7 +389,7 @@
                                 <a href="{{ route('marketing.spk', $service->id) }}" target="_blank" class="w-full btn-boron bg-[#f8f9fa] text-[#313a46] border border-[#dee2e6] hover:bg-[#e7e9eb] flex justify-center gap-2 !py-2 text-sm dark:bg-[#1e1f27] dark:text-white dark:border-[#37394d] dark:hover:bg-[#252630]">
                                     <i class="ti ti-file-pdf text-[#ed6060]"></i> Lihat / Cetak PDF SPK
                                 </a>
-                                <button wire:click="sendToNoc" wire:confirm="Pastikan PDF SPK sudah sesuai. Lanjutkan kirim ke Dashboard NOC?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
+                                <button type="button" wire:click="openSendToNocModal" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5 shadow-lg shadow-[#669776]/30">
                                     <i class="ti ti-send text-lg"></i> Kirim SPK ke NOC
                                 </button>
                             </div>
@@ -505,6 +501,68 @@
 
         </div>
     </div>
+
+    @if($showCancellationModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+            <div class="w-full max-w-lg overflow-hidden rounded-xl border border-[#e7e9eb] bg-white shadow-2xl dark:border-[#37394d] dark:bg-[#1e1f27]">
+                <div class="flex items-start justify-between gap-4 border-b border-[#e7e9eb] bg-[#f8f9fa] px-5 py-4 dark:border-[#37394d] dark:bg-white/5">
+                    <div>
+                        <h3 class="text-base font-bold text-[#313a46] dark:text-white">Batalkan Pengajuan</h3>
+                        <p class="mt-1 text-sm text-[#8a969c]">Isi alasan pembatalan untuk catatan audit dan informasi pelanggan.</p>
+                    </div>
+                    <button type="button" wire:click="closeCancellationModal" class="rounded-full p-2 text-[#8a969c] hover:bg-[#ed6060]/10 hover:text-[#ed6060]">
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-3 px-5 py-5">
+                    <label class="block text-xs font-bold uppercase tracking-wide text-[#8a969c]">Alasan Pembatalan</label>
+                    <textarea wire:model="cancellationReason" rows="4" placeholder="Contoh: pelanggan meminta pembatalan karena jadwal instalasi berubah..." class="w-full rounded-[0.45rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm text-[#313a46] focus:border-[#ed6060] focus:outline-none focus:ring-1 focus:ring-[#ed6060] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white"></textarea>
+                    @error('cancellationReason') <p class="text-xs font-medium text-[#ed6060]">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="flex flex-col-reverse gap-2 border-t border-[#e7e9eb] bg-[#f8f9fa] px-5 py-4 dark:border-[#37394d] dark:bg-white/5 sm:flex-row sm:justify-end">
+                    <button type="button" wire:click="closeCancellationModal" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-zinc-100 dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">
+                        Batal
+                    </button>
+                    <button type="button" wire:click="cancelRegistration" wire:loading.attr="disabled" wire:target="cancelRegistration" class="btn-boron flex items-center justify-center gap-2 bg-[#ed6060] px-5 py-2 text-sm font-semibold text-white hover:bg-[#d94f4f] disabled:cursor-not-allowed disabled:opacity-60">
+                        <i class="ti ti-device-floppy"></i> Simpan Pembatalan
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($showSendToNocModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+            <div class="w-full max-w-lg overflow-hidden rounded-xl border border-[#e7e9eb] bg-white shadow-2xl dark:border-[#37394d] dark:bg-[#1e1f27]">
+                <div class="flex items-start justify-between gap-4 border-b border-[#e7e9eb] bg-[#f8f9fa] px-5 py-4 dark:border-[#37394d] dark:bg-white/5">
+                    <div>
+                        <h3 class="text-base font-bold text-[#313a46] dark:text-white">Kirim SPK ke NOC</h3>
+                        <p class="mt-1 text-sm text-[#8a969c]">Pastikan PDF SPK sudah sesuai sebelum dikirim ke Dashboard NOC.</p>
+                    </div>
+                    <button type="button" wire:click="closeSendToNocModal" class="rounded-full p-2 text-[#8a969c] hover:bg-[#ed6060]/10 hover:text-[#ed6060]">
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="px-5 py-5">
+                    <div class="rounded-lg border border-[#60addf]/25 bg-[#60addf]/10 p-4 text-sm leading-relaxed text-[#1e5d87] dark:text-[#60addf]">
+                        SPK akan diteruskan ke antrean NOC dan status pelanggan berubah menjadi proses instalasi.
+                    </div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-2 border-t border-[#e7e9eb] bg-[#f8f9fa] px-5 py-4 dark:border-[#37394d] dark:bg-white/5 sm:flex-row sm:justify-end">
+                    <button type="button" wire:click="closeSendToNocModal" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-zinc-100 dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">
+                        Periksa Lagi
+                    </button>
+                    <button type="button" wire:click="sendToNoc" wire:loading.attr="disabled" wire:target="sendToNoc" class="btn-boron btn-boron-primary flex items-center justify-center gap-2 px-5 py-2 text-sm shadow-md shadow-[#669776]/30 disabled:cursor-not-allowed disabled:opacity-60">
+                        <i class="ti ti-send"></i> Kirim ke NOC
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
     
     @include('livewire.marketing.tracking.modalEdit')
 </div>

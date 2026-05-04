@@ -66,6 +66,10 @@ class Show extends Component
 
     public string $cancellationReason = '';
 
+    public bool $showCancellationModal = false;
+
+    public bool $showSendToNocModal = false;
+
     public function mount($id)
     {
         $this->service = CustomerService::with(['customer.user', 'spk'])->findOrFail($id);
@@ -226,6 +230,7 @@ class Show extends Component
         $serviceData['term_of_service'] = empty($serviceData['term_of_service']) ? null : $serviceData['term_of_service'];
 
         $this->service->update($serviceData);
+        $this->forgetSpkPdfCache();
 
         // 5. Pisahkan Data Tabel Customers, cegah error relasi ter-copy
         $updateData = Arr::except($this->editData, [
@@ -276,6 +281,29 @@ class Show extends Component
     {
         $this->isEditingCustomer = false;
         $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
+    }
+
+    public function openCancellationModal(): void
+    {
+        $this->resetValidation('cancellationReason');
+        $this->showCancellationModal = true;
+    }
+
+    public function closeCancellationModal(): void
+    {
+        $this->resetValidation('cancellationReason');
+        $this->cancellationReason = '';
+        $this->showCancellationModal = false;
+    }
+
+    public function openSendToNocModal(): void
+    {
+        $this->showSendToNocModal = true;
+    }
+
+    public function closeSendToNocModal(): void
+    {
+        $this->showSendToNocModal = false;
     }
 
     public function approve()
@@ -362,6 +390,7 @@ class Show extends Component
             ]
         );
 
+        $this->forgetSpkPdfCache();
         $this->service->refresh();
 
         broadcast(new CustomerUpdated);
@@ -385,6 +414,7 @@ class Show extends Component
         ActivityLog::record('registration.sent_to_noc', 'SPK dikirim ke tim NOC.', $this->customer);
 
         broadcast(new CustomerUpdated);
+        $this->showSendToNocModal = false;
 
         Mail::to($this->customer->user->email)
             ->queue(new StatusPelangganBerubah($this->customer, 'proses_instalasi'));
@@ -438,6 +468,7 @@ class Show extends Component
         ActivityLog::record('registration.cancelled', 'Registrasi dibatalkan oleh Marketing.', $this->customer, $this->cancellationReason);
 
         broadcast(new CustomerUpdated);
+        $this->showCancellationModal = false;
         session()->flash('success', 'Pengajuan berhasil dibatalkan dan dihapus dari antrean.');
 
         return $this->redirect(route('marketing.tracking.index'), navigate: true);
@@ -446,5 +477,10 @@ class Show extends Component
     public function render()
     {
         return view('livewire.marketing.tracking.show');
+    }
+
+    private function forgetSpkPdfCache(): void
+    {
+        Storage::disk('local')->delete("generated/spk/spk-{$this->service->id}.pdf");
     }
 }

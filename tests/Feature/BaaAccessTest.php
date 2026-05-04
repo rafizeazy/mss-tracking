@@ -8,6 +8,7 @@ use App\Models\Spk;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPdf;
+use Illuminate\Support\Facades\Storage;
 
 function createServiceWithBaaForUser(User $user): CustomerService
 {
@@ -50,9 +51,13 @@ function createServiceWithBaaForUser(User $user): CustomerService
 function mockBaaPdfStream(): void
 {
     $pdf = \Mockery::mock(DomPdf::class);
-    $pdf->shouldReceive('stream')
+    $pdf->shouldReceive('setPaper')
         ->once()
-        ->andReturn(response('PDF BAA', 200, ['Content-Type' => 'application/pdf']));
+        ->with('a4', 'portrait')
+        ->andReturnSelf();
+    $pdf->shouldReceive('output')
+        ->once()
+        ->andReturn('PDF BAA');
 
     Pdf::shouldReceive('loadView')
         ->once()
@@ -63,12 +68,16 @@ function mockBaaPdfStream(): void
 it('allows a customer to stream their own baa', function () {
     $user = User::factory()->create(['role' => Role::Customer]);
     $service = createServiceWithBaaForUser($user);
+    Storage::disk('local')->delete("generated/baa/baa-{$service->id}.pdf");
 
     mockBaaPdfStream();
 
     $this->actingAs($user)
         ->get(route('noc.baa', $service->id))
-        ->assertOk();
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect(Storage::disk('local')->exists("generated/baa/baa-{$service->id}.pdf"))->toBeTrue();
 });
 
 it('prevents a customer from streaming another customer baa', function () {
@@ -85,10 +94,28 @@ it('still allows internal users to stream customer baa', function () {
     $owner = User::factory()->create(['role' => Role::Customer]);
     $noc = User::factory()->create(['role' => Role::Noc]);
     $service = createServiceWithBaaForUser($owner);
+    Storage::disk('local')->delete("generated/baa/baa-{$service->id}.pdf");
 
     mockBaaPdfStream();
 
     $this->actingAs($noc)
         ->get(route('noc.baa', $service->id))
         ->assertOk();
+});
+
+it('reuses generated baa pdf cache on repeat views', function () {
+    $owner = User::factory()->create(['role' => Role::Customer]);
+    $noc = User::factory()->create(['role' => Role::Noc]);
+    $service = createServiceWithBaaForUser($owner);
+    $cachePath = "generated/baa/baa-{$service->id}.pdf";
+
+    Storage::disk('local')->put($cachePath, 'CACHED BAA');
+    $lastModified = Storage::disk('local')->lastModified($cachePath);
+
+    $this->actingAs($noc)
+        ->get(route('noc.baa', $service->id))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect(Storage::disk('local')->lastModified($cachePath))->toBe($lastModified);
 });

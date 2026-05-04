@@ -1,4 +1,82 @@
-<div class="flex min-h-screen items-center justify-center bg-zinc-100 px-4 py-10 dark:bg-[#15151b]">
+<div
+    x-data="{
+        storageKey: 'mss.customer.register.draft.v1',
+        restoring: false,
+        fields: [
+            'currentStep',
+            'name',
+            'email',
+            'ktp_number',
+            'gender',
+            'position',
+            'phone',
+            'company_name',
+            'business_type',
+            'npwp_number',
+            'company_address',
+            'province_id',
+            'city_id',
+            'postal_code',
+            'company_phone',
+            'finance_name',
+            'finance_email',
+            'billing_address',
+            'finance_phone',
+            'technical_name',
+            'technical_email',
+            'technical_phone',
+            'bandwidth',
+            'term_of_service',
+            'installation_address',
+            'accepted_terms',
+        ],
+        init() {
+            this.restoreDraft();
+            this.$watch('$wire.currentStep', () => this.saveDraft());
+        },
+        restoreDraft() {
+            const rawDraft = localStorage.getItem(this.storageKey);
+
+            if (! rawDraft) {
+                return;
+            }
+
+            let draft;
+
+            try {
+                draft = JSON.parse(rawDraft);
+            } catch (error) {
+                localStorage.removeItem(this.storageKey);
+                return;
+            }
+
+            this.restoring = true;
+            this.$wire.restoreDraft(draft).then(() => {
+                this.restoring = false;
+            });
+        },
+        saveDraft() {
+            if (this.restoring) {
+                return;
+            }
+
+            const draft = {};
+
+            this.fields.forEach((field) => {
+                draft[field] = this.$wire.get(field);
+            });
+
+            localStorage.setItem(this.storageKey, JSON.stringify(draft));
+        },
+        clearDraft() {
+            localStorage.removeItem(this.storageKey);
+        },
+    }"
+    x-on:input.debounce.500ms="saveDraft()"
+    x-on:change.debounce.500ms="saveDraft()"
+    x-on:registration-submitted.window="clearDraft()"
+    class="flex min-h-screen items-center justify-center bg-zinc-100 px-4 py-10 dark:bg-[#15151b]"
+>
     <div class="w-full max-w-4xl">
 
         <div class="mb-8 text-center">
@@ -462,7 +540,7 @@
                             <div class="flex gap-2">
                                 <button type="button" @click="showTermsModal = false" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-zinc-300 dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">Tutup</button>
                                 
-                                <button type="button" :disabled="!scrolledToBottom" @click="$wire.set('accepted_terms', true); showTermsModal = false;" 
+                                <button type="button" :disabled="!scrolledToBottom" @click="$wire.set('accepted_terms', true); showTermsModal = false; $nextTick(() => saveDraft());" 
                                     class="btn-boron btn-boron-primary px-5 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
                                     <i class="ti ti-check"></i> Ya, Saya Setuju
                                 </button>

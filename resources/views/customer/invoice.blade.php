@@ -6,391 +6,476 @@
     <title>Invoice {{ $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT' }} | PT Media Solusi Sukses</title>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            background: #e2e8f0;
+            align-items: flex-start;
+            background: #edf2f7;
+            color: #172033;
             display: flex;
+            font-family: Arial, Helvetica, sans-serif;
             justify-content: center;
-            align-items: flex-start; 
             min-height: 100vh;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            padding: 40px 20px;
+            padding: 32px 18px;
         }
 
         .a4-container {
-            width: 210mm;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 22px 45px rgba(20, 31, 45, 0.16);
             min-height: 297mm;
-            background: white;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
-            border-radius: 12px;
             overflow: hidden;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
+            width: 210mm;
+        }
+
+        .print-button-container {
+            padding: 14px 22px 0;
+            text-align: right;
+        }
+
+        .btn-print {
+            background: #17633d;
+            border: 0;
+            border-radius: 999px;
+            color: #ffffff;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            padding: 9px 18px;
+        }
+
+        .btn-print:hover {
+            background: #104b2d;
         }
 
         .invoice-content {
-            padding: 1.8rem 2rem 1.5rem 2rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column; 
+            padding: 28px 34px 30px;
         }
 
         .header-row {
+            align-items: center;
+            border-bottom: 2px solid #dbe8e2;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #e6f0ec;
+            padding-bottom: 20px;
         }
+
         .brand {
-            display: flex;
             align-items: center;
-            gap: 12px;
+            display: flex;
+            gap: 14px;
         }
+
         .logo {
             height: 48px;
-            width: auto;
             object-fit: contain;
+            width: auto;
         }
+
         .company h3 {
-            font-size: 1.25rem;
+            color: #102033;
+            font-size: 20px;
             font-weight: 800;
-            color: #0f2b2b;
-            letter-spacing: -0.3px;
+            line-height: 1.15;
         }
+
         .company p {
-            font-size: 0.7rem;
-            color: #4b6b6b;
-            font-weight: 500;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 3px;
         }
+
         .invoice-title {
             text-align: right;
         }
+
         .invoice-title h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #1f6e43;
-            letter-spacing: 1px;
+            color: #17633d;
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            line-height: 1;
         }
-        .invoice-title .inv-num {
-            background: #eef2ff;
-            padding: 0.2rem 0.8rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #1f6e43;
-            margin-top: 5px;
+
+        .inv-num {
+            background: #e9f6ef;
+            border: 1px solid #cbe8d8;
+            border-radius: 999px;
+            color: #17633d;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 800;
+            margin-top: 10px;
+            padding: 5px 14px;
+        }
+
+        .meta-strip {
+            background: #f7faf8;
+            border: 1px solid #dbe8e2;
+            border-radius: 8px;
+            display: grid;
+            gap: 0;
+            grid-template-columns: repeat(3, 1fr);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .meta-item {
+            border-right: 1px solid #dbe8e2;
+            padding: 12px 14px;
+        }
+
+        .meta-item:last-child {
+            border-right: 0;
+        }
+
+        .meta-item span {
+            color: #6b778c;
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .meta-item strong {
+            color: #172033;
+            display: block;
+            font-size: 13px;
         }
 
         .info-grid {
-            display: flex;
-            justify-content: space-between;
-            gap: 1.2rem;
-            margin-bottom: 1.5rem;
+            display: grid;
+            gap: 18px;
+            grid-template-columns: 1.05fr 0.95fr;
+            margin-bottom: 22px;
         }
+
         .info-card {
-            background: #f9fafb;
-            padding: 0.8rem 1rem;
-            border-radius: 16px;
-            flex: 1;
-            border: 1px solid #eef2ff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 18px;
         }
-        .info-card label {
-            font-size: 0.65rem;
+
+        .section-label {
+            align-items: center;
+            color: #17633d;
+            display: flex;
+            font-size: 11px;
+            font-weight: 900;
+            gap: 8px;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            font-weight: 800;
-            color: #1f6e43;
-            letter-spacing: 0.8px;
-            display: block;
-            margin-bottom: 8px;
         }
+
+        .section-label::before {
+            background: #17633d;
+            border-radius: 999px;
+            content: '';
+            display: inline-block;
+            height: 8px;
+            width: 8px;
+        }
+
         .info-card p {
-            font-size: 0.8rem;
             color: #1e293b;
-            line-height: 1.4;
+            font-size: 13px;
             font-weight: 500;
+            line-height: 1.5;
         }
-        .info-card .small-meta {
-            font-size: 0.7rem;
-            color: #5b6e8c;
-            margin-top: 5px;
+
+        .small-meta {
+            border-top: 1px dashed #dbe4ef;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-top: 10px;
+            padding-top: 9px;
         }
+
         .text-right {
             text-align: right;
         }
 
         .table-wrapper {
-            margin: 0.8rem 0 1rem 0;
-            border-radius: 16px;
-            border: 1px solid #eef2ff;
-            overflow-x: auto;
+            border: 1px solid #dbe4ef;
+            border-radius: 8px;
+            margin: 4px 0 20px;
+            overflow: hidden;
         }
+
         .invoice-table {
-            width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
+            font-size: 13px;
+            width: 100%;
         }
+
         .invoice-table th {
-            background: #f8fafc;
-            padding: 0.7rem 1rem;
+            background: #f1f5f9;
+            border-bottom: 1px solid #dbe4ef;
+            color: #475569;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.9px;
+            padding: 12px 14px;
             text-align: left;
-            font-weight: 700;
-            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #4b5563;
-            border-bottom: 1px solid #e2e8f0;
         }
-        .invoice-table th:last-child {
-            text-align: right;
-        }
-        .invoice-table td {
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid #f0f2f5;
-            color: #1e293b;
-            font-weight: 500;
-        }
+
+        .invoice-table th:last-child,
         .invoice-table td:last-child {
             text-align: right;
-            font-weight: 700;
-            color: #1f6e43;
         }
+
+        .invoice-table td {
+            border-bottom: 1px solid #edf2f7;
+            color: #172033;
+            font-weight: 600;
+            padding: 16px 14px;
+            vertical-align: top;
+        }
+
+        .invoice-table tr:last-child td {
+            border-bottom: 0;
+        }
+
         .service-desc small {
+            color: #64748b;
             display: block;
-            font-size: 0.65rem;
-            color: #6c757d;
-            font-weight: 400;
-            margin-top: 3px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .amount {
+            color: #17633d;
+            font-weight: 900;
         }
 
         .total-section {
             display: flex;
             justify-content: flex-end;
-            margin: 0.5rem 0 1.2rem 0;
+            margin-bottom: 26px;
         }
+
         .total-card {
-            width: 260px;
+            width: 300px;
         }
+
         .total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.4rem 0;
-            font-size: 0.8rem;
+            align-items: center;
+            border-bottom: 1px dashed #cbd5e1;
             color: #334155;
-            border-bottom: 1px dashed #e2e8f0;
+            display: flex;
+            font-size: 13px;
+            justify-content: space-between;
+            padding: 8px 0;
         }
+
         .total-row.grand {
-            border-top: 2px solid #1e293b;
-            border-bottom: none;
-            margin-top: 5px;
-            padding-top: 0.7rem;
-            font-weight: 800;
-            font-size: 0.95rem;
+            border-bottom: 0;
+            border-top: 2px solid #172033;
             color: #0f172a;
+            font-size: 15px;
+            font-weight: 900;
+            margin-top: 4px;
+            padding-top: 12px;
+            text-transform: uppercase;
         }
-        .grand span:last-child {
-            color: #1f6e43;
-            font-size: 1.05rem;
+
+        .total-row.grand span:last-child {
+            color: #17633d;
+            font-size: 17px;
         }
 
         .bottom-flex {
-            display: flex;
-            justify-content: space-between;
             align-items: flex-end;
-            gap: 1.5rem;
-            margin-top: 1.5rem; 
-            margin-bottom: 1rem;
-        }
-        .payment-box {
-            background: #f4fbf7;
-            border-radius: 18px;
-            padding: 0.9rem 1.2rem;
-            flex: 2;
-            border-left: 4px solid #1f6e43;
-        }
-        .payment-box h4 {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #1f6e43;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-        .payment-details p {
-            font-size: 0.75rem;
-            margin-bottom: 5px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .payment-details strong {
-            min-width: 95px;
-            font-weight: 700;
-            color: #0f172a;
-        }
-        .payment-note {
-            margin-top: 8px;
-            font-size: 0.7rem;
-            background: #e0f2e9;
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            color: #1e5a3a;
-        }
-        .signature {
-            flex: 1;
-            text-align: center;
-        }
-        .signature .sign-title {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #4b5563;
-            margin-bottom: 1rem;
-        }
-        .sign-line {
-            border-top: 1.5px dashed #b9c7d9;
-            width: 140px;
-            margin: 0 auto 0.4rem auto;
-        }
-        .sign-name {
-            font-weight: 800;
-            font-size: 0.8rem;
-            color: #0f172a;
-        }
-        .sign-role {
-            font-size: 0.65rem;
-            color: #6b7280;
-        }
-        .signature-img-container {
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .signature-img-container img {
-            max-height: 100%;
-            width: auto;
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1.35fr 0.65fr;
         }
 
-        .footer-notes {
-            margin-top: auto; 
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            font-size: 0.65rem;
-            color: #64748b;
-            text-align: center;
-            line-height: 1.5;
+        .payment-box {
+            background: #f3fbf6;
+            border: 1px solid #cfe8da;
+            border-left: 5px solid #17633d;
+            border-radius: 8px;
+            padding: 18px 20px;
         }
-        .footer-notes p {
+
+        .payment-box h4 {
+            color: #17633d;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .payment-details p {
+            color: #172033;
+            display: flex;
+            font-size: 12px;
+            line-height: 1.55;
             margin-bottom: 4px;
         }
 
-        .print-button-container {
-            text-align: right;
-            margin-bottom: 12px;
+        .payment-details strong {
+            display: inline-block;
+            min-width: 108px;
         }
-        .btn-print {
-            background: #1f6e43;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            font-family: inherit;
-            display: inline-flex;
+
+        .payment-note {
+            background: #e3f4ea;
+            border: 1px solid #c3e5d1;
+            border-radius: 999px;
+            color: #17633d;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 10px;
+            padding: 7px 12px;
+        }
+
+        .signature {
+            text-align: center;
+        }
+
+        .sign-title {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .signature-img-container {
             align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            height: 64px;
+            justify-content: center;
+            margin-bottom: 10px;
         }
-        .btn-print:hover {
-            background: #0f4d2f;
-            transform: scale(0.98);
+
+        .signature-img-container img {
+            max-height: 64px;
+            width: auto;
+        }
+
+        .sign-line {
+            border-top: 1px solid #94a3b8;
+            margin: 0 auto 7px;
+            width: 150px;
+        }
+
+        .sign-name {
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .sign-role {
+            color: #64748b;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .footer-notes {
+            border-top: 1px solid #dbe4ef;
+            color: #64748b;
+            font-size: 10px;
+            line-height: 1.55;
+            margin-top: 24px;
+            padding-top: 14px;
+            text-align: center;
         }
 
         @media print {
             body {
-                background: white;
+                background: #ffffff;
+                display: block;
+                margin: 0;
                 padding: 0;
-                margin: 0;
             }
+
             .a4-container {
-                width: 100%;
-                min-height: 265mm; 
-                box-shadow: none;
                 border-radius: 0;
-                margin: 0;
-                display: flex; 
-                flex-direction: column;
+                box-shadow: none;
+                min-height: auto;
+                width: 100%;
             }
+
             .print-button-container {
                 display: none;
             }
+
             .invoice-content {
-                padding: 0; 
-                display: flex; 
-                flex-direction: column;
-                flex: 1;
+                padding: 0;
             }
-            .info-card, .payment-box {
+
+            .info-card,
+            .payment-box,
+            .invoice-table tr,
+            .total-row {
                 break-inside: avoid;
             }
-            .total-row, .invoice-table tr {
-                break-inside: avoid;
-            }
+
             @page {
+                margin: 1.2cm;
                 size: A4 portrait;
-                margin: 1.2cm; 
             }
         }
 
         @media screen and (max-width: 850px) {
-            body { padding: 10px; }
+            body {
+                padding: 10px;
+            }
+
             .a4-container {
                 width: 100%;
-                margin: 0;
             }
-            .info-grid {
-                flex-direction: column;
-                gap: 0.8rem;
+
+            .header-row,
+            .brand,
+            .info-grid,
+            .bottom-flex,
+            .meta-strip {
+                display: block;
             }
-            .bottom-flex {
-                flex-direction: column;
-                align-items: stretch;
-                margin-top: 1.5rem; 
-            }
-            .signature {
+
+            .invoice-title,
+            .text-right {
+                margin-top: 16px;
                 text-align: left;
-                margin-top: 0.5rem;
             }
-            .sign-line {
-                margin-left: 0;
-                width: 100%;
+
+            .meta-item {
+                border-bottom: 1px solid #dbe8e2;
+                border-right: 0;
             }
-            .footer-notes {
-                margin-top: 2rem;
+
+            .meta-item:last-child {
+                border-bottom: 0;
+            }
+
+            .info-card,
+            .signature {
+                margin-top: 12px;
             }
         }
     </style>
 </head>
 <body>
 <div class="a4-container">
-    <div class="print-button-container" style="padding: 12px 20px 0 0;">
-        <button class="btn-print" onclick="window.print()">
-            🖨️ Cetak / Simpan PDF (A4 Portrait)
-        </button>
+    <div class="print-button-container">
+        <button class="btn-print" onclick="window.print()">Cetak / Simpan PDF (A4 Portrait)</button>
     </div>
 
     <div class="invoice-content">
@@ -408,9 +493,24 @@
             </div>
         </div>
 
+        <div class="meta-strip">
+            <div class="meta-item">
+                <span>Tanggal Terbit</span>
+                <strong>{{ $service->invoiceRegistrasi?->invoice_generated_at?->format('d M Y') ?? now()->format('d M Y') }}</strong>
+            </div>
+            <div class="meta-item">
+                <span>Jatuh Tempo</span>
+                <strong>{{ ($service->invoiceRegistrasi?->invoice_generated_at ?? now())->addDays(14)->format('d M Y') }}</strong>
+            </div>
+            <div class="meta-item">
+                <span>Nomor NPWP</span>
+                <strong>{{ $customer->npwp_number ?? '-' }}</strong>
+            </div>
+        </div>
+
         <div class="info-grid">
             <div class="info-card">
-                <label>📋 DITAGIHKAN KEPADA</label>
+                <div class="section-label">Ditagihkan Kepada</div>
                 <p>
                     <strong>{{ $customer->company_name }}</strong><br>
                     {{ $customer->billing_address ?? $customer->company_address }}<br>
@@ -418,16 +518,16 @@
                 </p>
                 <div class="small-meta">
                     UP: {{ $customer->finance_name ?? $customer->user->name }}<br>
-                    @if($customer->finance_phone)📞 {{ $customer->finance_phone }} @endif
-                    @if($customer->finance_email) ✉️ {{ $customer->finance_email }} @endif
+                    @if($customer->finance_phone)Telepon: {{ $customer->finance_phone }}@endif
+                    @if($customer->finance_email)<br>Email: {{ $customer->finance_email }}@endif
                 </div>
             </div>
             <div class="info-card text-right">
-                <label>📅 DETAIL INVOICE</label>
+                <div class="section-label">Detail Layanan</div>
                 <p>
-                    <strong>Tanggal Terbit:</strong> {{ $service->invoiceRegistrasi?->invoice_generated_at?->format('d M Y') ?? now()->format('d M Y') }}<br>
-                    <strong>Jatuh Tempo:</strong> {{ ($service->invoiceRegistrasi?->invoice_generated_at ?? now())->addDays(14)->format('d M Y') }}<br>
-                    <strong>NPWP:</strong> {{ $customer->npwp_number ?? '-' }}
+                    <strong>{{ $service->service_type ?? '-' }}</strong><br>
+                    Kapasitas: {{ $service->bandwidth ?? '-' }}<br>
+                    Masa berlangganan: {{ $service->term_of_service ?? '-' }} Tahun
                 </p>
             </div>
         </div>
@@ -436,7 +536,7 @@
             <table class="invoice-table">
                 <thead>
                     <tr>
-                        <th style="width: 8%">#</th>
+                        <th style="width: 8%">No</th>
                         <th style="width: 62%">Deskripsi Layanan</th>
                         <th style="width: 30%">Jumlah (Rp)</th>
                     </tr>
@@ -446,9 +546,9 @@
                         <td>1</td>
                         <td class="service-desc">
                             Biaya Registrasi / Instalasi Awal
-                            <small>{{ $service->bandwidth ?? '-' }} • {{ $service->service_type ?? '-' }}</small>
+                            <small>{{ $service->bandwidth ?? '-' }} - {{ $service->service_type ?? '-' }}</small>
                         </td>
-                        <td>Rp {{ number_format($service->registration_fee ?? 0, 0, ',', '.') }}</td>
+                        <td class="amount">Rp {{ number_format($service->registration_fee ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -465,7 +565,7 @@
                     <span>Rp {{ number_format($ppn, 0, ',', '.') }}</span>
                 </div>
                 <div class="total-row grand">
-                    <span>TOTAL TAGIHAN</span>
+                    <span>Total Tagihan</span>
                     <span>Rp {{ number_format($grandTotal, 0, ',', '.') }}</span>
                 </div>
             </div>
@@ -473,20 +573,18 @@
 
         <div class="bottom-flex">
             <div class="payment-box">
-                <h4>💳 INFORMASI PEMBAYARAN</h4>
+                <h4>Informasi Pembayaran</h4>
                 <div class="payment-details">
-                    <p><strong>Bank :</strong> Bank BCA</p>
-                    <p><strong>No. Rekening :</strong> 1234567890</p>
-                    <p><strong>Atas Nama :</strong> PT Media Solusi Sukses</p>
+                    <p><strong>Bank</strong> Bank BCA</p>
+                    <p><strong>No. Rekening</strong> 1234567890</p>
+                    <p><strong>Atas Nama</strong> PT Media Solusi Sukses</p>
                 </div>
-                <div class="payment-note">
-                    ✔️ Setelah transfer, upload bukti bayar via Dashboard Pelanggan
-                </div>
+                <div class="payment-note">Setelah transfer, upload bukti bayar via Dashboard Pelanggan.</div>
             </div>
             <div class="signature">
                 <div class="sign-title">Hormat Kami,</div>
                 <div class="signature-img-container">
-                    <img src="{{ asset('ttd/finance/ttdfinance.png') }}" alt="TTD Finance" style="max-height: 70px; width: auto; display: block; margin: 0 auto;">
+                    <img src="{{ asset('ttd/finance/ttdfinance.png') }}" alt="TTD Finance">
                 </div>
                 <div class="sign-line"></div>
                 <div class="sign-name">{{ config('invoice.signature_name', 'Finance Department') }}</div>
@@ -495,8 +593,8 @@
         </div>
 
         <div class="footer-notes">
-            <p>Invoice ini dibuat secara otomatis oleh sistem. Biaya berlangganan bulan pertama akan ditagihkan secara terpisah setelah layanan aktif (BAA diterbitkan). Apabila ada pertanyaan mengenai tagihan ini, silakan hubungi tim Finance kami.</p>
-            <p style="margin-top: 8px;">© {{ date('Y') }} PT Media Solusi Sukses — {{ config('app.url', 'mss.co.id') }}</p>
+            <p>Invoice ini dibuat secara otomatis oleh sistem. Biaya berlangganan bulan pertama akan ditagihkan secara terpisah setelah layanan aktif atau BAA diterbitkan. Apabila ada pertanyaan mengenai tagihan ini, silakan hubungi tim Finance kami.</p>
+            <p style="margin-top: 8px;">{{ date('Y') }} PT Media Solusi Sukses - {{ config('app.url', 'mss.co.id') }}</p>
         </div>
     </div>
 </div>

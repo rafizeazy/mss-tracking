@@ -4,25 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FormController extends Controller
 {
-    public function cetakFormulir($id)
+    public function cetakFormulir(int $id): BinaryFileResponse
     {
         $service = CustomerService::with('customer.user')->findOrFail($id);
         $customer = $service->customer;
 
-        $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
-            'service' => $service,
-            'customer' => $customer,
-        ]);
+        $cachePath = "generated/forms/formulir-{$service->id}.pdf";
 
-        $pdf->setPaper('A4', 'portrait');
+        if ($this->shouldRegenerate($service, $cachePath)) {
+            Cache::lock("pdf-formulir-{$service->id}", 120)->block(90, function () use ($service, $customer, $cachePath): void {
+                if ($this->shouldRegenerate($service, $cachePath)) {
+                    $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
+                        'service' => $service,
+                        'customer' => $customer,
+                    ])->setPaper('a4', 'portrait');
+
+                    Storage::disk('local')->put($cachePath, $pdf->output());
+                }
+            });
+        }
 
         $namaPerusahaanAtauOrang = $customer->company_name ?? $customer->user?->name;
         $fileName = 'FORMULIR-BERLANGGANAN-'.strtoupper(Str::slug($namaPerusahaanAtauOrang)).'.pdf';
 
-        return $pdf->download($fileName);
+        return response()->file(Storage::disk('local')->path($cachePath), [
+            'Content-Disposition' => 'inline; filename="'.$fileName.'"',
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
+    private function shouldRegenerate(CustomerService $service, string $cachePath): bool
+    {
+        if (! Storage::disk('local')->exists($cachePath)) {
+            return true;
+        }
+
+        $lastChangedAt = max(
+            $service->updated_at?->timestamp ?? 0,
+            $service->customer->updated_at?->timestamp ?? 0,
+            $service->customer->user?->updated_at?->timestamp ?? 0,
+        );
+
+        return Storage::disk('local')->lastModified($cachePath) < $lastChangedAt;
     }
 }

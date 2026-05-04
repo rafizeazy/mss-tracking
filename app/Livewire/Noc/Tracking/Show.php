@@ -8,6 +8,7 @@ use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\CustomerService;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -43,6 +44,10 @@ class Show extends Component
 
     public $isEditingBaa = false;
 
+    public bool $showFinishInstallationModal = false;
+
+    public bool $showSendBaaModal = false;
+
     public function mount($id)
     {
         $this->service = CustomerService::with(['customer.user', 'spk', 'baa'])->findOrFail($id);
@@ -68,6 +73,26 @@ class Show extends Component
         $this->devices = array_values($this->devices);
     }
 
+    public function openFinishInstallationModal(): void
+    {
+        $this->showFinishInstallationModal = true;
+    }
+
+    public function closeFinishInstallationModal(): void
+    {
+        $this->showFinishInstallationModal = false;
+    }
+
+    public function openSendBaaModal(): void
+    {
+        $this->showSendBaaModal = true;
+    }
+
+    public function closeSendBaaModal(): void
+    {
+        $this->showSendBaaModal = false;
+    }
+
     public function finishInstallation()
     {
         $this->customer->update(['status' => 'proses_aktivasi']);
@@ -76,6 +101,7 @@ class Show extends Component
 
         broadcast(new CustomerUpdated);
 
+        $this->showFinishInstallationModal = false;
         $this->customer->refresh();
         $this->dispatch('notify', type: 'success', message: 'Instalasi fisik selesai. Silakan isi form BAA untuk aktivasi.');
     }
@@ -144,6 +170,8 @@ class Show extends Component
             ]
         );
 
+        $this->forgetBaaPdfCache();
+
         $this->customer->update([
             'customer_number' => $this->customer_number,
             'status' => 'review_baa',
@@ -172,6 +200,7 @@ class Show extends Component
         Mail::to($this->customer->user->email)
             ->queue(new StatusPelangganBerubah($this->customer, 'menunggu_baa'));
 
+        $this->showSendBaaModal = false;
         $this->customer->refresh();
         $this->dispatch('notify', type: 'success', message: 'BAA berhasil dikirim ke Dashboard Pelanggan untuk ditandatangani.');
     }
@@ -179,5 +208,10 @@ class Show extends Component
     public function render()
     {
         return view('livewire.noc.tracking.show');
+    }
+
+    private function forgetBaaPdfCache(): void
+    {
+        Storage::disk('local')->delete("generated/baa/baa-{$this->service->id}.pdf");
     }
 }

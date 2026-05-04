@@ -231,6 +231,63 @@ class Register extends Component
         }
     }
 
+    public function restoreDraft(array $draft): void
+    {
+        $draftFields = [
+            'name',
+            'email',
+            'ktp_number',
+            'gender',
+            'position',
+            'phone',
+            'company_name',
+            'business_type',
+            'npwp_number',
+            'company_address',
+            'province_id',
+            'city_id',
+            'postal_code',
+            'company_phone',
+            'finance_name',
+            'finance_email',
+            'billing_address',
+            'finance_phone',
+            'technical_name',
+            'technical_email',
+            'technical_phone',
+            'bandwidth',
+            'term_of_service',
+            'installation_address',
+        ];
+
+        foreach ($draftFields as $field) {
+            if (array_key_exists($field, $draft)) {
+                $value = $draft[$field];
+
+                $this->{$field} = is_scalar($value) ? (string) $value : '';
+            }
+        }
+
+        if (array_key_exists('accepted_terms', $draft)) {
+            $this->accepted_terms = (bool) $draft['accepted_terms'];
+        }
+
+        if (array_key_exists('currentStep', $draft)) {
+            $this->currentStep = max(1, min($this->totalSteps, (int) $draft['currentStep']));
+        }
+
+        if ($this->province_id !== '') {
+            try {
+                $this->cities = DB::table('regencies')
+                    ->where('province_id', $this->province_id)
+                    ->orderBy('name', 'asc')
+                    ->get();
+            } catch (\Exception $e) {
+                $this->cities = collect();
+            }
+        }
+    }
+
     public function submit(): void
     {
         $this->validate(
@@ -300,6 +357,8 @@ class Register extends Component
 
             ActivityLog::record('registration.created', 'Pelanggan mengirim formulir registrasi layanan.', $customer);
         });
+
+        $this->dispatch('registration-submitted');
 
         $this->redirect(route('customer.dashboard'));
     }

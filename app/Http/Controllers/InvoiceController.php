@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\CustomerService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InvoiceController extends Controller
 {
@@ -33,7 +37,7 @@ class InvoiceController extends Controller
         return view('customer.invoice', compact('customer', 'service', 'subtotal', 'ppn', 'grandTotal'));
     }
 
-    public function streamInvoice($id)
+    public function streamInvoice(int $id): BinaryFileResponse
     {
         $service = CustomerService::with(['customer.user', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
         $customer = $service->customer;
@@ -82,18 +86,47 @@ class InvoiceController extends Controller
             'grand_total' => $grandTotal,
         ];
 
-        $pdf = Pdf::loadView('customer.invoice', [
-            'service' => $service,
-            'customer' => $customer,
-            'subtotal' => $prorateAmount,
-            'ppn' => $ppn,
-            'grandTotal' => $grandTotal,
-            'invoiceData' => $invoiceData,
-        ]);
-
         $invoiceNumber = $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
-        $namaFile = 'INV-'.str_replace('/', '-', $invoiceNumber).'.pdf';
+        $cachePath = "generated/invoices/invoice-{$service->id}.pdf";
 
-        return $pdf->stream($namaFile);
+        if ($this->shouldRegenerate($service, $cachePath)) {
+            Cache::lock("pdf-invoice-{$service->id}", 120)->block(90, function () use ($service, $customer, $prorateAmount, $ppn, $grandTotal, $invoiceData, $cachePath): void {
+                if ($this->shouldRegenerate($service, $cachePath)) {
+                    $pdf = Pdf::loadView('customer.invoice', [
+                        'service' => $service,
+                        'customer' => $customer,
+                        'subtotal' => $prorateAmount,
+                        'ppn' => $ppn,
+                        'grandTotal' => $grandTotal,
+                        'invoiceData' => $invoiceData,
+                    ])->setPaper('a4', 'portrait');
+
+                    Storage::disk('local')->put($cachePath, $pdf->output());
+                }
+            });
+        }
+
+        $namaFile = 'INV-'.Str::slug($invoiceNumber).'.pdf';
+
+        return response()->file(Storage::disk('local')->path($cachePath), [
+            'Content-Disposition' => 'inline; filename="'.$namaFile.'"',
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
+    private function shouldRegenerate(CustomerService $service, string $cachePath): bool
+    {
+        if (! Storage::disk('local')->exists($cachePath)) {
+            return true;
+        }
+
+        $lastChangedAt = max(
+            $service->updated_at?->timestamp ?? 0,
+            $service->customer->updated_at?->timestamp ?? 0,
+            $service->baa?->updated_at?->timestamp ?? 0,
+            $service->invoiceRegistrasi?->updated_at?->timestamp ?? 0,
+        );
+
+        return Storage::disk('local')->lastModified($cachePath) < $lastChangedAt;
     }
 }
