@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified', 'role:marketing,finance,noc,super_admin']
 
 Route::middleware(['auth', 'verified', 'super_admin'])->group(function () {
     Route::get('users', \App\Livewire\UserManagement::class)->name('users.index');
+    Route::get('audit-log', \App\Livewire\AuditLog\Index::class)->name('audit-log.index');
 });
 
 // ROUTE KHUSUS MARKETING

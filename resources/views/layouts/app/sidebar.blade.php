@@ -138,6 +138,14 @@
                                 <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-users text-lg"></i></span>
                                 <span class="sidebar-label whitespace-nowrap">{{ __('User Management') }}</span>
                             </a>
+
+                            <a href="{{ route('audit-log.index') }}" wire:navigate
+                                class="side-nav-link {{ request()->routeIs('audit-log.*') ? 'active' : '' }}"
+                                title="{{ __('Audit Log') }}"
+                            >
+                                <span class="sidebar-icon-center shrink-0 flex items-center justify-center"><i class="ti ti-history text-lg"></i></span>
+                                <span class="sidebar-label whitespace-nowrap">{{ __('Audit Log') }}</span>
+                            </a>
                         @endif
 
                     @endif

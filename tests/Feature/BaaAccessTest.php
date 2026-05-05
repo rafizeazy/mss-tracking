@@ -17,7 +17,10 @@ function createServiceWithBaaForUser(User $user): CustomerService
         'ktp_number' => '3273012345678901',
         'company_name' => 'PT Test Sejahtera',
         'company_address' => 'Jl. Test No. 1',
+        'position' => 'Direktur',
         'phone' => '08123456789',
+        'technical_name' => 'PIC Teknis Test',
+        'technical_phone' => '0899999999',
         'status' => 'menunggu_baa',
     ]);
 
@@ -118,4 +121,28 @@ it('reuses generated baa pdf cache on repeat views', function () {
         ->assertHeader('content-type', 'application/pdf');
 
     expect(Storage::disk('local')->lastModified($cachePath))->toBe($lastModified);
+});
+
+it('renders baa second party with registered user name and position', function () {
+    $user = User::factory()->create([
+        'name' => 'Nama Pendaftar',
+        'role' => Role::Customer,
+    ]);
+    $service = createServiceWithBaaForUser($user)->fresh(['customer.user', 'baa', 'spk']);
+
+    $html = view('pdf.baa', [
+        'customer' => $service->customer,
+        'service' => $service,
+        'baa' => $service->baa,
+        'spk' => $service->spk,
+    ])->render();
+
+    expect($html)
+        ->toContain('Nama')
+        ->toContain('Jabatan')
+        ->toContain('Nama Pendaftar')
+        ->toContain('Direktur')
+        ->not->toContain('Nama PIC')
+        ->not->toContain('Kontak Telepon')
+        ->not->toContain('PIC Teknis Test');
 });

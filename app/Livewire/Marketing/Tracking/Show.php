@@ -233,6 +233,7 @@ class Show extends Component
 
         $this->service->update($serviceData);
         $this->forgetSpkPdfCache();
+        $this->forgetBaaPdfCache();
 
         // 5. Pisahkan Data Tabel Customers, cegah error relasi ter-copy
         $updateData = Arr::except($this->editData, [
@@ -269,6 +270,7 @@ class Show extends Component
         }
 
         $this->customer->update($updateData);
+        $this->forgetBaaPdfCache();
 
         broadcast(new CustomerUpdated);
         $this->customer->refresh();
@@ -496,5 +498,10 @@ class Show extends Component
     private function forgetSpkPdfCache(): void
     {
         Storage::disk('local')->delete("generated/spk/spk-{$this->service->id}.pdf");
+    }
+
+    private function forgetBaaPdfCache(): void
+    {
+        Storage::disk('local')->delete("generated/baa/baa-{$this->service->id}.pdf");
     }
 }

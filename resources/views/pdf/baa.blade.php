@@ -188,9 +188,9 @@
 
     <table class="tabel-resmi">
         <tr><td class="label-col" >ID Pelanggan</td><td style="text-transform: uppercase;">{{ $customer->customer_number }}</td></tr>
-        <tr><td class="label-col">Nama PIC</td><td style="text-transform: uppercase;">{{ $customer->technical_name ?? $customer->user->name }}</td></tr>
+        <tr><td class="label-col">Nama</td><td style="text-transform: uppercase;">{{ $customer->user->name }}</td></tr>
         <tr><td class="label-col">Instansi / Perusahaan</td><td style="text-transform: uppercase;">{{ $customer->company_name }}</td></tr>
-        <tr><td class="label-col">Kontak Telepon</td><td style="text-transform: uppercase;">{{ $customer->technical_phone ?? $customer->phone }}</td></tr>
+        <tr><td class="label-col">Jabatan</td><td style="text-transform: uppercase;">{{ $customer->position ?? '-' }}</td></tr>
     </table>
 
     <div class="paragraf">
@@ -225,8 +225,8 @@
             <td>
                 <div>Menyetujui,<br><strong>Pelanggan (Pihak Kedua)</strong></div>
                 <div class="ruang-ttd"></div>
-                <div class="nama-ttd">{{ $customer->technical_name ?? $customer->user->name }}</div>
-                <div class="jabatan-ttd">{{ $customer->company_name }}</div>
+                <div class="nama-ttd">{{ $customer->user->name }}</div>
+                <div class="jabatan-ttd">{{ $customer->position ?? '-' }}</div>
             </td>
         </tr>
     </table>
