@@ -296,6 +296,41 @@ it('uses local confirmation modal before sending baa to customer', function () {
         ->assertDontSee('wire:confirm="Pastikan BAA sudah benar karena akan langsung dikirim ke pelanggan. Lanjutkan?', false);
 });
 
+it('uses local confirmation modal before marketing approves final baa', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['service' => $service] = createLifecycleCustomer('verifikasi_baa');
+    $spk = $service->spk()->create([
+        'spk_number' => '004/SPK/TEST/V/2026',
+        'job_type' => 'Aktivasi Baru',
+        'customer_type' => 'Government',
+        'due_date' => now()->addDay()->format('Y-m-d'),
+        'notes' => 'Instruksi pekerjaan NOC.',
+    ]);
+    $service->baa()->create([
+        'spk_id' => $spk->id,
+        'baa_number' => '004/BAA-MSS/V/2026',
+        'noc_name' => 'NOC Test',
+        'noc_position' => 'NETWORK OPERATION CENTER',
+        'noc_department' => 'OPERATION',
+        'noc_location' => 'KARAWANG',
+        'activation_date' => now(),
+        'signed_baa_path' => 'baa/signed/customer-baa.pdf',
+        'devices' => [['name' => 'Router', 'qty' => 1, 'sn' => 'SN-004']],
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingShow::class, ['id' => $service->id])
+        ->assertSet('showApproveBaaModal', false)
+        ->call('openApproveBaaModal')
+        ->assertSet('showApproveBaaModal', true)
+        ->assertSee('Setujui BAA')
+        ->assertSee('Setujui')
+        ->call('closeApproveBaaModal')
+        ->assertSet('showApproveBaaModal', false)
+        ->assertDontSee('wire:confirm="Setujui BAA ini dan nyatakan layanan selesai 100%?', false)
+        ->assertDontSee('Setujui Final');
+});
+
 it('requires a reason when rejecting a registration', function () {
     $admin = User::factory()->create(['role' => Role::SuperAdmin]);
     ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('menunggu_verifikasi');

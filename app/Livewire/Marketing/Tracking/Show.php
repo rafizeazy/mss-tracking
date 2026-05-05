@@ -70,6 +70,8 @@ class Show extends Component
 
     public bool $showSendToNocModal = false;
 
+    public bool $showApproveBaaModal = false;
+
     public function mount($id)
     {
         $this->service = CustomerService::with(['customer.user', 'spk'])->findOrFail($id);
@@ -306,6 +308,16 @@ class Show extends Component
         $this->showSendToNocModal = false;
     }
 
+    public function openApproveBaaModal(): void
+    {
+        $this->showApproveBaaModal = true;
+    }
+
+    public function closeApproveBaaModal(): void
+    {
+        $this->showApproveBaaModal = false;
+    }
+
     public function approve()
     {
         $this->validate([
@@ -429,6 +441,8 @@ class Show extends Component
         ActivityLog::record('baa.approved', 'BAA disetujui dan layanan dinyatakan aktif.', $this->customer);
 
         broadcast(new CustomerUpdated);
+
+        $this->showApproveBaaModal = false;
 
         Mail::to($this->customer->user->email)
             ->queue(new StatusPelangganBerubah($this->customer, 'selesai'));

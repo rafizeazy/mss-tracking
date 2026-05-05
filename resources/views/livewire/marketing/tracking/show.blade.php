@@ -413,8 +413,8 @@
                         </a>
 
                         <div class="flex gap-2">
-                            <button wire:click="approveBaa" wire:confirm="Setujui BAA ini dan nyatakan layanan selesai 100%?" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5">
-                                <i class="ti ti-check text-lg"></i> Setujui Final
+                            <button type="button" wire:click="openApproveBaaModal" class="w-full btn-boron btn-boron-primary flex justify-center gap-2 !py-2.5">
+                                <i class="ti ti-check text-lg"></i> Setujui
                             </button>
                             <button wire:click="rejectBaa" wire:confirm="Tolak BAA ini? Pelanggan harus upload ulang." class="btn-boron bg-transparent text-[#ed6060] border border-[#ed6060] hover:bg-[#ed6060]/10 flex justify-center !py-2.5 !px-3">
                                 <i class="ti ti-x text-lg"></i> Tolak
@@ -558,6 +558,37 @@
                     </button>
                     <button type="button" wire:click="sendToNoc" wire:loading.attr="disabled" wire:target="sendToNoc" class="btn-boron btn-boron-primary flex items-center justify-center gap-2 px-5 py-2 text-sm shadow-md shadow-[#669776]/30 disabled:cursor-not-allowed disabled:opacity-60">
                         <i class="ti ti-send"></i> Kirim ke NOC
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($showApproveBaaModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+            <div class="w-full max-w-lg overflow-hidden rounded-xl border border-[#e7e9eb] bg-white shadow-2xl dark:border-[#37394d] dark:bg-[#1e1f27]">
+                <div class="flex items-start justify-between gap-4 border-b border-[#e7e9eb] bg-[#f8f9fa] px-5 py-4 dark:border-[#37394d] dark:bg-white/5">
+                    <div>
+                        <h3 class="text-base font-bold text-[#313a46] dark:text-white">Setujui BAA</h3>
+                        <p class="mt-1 text-sm text-[#8a969c]">Pastikan BAA yang ditandatangani pelanggan sudah valid.</p>
+                    </div>
+                    <button type="button" wire:click="closeApproveBaaModal" class="rounded-full p-2 text-[#8a969c] hover:bg-[#ed6060]/10 hover:text-[#ed6060]">
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="px-5 py-5">
+                    <div class="rounded-lg border border-[#70bb63]/30 bg-[#70bb63]/10 p-4 text-sm leading-relaxed text-[#4a8a3f] dark:text-[#70bb63]">
+                        Status layanan akan berubah menjadi selesai dan pelanggan dinyatakan aktif sepenuhnya.
+                    </div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-2 border-t border-[#e7e9eb] bg-[#f8f9fa] px-5 py-4 dark:border-[#37394d] dark:bg-white/5 sm:flex-row sm:justify-end">
+                    <button type="button" wire:click="closeApproveBaaModal" class="btn-boron border border-[#dee2e6] px-4 py-2 text-sm text-[#313a46] hover:bg-zinc-100 dark:border-[#37394d] dark:text-white dark:hover:bg-white/5">
+                        Periksa Lagi
+                    </button>
+                    <button type="button" wire:click="approveBaa" wire:loading.attr="disabled" wire:target="approveBaa" class="btn-boron btn-boron-primary flex items-center justify-center gap-2 px-5 py-2 text-sm shadow-md shadow-[#669776]/30 disabled:cursor-not-allowed disabled:opacity-60">
+                        <i class="ti ti-check"></i> Setujui
                     </button>
                 </div>
             </div>
