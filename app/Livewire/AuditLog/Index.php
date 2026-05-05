@@ -89,6 +89,39 @@ class Index extends Component
             ->pluck('action');
     }
 
+    public function getActionLabelsProperty(): array
+    {
+        return [
+            'baa.approved' => 'Menyetujui BAA',
+            'baa.generated' => 'Membuat BAA',
+            'baa.rejected' => 'Menolak BAA',
+            'baa.sent_to_customer' => 'BAA dikirim ke pelanggan',
+            'baa_signed.uploaded' => 'BAA bertanda tangan diupload',
+            'customer.reactivated' => 'Pelanggan diaktifkan kembali',
+            'customer.stopped' => 'Pelanggan Diberhentikan',
+            'installation.finished' => 'Instalasi Selesai',
+            'invoice.preview_generated' => 'Membuat Invoice',
+            'invoice.sent' => 'Invoice Dikirim',
+            'payment.approved' => 'Pembayaran Disetujui',
+            'payment_proof.uploaded' => 'Mengirim Bukti Pembayaran',
+            'registration.approved' => 'Registrasi Disetujui',
+            'registration.cancelled' => 'Registrasi Dibatalkan',
+            'registration.created' => 'Registrasi Dibuat',
+            'registration.rejected' => 'Registrasi Ditolak',
+            'registration.sent_to_noc' => 'SPK dikirim ke NOC',
+            'registration.soft_deleted' => 'Registrasi Dihapus Sementara',
+        ];
+    }
+
+    public function actionLabel(?string $action): string
+    {
+        if (! $action) {
+            return '-';
+        }
+
+        return $this->actionLabels[$action] ?? str($action)->replace(['.', '_'], ' ')->title()->toString();
+    }
+
     public function getUsersProperty()
     {
         $userIds = ActivityLog::query()
@@ -125,6 +158,7 @@ class Index extends Component
         return view('livewire.audit-log.index', [
             'logs' => $this->logs,
             'actions' => $this->actions,
+            'actionLabels' => $this->actionLabels,
             'users' => $this->users,
             'customers' => $this->customers,
             'roles' => $this->roles,

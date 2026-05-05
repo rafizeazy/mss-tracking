@@ -46,6 +46,7 @@ it('shows audit logs with pagination for super admin', function () {
         ->get(route('audit-log.index'))
         ->assertOk()
         ->assertSee('Audit Log Aktivitas')
+        ->assertSee('Registrasi dibatalkan')
         ->assertSee('Registrasi dibatalkan oleh Marketing.')
         ->assertSee('Pelanggan minta jadwal ulang');
 });

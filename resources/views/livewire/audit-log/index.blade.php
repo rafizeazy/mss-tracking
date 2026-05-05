@@ -21,7 +21,7 @@
                 <select wire:model.live="action" class="w-full rounded-[0.35rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm focus:border-[#669776] focus:outline-none dark:border-[#37394d] dark:bg-[#15151b]">
                     <option value="">Semua action</option>
                     @foreach($actions as $item)
-                        <option value="{{ $item }}">{{ $item }}</option>
+                        <option value="{{ $item }}">{{ $actionLabels[$item] ?? str($item)->replace(['.', '_'], ' ')->title() }}</option>
                     @endforeach
                 </select>
             </div>
@@ -116,7 +116,7 @@
                             </td>
                             <td class="px-5 py-4 font-medium text-[#313a46] dark:text-white">{{ $log->customer?->company_name ?? '-' }}</td>
                             <td class="px-5 py-4">
-                                <span class="rounded-full bg-[#60addf]/10 px-2.5 py-1 text-xs font-semibold text-[#1e5d87] dark:text-[#60addf]">{{ $log->action }}</span>
+                                <span class="rounded-full bg-[#60addf]/10 px-2.5 py-1 text-xs font-semibold text-[#1e5d87] dark:text-[#60addf]">{{ $this->actionLabel($log->action) }}</span>
                             </td>
                             <td class="max-w-xs px-5 py-4 text-[#4c4c5c] dark:text-[#aab8c5]">{{ $log->description }}</td>
                             <td class="max-w-xs px-5 py-4 text-[#4c4c5c] dark:text-[#aab8c5]">{{ $log->reason ?: '-' }}</td>

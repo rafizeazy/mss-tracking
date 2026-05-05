@@ -142,7 +142,9 @@ it('renders baa second party with registered user name and position', function (
         ->toContain('Jabatan')
         ->toContain('Nama Pendaftar')
         ->toContain('Direktur')
+        ->toContain('PT Test Sejahtera')
         ->not->toContain('Nama PIC')
         ->not->toContain('Kontak Telepon')
+        ->not->toContain('Pelanggan (Pihak Kedua)')
         ->not->toContain('PIC Teknis Test');
 });

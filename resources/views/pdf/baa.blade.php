@@ -223,7 +223,7 @@
                 <div class="jabatan-ttd">{{ $baa->noc_position }}</div>
             </td>
             <td>
-                <div>Menyetujui,<br><strong>Pelanggan (Pihak Kedua)</strong></div>
+                <div>Menyetujui,<br><strong>{{ $customer->company_name }}</strong></div>
                 <div class="ruang-ttd"></div>
                 <div class="nama-ttd">{{ $customer->user->name }}</div>
                 <div class="jabatan-ttd">{{ $customer->position ?? '-' }}</div>
