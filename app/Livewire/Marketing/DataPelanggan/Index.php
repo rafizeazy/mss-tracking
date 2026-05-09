@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Marketing\DataPelanggan;
 
+use App\Enums\Role;
 use App\Events\CustomerUpdated;
 use App\Models\ActivityLog;
 use App\Models\CustomerService;
@@ -44,9 +45,22 @@ class Index extends Component
 
     public $showBerhentiOnly = false;
 
+    public bool $showDeletedOnly = false;
+
     public $stoppingServiceId = null;
 
     public string $stopReason = '';
+
+    public ?int $deletingServiceId = null;
+
+    public string $deleteReason = '';
+
+    public array $collapsedCustomerIds = [];
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
 
     #[On('trigger-search')]
     public function updateSearch($query)
@@ -67,6 +81,28 @@ class Index extends Component
         $this->selectedService = null;
     }
 
+    public function toggleDeletedOnly(): void
+    {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $this->showDeletedOnly = ! $this->showDeletedOnly;
+        $this->showBerhentiOnly = false;
+        $this->resetPage();
+    }
+
+    public function toggleCustomerGroup(int $customerId): void
+    {
+        if (in_array($customerId, $this->collapsedCustomerIds, true)) {
+            $this->collapsedCustomerIds = array_values(array_diff($this->collapsedCustomerIds, [$customerId]));
+
+            return;
+        }
+
+        $this->collapsedCustomerIds[] = $customerId;
+    }
+
     public function openArsip($id)
     {
         $this->serviceForArsip = CustomerService::with(['customer', 'spk', 'baa', 'invoiceRegistrasi'])->find($id);
@@ -81,6 +117,10 @@ class Index extends Component
 
     public function editCustomer($id)
     {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
         $serviceToEdit = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])->findOrFail($id);
         $customerToEdit = $serviceToEdit->customer;
 
@@ -137,6 +177,10 @@ class Index extends Component
 
     public function updateCustomer()
     {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
         if (! $this->selectedService && ! $this->isEditingCustomer) {
             return;
         }
@@ -275,6 +319,11 @@ class Index extends Component
             broadcast(new CustomerUpdated);
         }
 
+        ActivityLog::record('customer.updated', 'Data pelanggan dan layanan diperbarui.', $customerToUpdate, null, [
+            'service_id' => $serviceToUpdate->id,
+            'bandwidth' => $serviceToUpdate->bandwidth,
+        ]);
+
         $this->selectedService->refresh();
 
         $this->isEditingCustomer = false;
@@ -290,6 +339,10 @@ class Index extends Component
 
     public function confirmBerhentikanPelanggan(int $id): void
     {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
         $this->stoppingServiceId = $id;
         $this->stopReason = '';
     }
@@ -302,6 +355,10 @@ class Index extends Component
 
     public function berhentikanPelanggan(): void
     {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
         $this->validate([
             'stopReason' => 'required|string|min:5',
         ], [
@@ -310,13 +367,12 @@ class Index extends Component
         ]);
 
         $service = CustomerService::with('customer')->findOrFail($this->stoppingServiceId);
-        $service->customer->update([
-            'status' => 'berhenti',
-            'status_reason' => $this->stopReason,
-            'status_reason_at' => now(),
-        ]);
+        $service->moveToStatus('berhenti', $this->stopReason);
 
-        ActivityLog::record('customer.stopped', 'Layanan pelanggan diberhentikan.', $service->customer, $this->stopReason);
+        ActivityLog::record('customer.stopped', 'Layanan pelanggan diberhentikan.', $service->customer, $this->stopReason, [
+            'service_id' => $service->id,
+            'bandwidth' => $service->bandwidth,
+        ]);
 
         if (class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated);
@@ -328,19 +384,22 @@ class Index extends Component
 
     public function aktifkanKembaliPelanggan(int $id): void
     {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
         $service = CustomerService::with('customer')->findOrFail($id);
 
-        if ($service->customer->status !== 'berhenti') {
+        if ($service->status !== 'berhenti') {
             return;
         }
 
-        $service->customer->update([
-            'status' => 'selesai',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $service->moveToStatus('selesai');
 
-        ActivityLog::record('customer.reactivated', 'Pelanggan berhenti diaktifkan kembali.', $service->customer);
+        ActivityLog::record('customer.reactivated', 'Layanan pelanggan diaktifkan kembali.', $service->customer, null, [
+            'service_id' => $service->id,
+            'bandwidth' => $service->bandwidth,
+        ]);
 
         if (class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated);
@@ -349,45 +408,118 @@ class Index extends Component
         $this->dispatch('notify', type: 'success', message: 'Pelanggan berhasil diaktifkan kembali.');
     }
 
-    public function hapusPelangganBerhenti(int $id): void
+    public function confirmDeleteService(int $id): void
     {
-        $service = CustomerService::with(['customer.baa', 'invoiceRegistrasi'])->findOrFail($id);
-        $customer = $service->customer;
-
-        if ($customer->status !== 'berhenti') {
-            return;
+        if (! $this->isSuperAdmin()) {
+            abort(403);
         }
 
-        ActivityLog::record('customer.soft_deleted', 'Data pelanggan berhenti dihapus sementara.', $customer);
-        $customer->delete();
+        $this->deletingServiceId = $id;
+        $this->deleteReason = '';
+    }
+
+    public function cancelDeleteService(): void
+    {
+        $this->deletingServiceId = null;
+        $this->deleteReason = '';
+    }
+
+    public function hapusPelangganBerhenti(int $id): void
+    {
+        $this->confirmDeleteService($id);
+    }
+
+    public function deleteService(): void
+    {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $this->validate([
+            'deleteReason' => 'required|string|min:5',
+        ], [
+            'deleteReason.required' => 'Alasan hapus wajib diisi.',
+            'deleteReason.min' => 'Alasan hapus minimal 5 karakter.',
+        ]);
+
+        $service = CustomerService::with('customer')->findOrFail($this->deletingServiceId);
+
+        ActivityLog::record('service.soft_deleted', 'Layanan pelanggan dihapus sementara.', $service->customer, $this->deleteReason, [
+            'service_id' => $service->id,
+            'bandwidth' => $service->bandwidth,
+            'status' => $service->status,
+        ]);
+
+        $service->delete();
 
         if (class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated);
         }
 
-        $this->dispatch('notify', type: 'success', message: 'Data pelanggan berhenti berhasil dihapus sementara.');
+        $this->cancelDeleteService();
+        $this->dispatch('notify', type: 'success', message: 'Layanan pelanggan berhasil dihapus sementara.');
+    }
+
+    public function restoreService(int $id): void
+    {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $service = CustomerService::onlyTrashed()
+            ->with('customer')
+            ->findOrFail($id);
+
+        $service->restore();
+
+        ActivityLog::record('service.restored', 'Layanan pelanggan dipulihkan dari arsip hapus.', $service->customer, null, [
+            'service_id' => $service->id,
+            'bandwidth' => $service->bandwidth,
+            'status' => $service->status,
+        ]);
+
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
+        }
+
+        $this->dispatch('notify', type: 'success', message: 'Layanan pelanggan berhasil dipulihkan.');
     }
 
     public function render()
     {
         $statusToFetch = $this->showBerhentiOnly ? 'berhenti' : 'selesai';
 
-        $services = CustomerService::with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])
-            ->whereHas('customer', function ($query) use ($statusToFetch) {
-                $query->where('status', $statusToFetch);
-
-                if ($this->search) {
-                    $query->where(function ($q) {
-                        $q->where('company_name', 'like', '%'.$this->search.'%')
-                            ->orWhere('customer_number', 'like', '%'.$this->search.'%');
-                    });
-                }
+        $services = CustomerService::query()
+            ->with(['customer.user', 'spk', 'baa', 'invoiceRegistrasi'])
+            ->when($this->showDeletedOnly, fn ($query) => $query->onlyTrashed())
+            ->when(! $this->showDeletedOnly, fn ($query) => $query->where('customer_services.status', $statusToFetch))
+            ->when($this->search, function ($query): void {
+                $query->where(function ($query): void {
+                    $query->where('customer_services.bandwidth', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_services.service_type', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_services.marketing_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('customer_services.marketing_phone', 'like', '%'.$this->search.'%')
+                        ->orWhereHas('customer', function ($query): void {
+                            $query->where('company_name', 'like', '%'.$this->search.'%')
+                                ->orWhere('customer_number', 'like', '%'.$this->search.'%')
+                                ->orWhere('phone', 'like', '%'.$this->search.'%');
+                        });
+                });
             })
-            ->latest()
+            ->whereHas('customer')
+            ->join('customers', 'customers.id', '=', 'customer_services.customer_id')
+            ->orderBy('customers.company_name')
+            ->orderByDesc('customer_services.created_at')
+            ->select('customer_services.*')
             ->paginate(10);
 
         return view('livewire.marketing.datapelanggan.index', [
             'services' => $services,
         ]);
+    }
+
+    private function isSuperAdmin(): bool
+    {
+        return auth()->user()?->role === Role::SuperAdmin;
     }
 }

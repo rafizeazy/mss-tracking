@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Marketing\Tracking;
 
+use App\Enums\Role;
 use App\Events\CustomerUpdated;
 use App\Models\ActivityLog;
-use App\Models\Customer;
+use App\Models\CustomerService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -20,6 +21,10 @@ class Index extends Component
     public $search = '';
 
     public $showCancelled = false;
+
+    public ?int $deletingCancelledServiceId = null;
+
+    public string $deleteReason = '';
 
     public function updatedSearch(): void
     {
@@ -42,24 +47,61 @@ class Index extends Component
     #[On('echo-private:mss-updates,CustomerUpdated')]
     public function refreshData() {}
 
-    public function deleteCancelledRegistration(int $id): void
+    public function confirmDeleteCancelledRegistration(int $id): void
     {
-        $customer = Customer::whereIn('status', ['dibatalkan', 'ditolak'])->findOrFail($id);
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
 
-        ActivityLog::record('registration.soft_deleted', 'Data registrasi batal atau ditolak dihapus sementara.', $customer, $customer->status_reason);
-        $customer->delete();
+        $this->deletingCancelledServiceId = $id;
+        $this->deleteReason = '';
+    }
+
+    public function cancelDeleteCancelledRegistration(): void
+    {
+        $this->deletingCancelledServiceId = null;
+        $this->deleteReason = '';
+    }
+
+    public function deleteCancelledRegistration(?int $id = null): void
+    {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $this->deletingCancelledServiceId = $id ?? $this->deletingCancelledServiceId;
+
+        $this->validate([
+            'deleteReason' => 'required|string|min:5',
+        ], [
+            'deleteReason.required' => 'Alasan hapus wajib diisi.',
+            'deleteReason.min' => 'Alasan hapus minimal 5 karakter.',
+        ]);
+
+        $service = CustomerService::with('customer')
+            ->whereIn('status', ['dibatalkan', 'ditolak'])
+            ->findOrFail($this->deletingCancelledServiceId);
+
+        ActivityLog::record('registration.soft_deleted', 'Data registrasi batal atau ditolak dihapus sementara.', $service->customer, $this->deleteReason, [
+            'service_id' => $service->id,
+            'bandwidth' => $service->bandwidth,
+            'status' => $service->status,
+            'status_reason' => $service->status_reason,
+        ]);
+
+        $service->delete();
 
         if (class_exists(CustomerUpdated::class)) {
             broadcast(new CustomerUpdated);
         }
 
+        $this->cancelDeleteCancelledRegistration();
         $this->dispatch('notify', type: 'success', message: 'Data registrasi batal berhasil dihapus.');
     }
 
     public function render()
     {
-        $query = Customer::with(['user', 'service', 'invoiceRegistrasi', 'baa'])
-            ->whereHas('service');
+        $query = CustomerService::with(['customer.user', 'invoiceRegistrasi', 'baa']);
 
         if ($this->showCancelled) {
             $query->whereIn('status', ['dibatalkan', 'ditolak']);
@@ -68,7 +110,7 @@ class Index extends Component
         }
 
         $customers = $query->when($this->search, function ($q) {
-            $q->where(function ($sub) {
+            $q->whereHas('customer', function ($sub) {
                 $sub->where('company_name', 'like', '%'.$this->search.'%')
                     ->orWhere('phone', 'like', '%'.$this->search.'%');
             });
@@ -79,5 +121,10 @@ class Index extends Component
         return view('livewire.marketing.tracking.index', [
             'customers' => $customers,
         ]);
+    }
+
+    private function isSuperAdmin(): bool
+    {
+        return auth()->user()?->role === Role::SuperAdmin;
     }
 }

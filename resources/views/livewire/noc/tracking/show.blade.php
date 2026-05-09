@@ -74,7 +74,7 @@
                 </div>
             </div>
 
-            @if($customer->status === 'proses_aktivasi' || $isEditingBaa)
+            @if($service->status === 'proses_aktivasi' || $isEditingBaa)
                 <div class="boron-card border-2 border-[#ebb751] shadow-lg">
                     <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
                         <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]"><i class="ti ti-file-certificate"></i> Formulir Pembuatan Berita Acara Aktivasi (BAA)</h5>
@@ -174,7 +174,7 @@
                         </form>
                     </div>
                 </div>
-            @elseif($customer->status === 'review_baa' && !$isEditingBaa)
+            @elseif($service->status === 'review_baa' && !$isEditingBaa)
                 <div class="boron-card border-2 border-[#60addf] shadow-lg">
                     <div class="boron-card-header bg-[#60addf]/10 border-b border-[#60addf]/20 pb-3">
                         <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf]"><i class="ti ti-eye"></i> Review & Kirim BAA</h5>
@@ -206,13 +206,13 @@
 
         <div class="space-y-6">
             
-            <div class="boron-card border-2 shadow-lg overflow-hidden {{ $customer->status === 'proses_instalasi' ? 'border-[#ed6060]' : ($customer->status === 'proses_aktivasi' || $customer->status === 'review_baa' ? 'border-[#ebb751]' : 'border-[#70bb63]') }}">
-                <div class="boron-card-header pb-3 {{ $customer->status === 'proses_instalasi' ? 'bg-[#ed6060]/10 border-[#ed6060]/20' : ($customer->status === 'proses_aktivasi' || $customer->status === 'review_baa' ? 'bg-[#ebb751]/10 border-[#ebb751]/20' : 'bg-[#70bb63]/10 border-[#70bb63]/20') }}">
-                    <h5 class="font-bold {{ $customer->status === 'proses_instalasi' ? 'text-[#ed6060]' : ($customer->status === 'proses_aktivasi' || $customer->status === 'review_baa' ? 'text-[#ebb751]' : 'text-[#70bb63]') }}"><i class="ti ti-tool"></i> Tugas NOC</h5>
+            <div class="boron-card border-2 shadow-lg overflow-hidden {{ $service->status === 'proses_instalasi' ? 'border-[#ed6060]' : ($service->status === 'proses_aktivasi' || $service->status === 'review_baa' ? 'border-[#ebb751]' : 'border-[#70bb63]') }}">
+                <div class="boron-card-header pb-3 {{ $service->status === 'proses_instalasi' ? 'bg-[#ed6060]/10 border-[#ed6060]/20' : ($service->status === 'proses_aktivasi' || $service->status === 'review_baa' ? 'bg-[#ebb751]/10 border-[#ebb751]/20' : 'bg-[#70bb63]/10 border-[#70bb63]/20') }}">
+                    <h5 class="font-bold {{ $service->status === 'proses_instalasi' ? 'text-[#ed6060]' : ($service->status === 'proses_aktivasi' || $service->status === 'review_baa' ? 'text-[#ebb751]' : 'text-[#70bb63]') }}"><i class="ti ti-tool"></i> Tugas NOC</h5>
                 </div>
                 <div class="boron-card-body p-5 text-center">
                     
-                    @if($customer->status === 'proses_instalasi')
+                    @if($service->status === 'proses_instalasi')
                         <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#ed6060]/10 text-[#ed6060] mb-3"><i class="ti ti-router text-2xl"></i></div>
                         <h6 class="font-bold text-[#313a46] dark:text-white mb-2">Tahap 1: Instalasi Fisik</h6>
                         <p class="text-sm text-[#8a969c] mb-5">Lakukan penarikan kabel, splicing, dan pemasangan perangkat di lokasi pelanggan.</p>
@@ -220,7 +220,7 @@
                             Instalasi Selesai <i class="ti ti-arrow-right ml-1"></i>
                         </button>
                         
-                    @elseif($customer->status === 'proses_aktivasi' || $customer->status === 'review_baa')
+                    @elseif($service->status === 'proses_aktivasi' || $service->status === 'review_baa')
                         <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#ebb751]/10 text-[#ebb751] mb-3"><i class="ti ti-wifi text-2xl animate-pulse"></i></div>
                         <h6 class="font-bold text-[#313a46] dark:text-white mb-2">Tahap 2: Konfigurasi & Aktivasi</h6>
                         <p class="text-sm text-[#8a969c]">Lakukan konfigurasi sistem. Silakan isi Formulir BAA di sebelah kiri untuk menyelesaikan proses ini.</p>
@@ -251,7 +251,7 @@
                                 'verifikasi_pembayaran', 'pembayaran_disetujui', 'proses_instalasi', 
                                 'proses_aktivasi', 'review_baa', 'menunggu_baa', 'verifikasi_baa', 'selesai'
                             ];
-                        $currentIndex = array_search($customer->status, $statusOrder);
+                        $currentIndex = array_search($service->status, $statusOrder);
                         
                         $workflows = [
                             ['id' => 'pembayaran_disetujui', 'title' => 'Pembayaran Disetujui', 'icon' => 'ti-cash'],
@@ -268,7 +268,7 @@
                         @foreach($workflows as $index => $step)
                             @php
                                 $stepIndex = array_search($step['id'], $statusOrder);
-                                if ($customer->status === 'ditolak') {
+                                if ($service->status === 'ditolak') {
                                     $state = 'pending';
                                 } elseif ($stepIndex < $currentIndex) {
                                     $state = 'completed';

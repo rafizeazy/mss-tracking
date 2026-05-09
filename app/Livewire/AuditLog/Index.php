@@ -99,6 +99,7 @@ class Index extends Component
             'baa_signed.uploaded' => 'BAA bertanda tangan diupload',
             'customer.reactivated' => 'Pelanggan diaktifkan kembali',
             'customer.stopped' => 'Pelanggan Diberhentikan',
+            'customer.updated' => 'Data Pelanggan Diperbarui',
             'installation.finished' => 'Instalasi Selesai',
             'invoice.preview_generated' => 'Membuat Invoice',
             'invoice.sent' => 'Invoice Dikirim',
@@ -110,6 +111,8 @@ class Index extends Component
             'registration.rejected' => 'Registrasi Ditolak',
             'registration.sent_to_noc' => 'SPK dikirim ke NOC',
             'registration.soft_deleted' => 'Registrasi Dihapus Sementara',
+            'service.restored' => 'Layanan Dipulihkan',
+            'service.soft_deleted' => 'Layanan Dihapus Sementara',
         ];
     }
 

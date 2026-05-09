@@ -32,6 +32,7 @@ function createLifecycleCustomer(string $status): array
         'term_of_service' => 1,
         'monthly_fee' => 500000,
         'registration_fee' => 0,
+        'status' => $status,
     ]);
 
     return compact('user', 'customer', 'service');
@@ -49,6 +50,14 @@ it('limits register supporting documents to five megabytes', function () {
         ->set('accepted_terms', true)
         ->call('submit')
         ->assertHasErrors(['ktp_file' => 'max']);
+});
+
+it('shows bandwidth prices in register options while keeping clean bandwidth values', function () {
+    Livewire::test(Register::class)
+        ->set('currentStep', 4)
+        ->assertSee('100 Mbps - Rp 1.225.000')
+        ->assertSeeHtml('value="100 Mbps"')
+        ->assertDontSeeHtml('value="100 Mbps - Rp 1.225.000"');
 });
 
 it('restores safe registration draft fields only', function () {
@@ -92,8 +101,8 @@ it('deletes stopped customers from marketing customer data', function () {
         ->call('berhentikanPelanggan')
         ->assertHasNoErrors();
 
-    expect($customer->refresh()->status)->toBe('berhenti');
-    expect($customer->status_reason)->toBe('Kontrak sudah selesai');
+    expect($service->refresh()->status)->toBe('berhenti');
+    expect($service->status_reason)->toBe('Kontrak sudah selesai');
 
     $this->assertDatabaseHas('activity_logs', [
         'customer_id' => $customer->id,
@@ -108,11 +117,41 @@ it('deletes stopped customers softly from marketing customer data', function () 
 
     Livewire::actingAs($admin)
         ->test(MarketingDataPelangganIndex::class)
-        ->call('hapusPelangganBerhenti', $service->id)
+        ->call('confirmDeleteService', $service->id)
+        ->set('deleteReason', 'Layanan sudah tidak digunakan')
+        ->call('deleteService')
         ->assertHasNoErrors();
 
-    $this->assertSoftDeleted('customers', ['id' => $customer->id]);
-    $this->assertDatabaseHas('customer_services', ['id' => $service->id]);
+    $this->assertSoftDeleted('customer_services', ['id' => $service->id]);
+    $this->assertDatabaseHas('customers', [
+        'id' => $customer->id,
+        'deleted_at' => null,
+    ]);
+    $this->assertDatabaseHas('activity_logs', [
+        'customer_id' => $customer->id,
+        'action' => 'service.soft_deleted',
+        'reason' => 'Layanan sudah tidak digunakan',
+    ]);
+});
+
+it('restores softly deleted customer services from marketing customer data', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('berhenti');
+    $service->delete();
+
+    Livewire::actingAs($admin)
+        ->test(MarketingDataPelangganIndex::class)
+        ->call('restoreService', $service->id)
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('customer_services', [
+        'id' => $service->id,
+        'deleted_at' => null,
+    ]);
+    $this->assertDatabaseHas('activity_logs', [
+        'customer_id' => $customer->id,
+        'action' => 'service.restored',
+    ]);
 });
 
 it('deletes cancelled registrations softly from marketing tracking', function () {
@@ -121,11 +160,21 @@ it('deletes cancelled registrations softly from marketing tracking', function ()
 
     Livewire::actingAs($admin)
         ->test(MarketingTrackingIndex::class)
-        ->call('deleteCancelledRegistration', $customer->id)
+        ->call('confirmDeleteCancelledRegistration', $service->id)
+        ->set('deleteReason', 'Data pengajuan batal dirapihkan')
+        ->call('deleteCancelledRegistration')
         ->assertHasNoErrors();
 
-    $this->assertSoftDeleted('customers', ['id' => $customer->id]);
-    $this->assertDatabaseHas('customer_services', ['id' => $service->id]);
+    $this->assertSoftDeleted('customer_services', ['id' => $service->id]);
+    $this->assertDatabaseHas('customers', [
+        'id' => $customer->id,
+        'deleted_at' => null,
+    ]);
+    $this->assertDatabaseHas('activity_logs', [
+        'customer_id' => $customer->id,
+        'action' => 'registration.soft_deleted',
+        'reason' => 'Data pengajuan batal dirapihkan',
+    ]);
 });
 
 it('shows cancellation reason modal before cancelling a registration', function () {
@@ -261,7 +310,7 @@ it('creates baa from service id without requiring legacy customer id', function 
         'baa_number' => '001/BAA-MSS/V/2026',
     ]);
 
-    expect($customer->refresh()->status)->toBe('review_baa');
+    expect($service->refresh()->status)->toBe('review_baa');
 });
 
 it('uses local confirmation modal before sending baa to customer', function () {
@@ -343,8 +392,8 @@ it('requires a reason when rejecting a registration', function () {
         ->call('reject')
         ->assertHasNoErrors();
 
-    expect($customer->refresh()->status)->toBe('ditolak');
-    expect($customer->status_reason)->toBe('Dokumen legal tidak valid');
+    expect($service->refresh()->status)->toBe('ditolak');
+    expect($service->status_reason)->toBe('Dokumen legal tidak valid');
 
     $this->assertDatabaseHas('activity_logs', [
         'customer_id' => $customer->id,

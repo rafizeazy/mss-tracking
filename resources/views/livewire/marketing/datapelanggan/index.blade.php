@@ -2,90 +2,141 @@
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
          <h4 class="text-xl md:text-lg font-bold md:font-semibold text-[#313a46] dark:text-white">
-          {{ $showBerhentiOnly ? 'Arsip Data Pelanggan Berhenti' : 'Arsip Data Pelanggan Aktif' }}
+          {{ $showDeletedOnly ? 'Layanan Terhapus Sementara' : ($showBerhentiOnly ? 'Arsip Data Pelanggan Berhenti' : 'Arsip Data Pelanggan Aktif') }}
                         </h4>
          <p class="mt-1 md:mt-0.5 text-sm text-[#8a969c]">
-                            {{ $showBerhentiOnly ? 'Basis data pelanggan yang layanannya telah dihentikan.' : 'Basis data pelanggan yang layanannya telah beroperasi (100% Selesai).' }}
+                            {{ $showDeletedOnly ? 'Daftar layanan yang masih bisa dipulihkan oleh Super Admin.' : ($showBerhentiOnly ? 'Basis data pelanggan yang layanannya telah dihentikan.' : 'Basis data pelanggan yang layanannya telah beroperasi (100% Selesai).') }}
                         </p>
          </div>
         <div class="flex gap-2">
-            <button wire:click="$toggle('showBerhentiOnly')" class="btn-boron {{ $showBerhentiOnly ? 'bg-[#ed6060] text-white border-transparent' : '!bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]' }} !py-2 !px-4 text-sm font-semibold shadow-sm transition-colors">
+            <button wire:click="$toggle('showBerhentiOnly')" @disabled($showDeletedOnly) class="btn-boron {{ $showBerhentiOnly ? 'bg-[#ed6060] text-white border-transparent' : '!bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]' }} !py-2 !px-4 text-sm font-semibold shadow-sm transition-colors disabled:opacity-50">
                 <i class="ti ti-hand-stop mr-1.5 text-lg"></i> {{ $showBerhentiOnly ? 'Kembali ke Aktif' : 'Lihat Pelanggan Berhenti' }}
             </button>
+            @if(auth()->user()?->isSuperAdmin())
+                <button wire:click="toggleDeletedOnly" class="btn-boron {{ $showDeletedOnly ? 'bg-[#ebb751] text-white border-transparent' : '!bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]' }} !py-2 !px-4 text-sm font-semibold shadow-sm transition-colors">
+                    <i class="ti ti-archive mr-1.5 text-lg"></i> {{ $showDeletedOnly ? 'Kembali ke Data Aktif' : 'Lihat Terhapus' }}
+                </button>
+            @endif
         </div>
     </div>
 
-    <div class="boron-card">
+    <div class="boron-card overflow-hidden rounded-[0.4rem] border border-[#d5deea] bg-white shadow-sm dark:border-[#37394d] dark:bg-[#15151b]">
         <div class="boron-card-body p-0">
-            <div class="w-full">
-                <table class="w-full text-left text-sm text-[#4c4c5c] dark:text-[#aab8c5] block md:table">
-                    
-                    <thead class="hidden md:table-header-group bg-[#f8f9fa] text-xs uppercase text-[#313a46] dark:bg-[#1e1f27] dark:text-white">
+            <div class="flex flex-col gap-4 border-b border-[#d5deea] p-4 lg:flex-row lg:items-center lg:justify-between dark:border-[#37394d]">
+                <div>
+                    <h3 class="text-xl font-bold text-[#313a46] dark:text-white">Daftar Layanan</h3>
+                    <p class="mt-1 text-sm text-[#8a969c]">Kelola dan pantau semua layanan pelanggan.</p>
+                </div>
+                <div class="flex flex-col gap-2 sm:flex-row">
+                <div class="relative w-full md:w-80">
+                    <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-[#8a969c]"></i>
+                    <input
+                        type="text"
+                        wire:model.live.debounce.400ms="search"
+                        placeholder="Cari ID/Perusahaan..."
+                        class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white py-2.5 pl-9 pr-10 text-sm text-[#313a46] shadow-sm outline-none transition focus:border-[#60addf] focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white"
+                    >
+                    @if($search !== '')
+                        <button type="button" wire:click="$set('search', '')" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-[#8a969c] hover:bg-[#ed6060]/10 hover:text-[#ed6060]">
+                            <i class="ti ti-x text-base"></i>
+                        </button>
+                    @endif
+                </div>
+                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-[0.4rem] border border-[#dee2e6] bg-white px-4 py-2.5 text-sm font-bold text-[#313a46] shadow-sm dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">
+                    <i class="ti ti-filter text-[#60addf]"></i> Filter
+                </button>
+                </div>
+            </div>
+            <div class="w-full overflow-x-auto rounded-[0.4rem] border border-[#d5deea] bg-white dark:border-[#37394d] dark:bg-[#15151b]">
+                <table class="w-full min-w-[900px] text-left text-sm text-[#1f2937] dark:text-[#e7edf5]">
+                    <thead class="bg-[#f1f6ff] text-[11px] uppercase tracking-wide text-[#2f4c75] dark:bg-[#1e1f27] dark:text-[#c7d4e5]">
                         <tr>
-                            <th class="px-6 py-4 font-semibold">ID / PERUSAHAAN</th>
-                            <th class="px-6 py-4 font-semibold">LAYANAN</th>
-                            <th class="px-6 py-4 font-semibold">TGL AKTIF</th>
-                            <th class="px-6 py-4 text-center font-semibold">AKSI CEPAT</th>
+                            <th class="px-4 py-3 font-bold">ID / Perusahaan</th>
+                            <th class="px-4 py-3 font-bold">Layanan</th>
+                            <th class="px-4 py-3 font-bold">Tgl Aktif</th>
+                            <th class="px-4 py-3 text-center font-bold">Aksi Cepat</th>
                         </tr>
                     </thead>
-                    
-                    <tbody class="block md:table-row-group divide-y-0 md:divide-y divide-[#e7e9eb] dark:divide-[#37394d]">
-                        @forelse ($services as $srv)
-                            <tr class="flex flex-col md:table-row border-b border-[#e7e9eb] md:border-none dark:border-[#37394d] p-5 md:p-0 gap-3 md:gap-0 hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors">
-                                
-                                <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
-                                    <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">ID / Perusahaan</span>
-                                    <div class="text-right md:text-left">
-                                        <p class="font-bold text-[#ebb751] text-xs mb-0.5">{{ $srv->customer->customer_number ?? '-' }}</p>
-                                        <p class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $srv->customer->company_name }}</p>
-                                    </div>
-                                </td>
-                                
-                                <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
-                                    <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">Layanan</span>
-                                    <div class="text-right md:text-left">
-                                        <p class="font-bold md:font-medium text-[#1e5d87] dark:text-[#60addf] md:text-[#313a46] md:dark:text-white">{{ $srv->bandwidth ?? '-' }}</p>
-                                        <p class="text-[11px] md:text-xs text-[#8a969c]">{{ $srv->service_type ?? '-' }}</p>
-                                    </div>
-                                </td>
-                                
-                                <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 pb-1 md:pb-0 border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
-                                    <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">Tgl Aktif</span>
-                                    <span class="font-medium md:font-normal text-[#313a46] dark:text-white md:text-inherit">{{ $srv->baa && $srv->baa->activation_date ? $srv->baa->activation_date->format('d M Y') : '-' }}</span>
-                                </td>
-                                
-                                <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
-                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-2 flex-wrap">
-                                        <button wire:click="viewDetail({{ $srv->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
-                                            <i class="ti ti-list-details text-base text-[#60addf]"></i> Detail
-                                        </button>
-                                        <button wire:click="editCustomer({{ $srv->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
-                                            <i class="ti ti-edit text-base text-[#ebb751]"></i> Edit Data
-                                        </button>
-                                        <button wire:click="openArsip({{ $srv->id }})" class="w-full sm:w-auto btn-boron !bg-[#f8f9fa] !text-[#313a46] border border-[#dee2e6] hover:!bg-[#e7e9eb] !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 dark:!bg-[#1e1f27] dark:!text-white dark:border-[#37394d] dark:hover:!bg-[#252630]">
-                                            <i class="ti ti-folder text-base text-[#1e5d87]"></i> Arsip Dok.
-                                        </button>
-                                        @if($srv->customer->status !== 'berhenti')
-                                            <button wire:click="confirmBerhentikanPelanggan({{ $srv->id }})" class="w-full sm:w-auto btn-boron !bg-[#ed6060]/10 !text-[#ed6060] hover:!bg-[#ed6060] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
-                                                <i class="ti ti-hand-stop text-base"></i> Berhenti
-                                            </button>
-                                        @else
-                                            <button wire:click="aktifkanKembaliPelanggan({{ $srv->id }})" wire:confirm="Aktifkan kembali pelanggan ini?" class="w-full sm:w-auto btn-boron !bg-[#70bb63]/10 !text-[#70bb63] hover:!bg-[#70bb63] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
-                                                <i class="ti ti-rotate-clockwise-2 text-base"></i> Aktifkan
-                                            </button>
-                                            <button wire:click="hapusPelangganBerhenti({{ $srv->id }})" wire:confirm="Hapus sementara data pelanggan ini dari tampilan?" class="w-full sm:w-auto btn-boron !bg-[#ed6060]/10 !text-[#ed6060] hover:!bg-[#ed6060] hover:!text-white !py-1.5 !px-3 text-xs shadow-sm flex justify-center items-center gap-1.5 transition-colors">
-                                                <i class="ti ti-trash text-base"></i> Hapus
-                                            </button>
-                                        @endif
-                                    </div>
+
+                    <tbody class="divide-y divide-[#e7edf5] dark:divide-[#2f3442]">
+                        @php
+                            $groupedServices = $services->getCollection()->groupBy('customer_id');
+                        @endphp
+
+                        @forelse ($groupedServices as $customerServices)
+                            @php
+                                $groupCustomer = $customerServices->first()->customer;
+                                $isExpanded = ! in_array($groupCustomer->id, $collapsedCustomerIds, true);
+                            @endphp
+
+                            <tr class="bg-[#cfe0f8] text-[#0f2744] dark:bg-[#263852] dark:text-[#e8f1ff]" data-customer-group-id="{{ $groupCustomer->customer_number ?? $groupCustomer->id }}">
+                                <td colspan="4" class="px-4 py-2">
+                                    <button type="button" wire:click="toggleCustomerGroup({{ $groupCustomer->id }})" class="flex w-full items-center gap-2 text-left text-xs font-bold">
+                                        <i class="ti {{ $isExpanded ? 'ti-building-store' : 'ti-building' }} text-[#0b6ea8] dark:text-[#60addf]"></i>
+                                        <span>{{ $groupCustomer->customer_number ?? '-' }} - {{ $groupCustomer->company_name }}</span>
+                                    </button>
                                 </td>
                             </tr>
+
+                            @if($isExpanded)
+                                @foreach ($customerServices as $srv)
+                                    <tr class="bg-white text-[#111827] hover:bg-[#f7fbff] dark:bg-[#15151b] dark:text-[#e7edf5] dark:hover:bg-[#1d2230]">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center gap-3 pl-4">
+                                                <span class="h-5 border-l-2 border-[#c4d0dd] dark:border-[#4b5565]"></span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <p class="font-bold text-[#111827] dark:text-white">{{ $srv->bandwidth ?? '-' }}</p>
+                                            <p class="text-xs text-[#536175] dark:text-[#aab8c5]">{{ $srv->service_type ?? '-' }}</p>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm font-medium text-[#111827] dark:text-[#e7edf5]">
+                                            {{ $srv->baa && $srv->baa->activation_date ? $srv->baa->activation_date->format('d M Y') : '-' }}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center justify-center gap-3">
+                                            @if($showDeletedOnly)
+                                                <button wire:click="restoreService({{ $srv->id }})" title="Pulihkan" class="text-[#70bb63] hover:text-[#4f9d43]">
+                                                    <i class="ti ti-restore text-base"></i>
+                                                </button>
+                                            @else
+                                                <button wire:click="viewDetail({{ $srv->id }})" title="Detail" class="text-[#1e5d87] hover:text-[#60addf] dark:text-[#60addf]">
+                                                    <i class="ti ti-eye text-base"></i>
+                                                </button>
+                                                @if(auth()->user()?->isSuperAdmin())
+                                                    <button wire:click="editCustomer({{ $srv->id }})" title="Edit" class="text-[#1e5d87] hover:text-[#60addf] dark:text-[#60addf]">
+                                                        <i class="ti ti-pencil text-base"></i>
+                                                    </button>
+                                                @endif
+                                                <button wire:click="openArsip({{ $srv->id }})" title="Arsip Dokumen" class="text-[#1e5d87] hover:text-[#60addf] dark:text-[#60addf]">
+                                                    <i class="ti ti-folder text-base"></i>
+                                                </button>
+                                                @if(auth()->user()?->isSuperAdmin())
+                                                    @if($srv->status !== 'berhenti')
+                                                        <button wire:click="confirmBerhentikanPelanggan({{ $srv->id }})" title="Berhenti" class="text-[#dc2626] hover:text-[#ef4444]">
+                                                            <i class="ti ti-ban text-base"></i>
+                                                        </button>
+                                                    @else
+                                                        <button wire:click="aktifkanKembaliPelanggan({{ $srv->id }})" title="Aktifkan" class="text-[#70bb63] hover:text-[#4f9d43]">
+                                                            <i class="ti ti-rotate-clockwise-2 text-base"></i>
+                                                        </button>
+                                                    @endif
+                                                    <button wire:click="confirmDeleteService({{ $srv->id }})" title="Hapus" class="text-[#dc2626] hover:text-[#ef4444]">
+                                                        <i class="ti ti-trash text-base"></i>
+                                                    </button>
+                                                @endif
+                                            @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         @empty
-                            <tr class="block md:table-row">
-                                <td colspan="4" class="block md:table-cell px-6 py-12 text-center text-[#8a969c]">
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-[#8a969c]">
                                     <div class="flex flex-col items-center justify-center">
                                         <i class="ti ti-inbox text-4xl mb-2 opacity-50"></i>
-                                        <p>Belum ada arsip pelanggan aktif.</p>
+                                        <p>{{ $showDeletedOnly ? 'Belum ada layanan yang dihapus sementara.' : ($showBerhentiOnly ? 'Belum ada arsip pelanggan yang berhenti.' : 'Belum ada arsip pelanggan aktif.') }}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -522,7 +573,29 @@
                 @error('stopReason') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                 <div class="mt-5 flex justify-end gap-2">
                     <button wire:click="cancelBerhenti" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-4">Batal</button>
-                    <button wire:click="berhentikanPelanggan" wire:confirm="Anda yakin ingin memberhentikan layanan untuk pelanggan ini?" class="btn-boron bg-[#ed6060] text-white hover:bg-[#c84d4d] !py-2 text-sm px-4 font-bold">Simpan</button>
+                    <button wire:click="berhentikanPelanggan" class="btn-boron bg-[#ed6060] text-white hover:bg-[#c84d4d] !py-2 text-sm px-4 font-bold">Simpan</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($deletingServiceId)
+        <div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" wire:transition.opacity>
+            <div class="w-full max-w-md rounded-2xl border border-[#e7e9eb] bg-white p-6 shadow-2xl dark:border-[#37394d] dark:bg-[#1e1f27]">
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex size-10 items-center justify-center rounded-full bg-[#ed6060]/10 text-[#ed6060]">
+                        <i class="ti ti-trash text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#313a46] dark:text-white">Hapus Layanan Sementara</h3>
+                        <p class="text-xs text-[#8a969c]">Data layanan bisa dipulihkan dari menu Lihat Terhapus.</p>
+                    </div>
+                </div>
+                <textarea wire:model="deleteReason" rows="4" placeholder="Tulis alasan hapus sementara..." class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm focus:border-[#ed6060] focus:outline-none focus:ring-1 focus:ring-[#ed6060] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white"></textarea>
+                @error('deleteReason') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                <div class="mt-5 flex justify-end gap-2">
+                    <button wire:click="cancelDeleteService" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-4">Batal</button>
+                    <button wire:click="deleteService" class="btn-boron bg-[#ed6060] text-white hover:bg-[#c84d4d] !py-2 text-sm px-4 font-bold">Simpan</button>
                 </div>
             </div>
         </div>

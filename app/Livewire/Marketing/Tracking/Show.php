@@ -344,11 +344,7 @@ class Show extends Component
             'marketing_phone' => $this->marketing_phone,
         ]);
 
-        $this->customer->update([
-            'status' => 'menunggu_invoice',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $this->service->moveToStatus('menunggu_invoice');
 
         ActivityLog::record('registration.approved', 'Registrasi disetujui oleh Marketing.', $this->customer);
 
@@ -369,11 +365,7 @@ class Show extends Component
             'rejectionReason.min' => 'Alasan penolakan minimal 5 karakter.',
         ]);
 
-        $this->customer->update([
-            'status' => 'ditolak',
-            'status_reason' => $this->rejectionReason,
-            'status_reason_at' => now(),
-        ]);
+        $this->service->moveToStatus('ditolak', $this->rejectionReason);
 
         ActivityLog::record('registration.rejected', 'Registrasi ditolak oleh Marketing.', $this->customer, $this->rejectionReason);
 
@@ -419,11 +411,7 @@ class Show extends Component
             return;
         }
 
-        $this->customer->update([
-            'status' => 'proses_instalasi',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $this->service->moveToStatus('proses_instalasi');
 
         ActivityLog::record('registration.sent_to_noc', 'SPK dikirim ke tim NOC.', $this->customer);
 
@@ -438,7 +426,7 @@ class Show extends Component
 
     public function approveBaa()
     {
-        $this->customer->update(['status' => 'selesai']);
+        $this->service->moveToStatus('selesai');
 
         ActivityLog::record('baa.approved', 'BAA disetujui dan layanan dinyatakan aktif.', $this->customer);
 
@@ -458,7 +446,7 @@ class Show extends Component
             $this->service->baa->update(['signed_baa_path' => null]);
         }
 
-        $this->customer->update(['status' => 'menunggu_baa']);
+        $this->service->moveToStatus('menunggu_baa');
 
         ActivityLog::record('baa.rejected', 'BAA ditolak dan pelanggan diminta upload ulang.', $this->customer);
 
@@ -475,11 +463,7 @@ class Show extends Component
             'cancellationReason.min' => 'Alasan pembatalan minimal 5 karakter.',
         ]);
 
-        $this->customer->update([
-            'status' => 'dibatalkan',
-            'status_reason' => $this->cancellationReason,
-            'status_reason_at' => now(),
-        ]);
+        $this->service->moveToStatus('dibatalkan', $this->cancellationReason);
 
         ActivityLog::record('registration.cancelled', 'Registrasi dibatalkan oleh Marketing.', $this->customer, $this->cancellationReason);
 

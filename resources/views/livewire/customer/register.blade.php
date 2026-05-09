@@ -348,22 +348,9 @@
                                 <select wire:model="bandwidth"
                                     class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-transparent px-3 py-2 text-sm focus:border-[#669776] focus:outline-none focus:ring-1 focus:ring-[#669776] dark:border-[#37394d] dark:bg-[#1e1e2a]">
                                     <option value="">-- Pilih Kapasitas --</option>
-                                    <option value="100 Mbps">100 Mbps</option>
-                                    <option value="200 Mbps">200 Mbps</option>
-                                    <option value="300 Mbps">300 Mbps</option>
-                                    <option value="400 Mbps">400 Mbps</option>
-                                    <option value="500 Mbps">500 Mbps</option>
-                                    <option value="600 Mbps">600 Mbps</option>
-                                    <option value="700 Mbps">700 Mbps</option>
-                                    <option value="800 Mbps">800 Mbps</option>
-                                    <option value="900 Mbps">900 Mbps</option>
-                                    <option value="1000 Mbps">1000 Mbps</option>
-                                    <option value="1500 Mbps">1500 Mbps</option>
-                                    <option value="2000 Mbps">2000 Mbps</option>
-                                    <option value="2500 Mbps">2500 Mbps</option>
-                                    <option value="3000 Mbps">3000 Mbps</option>
-                                    <option value="3500 Mbps">3500 Mbps</option>
-                                    <option value="4000 Mbps">4000 Mbps</option>
+                                    @foreach($bandwidthOptions as $capacity => $price)
+                                        <option value="{{ $capacity }}">{{ $capacity }} - {{ $price }}</option>
+                                    @endforeach
                                 </select>
                                 @error('bandwidth') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
                             </div>

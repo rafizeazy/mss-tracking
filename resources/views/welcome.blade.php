@@ -163,6 +163,10 @@
             padding: 30px 0;
         }
 
+        .mobile-menu-action {
+            display: none;
+        }
+
         .nav-menu a::after {
             content: '';
             position: absolute;
@@ -800,6 +804,10 @@
                 padding: 12px 0;
             }
 
+            .mobile-menu-action {
+                display: block;
+            }
+
             .nav-menu a::after {
                 bottom: 6px;
             }
@@ -885,6 +893,8 @@
                     <li><a href="#promo">Promo</a></li>
                     <li><a href="#bantuan">Bantuan</a></li>
                     <li><a href="#kontak">Kontak</a></li>
+                    <li class="mobile-menu-action"><a href="{{ route('login') }}">Login</a></li>
+                    <li class="mobile-menu-action"><a href="{{ route('customer.register') }}">Daftar</a></li>
                 </ul>
             </nav>
 

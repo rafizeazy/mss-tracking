@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -76,6 +77,24 @@ class Register extends Component
     public string $bandwidth = '';
 
     public string $term_of_service = '1';
+
+    public array $bandwidthOptions = [
+        '100 Mbps' => 'Rp 1.225.000',
+        '200 Mbps' => 'Rp 2.100.000',
+        '300 Mbps' => 'Rp 3.500.000',
+        '400 Mbps' => 'Rp 4.830.000',
+        '500 Mbps' => 'Rp 6.160.000',
+        '600 Mbps' => 'Rp 7.000.000',
+        '700 Mbps' => 'Rp 8.310.000',
+        '800 Mbps' => 'Rp 9.695.000',
+        '900 Mbps' => 'Rp 10.920.000',
+        '1000 Mbps' => 'Rp 13.300.000',
+        '1500 Mbps' => 'Rp 19.500.000',
+        '2000 Mbps' => 'Rp 25.200.000',
+        '2500 Mbps' => 'Rp 30.000.000',
+        '3000 Mbps' => 'Rp 35.550.000',
+        '3500 Mbps' => 'Rp 40.250.000',
+    ];
 
     public $ktp_file;
 
@@ -150,7 +169,7 @@ class Register extends Component
             ],
             4 => [
                 'service_type' => 'required|string|max:255',
-                'bandwidth' => 'required|string|max:255',
+                'bandwidth' => ['required', 'string', 'max:255', Rule::in(array_keys($this->bandwidthOptions))],
                 'term_of_service' => 'required|integer|in:1,2,3',
                 'installation_address' => 'required|string',
                 'ktp_file' => 'required|mimes:jpg,jpeg,png,pdf|max:5120',
@@ -351,6 +370,7 @@ class Register extends Component
                 'bandwidth' => $this->bandwidth,
                 'term_of_service' => (int) $this->term_of_service,
                 'installation_address' => $this->installation_address,
+                'status' => 'menunggu_verifikasi',
             ]);
 
             Auth::login($user);

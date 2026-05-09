@@ -54,7 +54,11 @@
             </div>
         @endif
 
-        @if($customer->status === 'selesai')
+        @php
+            $activeServices = $customer->services->where('status', 'selesai');
+        @endphp
+
+        @if($activeServices->isNotEmpty())
             <div class="boron-card rounded-2xl bg-gradient-to-r from-[#1e5d87] to-[#60addf] border-0 mb-6 md:mb-8 text-white overflow-hidden relative shadow-lg shadow-[#60addf]/20">
                 <div class="absolute top-0 right-0 -mt-10 -mr-10 size-40 rounded-full bg-white/10 blur-2xl"></div>
                 <div class="absolute bottom-0 right-20 -mb-10 size-32 rounded-full bg-black/10 blur-xl"></div>
@@ -74,72 +78,74 @@
             <div class="grid gap-6 md:gap-8 lg:grid-cols-3">
                 <div class="lg:col-span-2 space-y-6 md:space-y-8">
                     
-                    <div class="boron-card border-t-4 border-t-[#669776] shadow-sm rounded-2xl">
-                        <div class="boron-card-body p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-4">
-                            <div class="flex items-center gap-4">
-                                <div class="flex size-12 md:size-14 items-center justify-center rounded-full bg-[#669776]/10 text-[#669776] shrink-0">
-                                    <i class="ti ti-network text-2xl md:text-3xl"></i>
+                    <div class="space-y-5">
+                        @foreach($activeServices as $activeService)
+                            <div class="boron-card border-t-4 border-t-[#669776] shadow-sm rounded-2xl">
+                                <div class="boron-card-body p-5 md:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex size-12 md:size-14 items-center justify-center rounded-full bg-[#669776]/10 text-[#669776] shrink-0">
+                                            <i class="ti ti-network text-2xl md:text-3xl"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[11px] md:text-xs font-semibold uppercase text-[#8a969c]">Paket Layanan Aktif</p>
+                                            <h6 class="text-lg md:text-xl font-bold text-[#313a46] dark:text-white">{{ $activeService->bandwidth }}</h6>
+                                            <p class="text-xs md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-0.5">{{ $activeService->service_type }}</p>
+                                            <p class="text-[11px] text-[#8a969c] mt-1">{{ $activeService->installation_address ?? $customer->company_address }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-full sm:w-auto mt-2 sm:mt-0 text-left sm:text-right border-t border-[#e7e9eb] sm:border-0 pt-4 sm:pt-0 dark:border-[#37394d]">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#70bb63]/10 text-[#70bb63] font-bold text-sm">
+                                            <i class="ti ti-circle-check"></i> Status: Aktif Beroperasi
+                                        </span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-[11px] md:text-xs font-semibold uppercase text-[#8a969c]">Paket Layanan Aktif</p>
-                                    <h6 class="text-lg md:text-xl font-bold text-[#313a46] dark:text-white">{{ $customer->service?->bandwidth }}</h6>
-                                    <p class="text-xs md:text-sm text-[#4c4c5c] dark:text-[#aab8c5] mt-0.5">{{ $customer->service?->service_type }}</p>
-                                </div>
-                            </div>
-                            <div class="w-full sm:w-auto mt-2 sm:mt-0 text-left sm:text-right border-t border-[#e7e9eb] sm:border-0 pt-4 sm:pt-0 dark:border-[#37394d]">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#70bb63]/10 text-[#70bb63] font-bold text-sm">
-                                    <i class="ti ti-circle-check"></i> Status: Aktif Beroperasi
-                                </span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="boron-card bg-white dark:bg-[#15151b] border border-[#e7e9eb] dark:border-[#37394d] shadow-sm rounded-2xl">
-                        <div class="boron-card-header pb-3 pt-5 px-5 md:px-6 border-b border-[#e7e9eb] dark:border-[#37394d]">
-                            <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf] flex items-center gap-2 text-base md:text-lg">
-                                <i class="ti ti-folder text-xl"></i> Arsip Dokumen Legal
-                            </h5>
-                        </div>
-                        <div class="boron-card-body p-5 md:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            <a href="{{ route('noc.baa', $customer->service?->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
-                                <i class="ti ti-file-certificate text-3xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-2 transition-colors dark:group-hover:text-[#60addf]"></i>
-                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Original</h6>
-                                <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">Format Kosong</span>
-                            </a>
-                    
-                            @if($customer->baa && $customer->baa->signed_baa_path)
-                                <a href="{{ asset('storage/' . $customer->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#70bb63]/50 bg-[#70bb63]/5 hover:bg-[#70bb63]/10 hover:shadow-md transition-all group dark:border-[#70bb63]/30 dark:bg-[#1e1f27]">
-                                    <i class="ti ti-file-check text-3xl text-[#70bb63] mb-2"></i>
-                                    <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA (Signed)</h6>
-                                    <span class="text-[10px] text-[#70bb63] font-bold mt-1 bg-[#70bb63]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
-                                </a>
-                            @endif
-                    
-                            <a href="{{ route('customer.invoice', $customer->service?->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#ebb751] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
-                                <i class="ti ti-file-invoice text-3xl text-[#a1a9b1] group-hover:text-[#ebb751] mb-2 transition-colors"></i>
-                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Invoice Registrasi</h6>
-                                <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generated</span>
-                            </a>
-                    
-                            @if($customer->invoiceRegistrasi?->payment_proof_file_path)
-                                <a href="{{ asset('storage/' . $customer->invoiceRegistrasi->payment_proof_file_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#60addf] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
-                                    <i class="ti ti-receipt-2 text-3xl text-[#60addf] mb-2"></i>
-                                    <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Bukti Transfer</h6>
-                                    <span class="text-[10px] text-[#60addf] font-bold mt-1 bg-[#60addf]/10 px-2 py-0.5 rounded">Verifikasi Lunas</span>
-                                </a>
-                            @elseif(!is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
-                                <div class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-[#70bb63] bg-[#70bb63]/5 dark:bg-[#70bb63]/10 dark:border-[#70bb63]/30">
-                                    <i class="ti ti-gift text-3xl text-[#70bb63] mb-2"></i>
-                                    <h6 class="font-bold text-sm text-[#70bb63] text-center">Bukti Transfer</h6>
-                                    <span class="text-[10px] text-[#70bb63] font-bold mt-1 px-2 py-0.5 rounded border border-[#70bb63]">PROMO FREE</span>
+                                <div class="border-t border-[#e7e9eb] p-5 md:p-6 dark:border-[#37394d]">
+                                    <h5 class="mb-4 font-bold text-[#1e5d87] dark:text-[#60addf] flex items-center gap-2 text-base md:text-lg">
+                                        <i class="ti ti-folder text-xl"></i> Arsip Dokumen Layanan {{ $activeService->bandwidth }}
+                                    </h5>
+                                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                        @if($activeService->baa)
+                                            <a href="{{ route('noc.baa', $activeService->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#1e5d87] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                                                <i class="ti ti-file-certificate text-3xl text-[#a1a9b1] group-hover:text-[#1e5d87] mb-2 transition-colors dark:group-hover:text-[#60addf]"></i>
+                                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA Original</h6>
+                                                <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">Format Kosong</span>
+                                            </a>
+                                        @endif
+
+                                        @if($activeService->baa?->signed_baa_path)
+                                            <a href="{{ asset('storage/' . $activeService->baa->signed_baa_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#70bb63]/50 bg-[#70bb63]/5 hover:bg-[#70bb63]/10 hover:shadow-md transition-all group dark:border-[#70bb63]/30 dark:bg-[#1e1f27]">
+                                                <i class="ti ti-file-check text-3xl text-[#70bb63] mb-2"></i>
+                                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">BAA (Signed)</h6>
+                                                <span class="text-[10px] text-[#70bb63] font-bold mt-1 bg-[#70bb63]/10 px-2 py-0.5 rounded">Telah Di-TTD</span>
+                                            </a>
+                                        @endif
+
+                                        @if($activeService->invoiceRegistrasi)
+                                            <a href="{{ route('customer.invoice', $activeService->id) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#ebb751] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                                                <i class="ti ti-file-invoice text-3xl text-[#a1a9b1] group-hover:text-[#ebb751] mb-2 transition-colors"></i>
+                                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Invoice Registrasi</h6>
+                                                <span class="text-[10px] text-[#8a969c] mt-1 bg-[#f8f9fa] dark:bg-white/5 px-2 py-0.5 rounded">PDF Generated</span>
+                                            </a>
+                                        @endif
+
+                                        @if($activeService->invoiceRegistrasi?->payment_proof_file_path)
+                                            <a href="{{ asset('storage/' . $activeService->invoiceRegistrasi->payment_proof_file_path) }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-[#dee2e6] hover:border-[#60addf] hover:shadow-md transition-all dark:border-[#37394d] group dark:bg-[#1e1f27]">
+                                                <i class="ti ti-receipt-2 text-3xl text-[#60addf] mb-2"></i>
+                                                <h6 class="font-bold text-sm text-[#313a46] dark:text-white text-center">Bukti Transfer</h6>
+                                                <span class="text-[10px] text-[#60addf] font-bold mt-1 bg-[#60addf]/10 px-2 py-0.5 rounded">Verifikasi Lunas</span>
+                                            </a>
+                                        @elseif(!is_null($activeService->registration_fee) && (float)$activeService->registration_fee === 0.0)
+                                            <div class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-[#70bb63] bg-[#70bb63]/5 dark:bg-[#70bb63]/10 dark:border-[#70bb63]/30">
+                                                <i class="ti ti-gift text-3xl text-[#70bb63] mb-2"></i>
+                                                <h6 class="font-bold text-sm text-[#70bb63] text-center">Bukti Transfer</h6>
+                                                <span class="text-[10px] text-[#70bb63] font-bold mt-1 px-2 py-0.5 rounded border border-[#70bb63]">PROMO FREE</span>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
-                            @else
-                                <div class="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-[#dee2e6] bg-[#f8f9fa] opacity-70 dark:bg-[#15151b] dark:border-[#37394d]">
-                                    <i class="ti ti-receipt-off text-3xl text-[#dee2e6] mb-2 dark:text-[#37394d]"></i>
-                                    <h6 class="font-bold text-sm text-[#8a969c] text-center">Belum Ada Bukti</h6>
-                                </div>
-                            @endif
-                        </div>
+                            </div>
+                        @endforeach
                     </div>
 
                     <div class="boron-card bg-[#f8f9fa] dark:bg-[#15151b] border border-[#e7e9eb] dark:border-[#37394d] shadow-sm rounded-2xl">
@@ -237,56 +243,63 @@
                     <div class="boron-card shadow-sm rounded-2xl">
                         <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Ringkasan Layanan') }}</h5>
-                            <button x-data @click="$dispatch('open-detail-modal')" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                            @if($activeServices->count() === 1)
+                                <button wire:click="openDetailModal({{ $activeServices->first()?->id }})" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                            @endif
                         </div>
-                        <div class="boron-card-body p-5">
-                            <div class="flex items-center gap-4 mb-5">
-                                <div class="flex size-14 md:size-12 shrink-0 items-center justify-center rounded-xl md:rounded-[0.3rem] bg-[#669776]/10 text-[#669776]">
-                                    <i class="ti ti-network text-3xl md:text-2xl"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
-                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->service?->bandwidth }}</h6>
-                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service?->service_type ?? '-' }}</p>
-                                </div>
-                            </div>
-                            
-                            <ul class="space-y-3.5 text-sm md:text-[13px]">
-                                <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                    <span class="text-[#8a969c]">Masa Kontrak</span>
-                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->service?->term_of_service ?? '-' }} Tahun</span>
-                                </li>
-                                <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                    <span class="text-[#8a969c]">ID Pelanggan</span>
-                                    <span class="font-bold text-[#ebb751]">
-                                        {{ $customer->customer_number ?? 'Menunggu BAA' }}
-                                    </span>
-                                </li>
-                                
-                                @if($customer->status !== 'menunggu_verifikasi')
-                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                        <span class="text-[#8a969c]">Biaya Registrasi</span>
-                                        <span class="font-bold md:font-medium text-[#313a46] dark:text-white">
-                                            @if(!is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
-                                                <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
-                                            @else
-                                                Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}
-                                            @endif
-                                        </span>
-                                    </li>
-                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                        <span class="text-[#8a969c]">Biaya Bulanan</span>
-                                        <span class="font-bold md:font-medium text-[#ebb751]">Rp {{ number_format($customer->service?->monthly_fee ?? 0, 0, ',', '.') }}</span>
-                                    </li>
-                                    <li class="flex justify-between items-start border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                        <span class="text-[#8a969c] mt-0.5">Marketing Sales</span>
-                                        <div class="text-right">
-                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white block leading-tight">{{ $customer->service?->marketing_name ?? '-' }}</span>
-                                            <span class="text-[10px] text-[#8a969c]">{{ $customer->service?->marketing_phone ?? '-' }}</span>
+                        <div class="boron-card-body divide-y divide-[#e7e9eb] p-0 dark:divide-[#37394d]">
+                            @foreach($activeServices as $summaryService)
+                                <div class="p-5" data-service-summary-card>
+                                    <div class="flex items-start gap-4">
+                                        <div class="flex size-14 md:size-12 shrink-0 items-center justify-center rounded-xl md:rounded-[0.3rem] bg-[#669776]/10 text-[#669776]">
+                                            <i class="ti ti-network text-3xl md:text-2xl"></i>
                                         </div>
-                                    </li>
-                                @endif
-                            </ul>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-start justify-between gap-3">
+                                                <div>
+                                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
+                                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $summaryService->bandwidth }}</h6>
+                                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $summaryService->service_type ?? '-' }}</p>
+                                                </div>
+                                                <button wire:click="openDetailModal({{ $summaryService->id }})" class="shrink-0 text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                                            </div>
+                                            @if($activeServices->count() === 1)
+                                                <ul class="mt-5 space-y-3.5 text-sm md:text-[13px]">
+                                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                                        <span class="text-[#8a969c]">Masa Kontrak</span>
+                                                        <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $summaryService->term_of_service ?? '-' }} Tahun</span>
+                                                    </li>
+                                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                                        <span class="text-[#8a969c]">ID Pelanggan</span>
+                                                        <span class="font-bold text-[#ebb751]">{{ $customer->customer_number ?? 'Menunggu BAA' }}</span>
+                                                    </li>
+                                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                                        <span class="text-[#8a969c]">Biaya Registrasi</span>
+                                                        <span class="font-bold md:font-medium text-[#313a46] dark:text-white">
+                                                            @if(!is_null($summaryService->registration_fee) && (float)$summaryService->registration_fee === 0.0)
+                                                                <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
+                                                            @else
+                                                                Rp {{ number_format($summaryService->registration_fee ?? 0, 0, ',', '.') }}
+                                                            @endif
+                                                        </span>
+                                                    </li>
+                                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                                        <span class="text-[#8a969c]">Biaya Bulanan</span>
+                                                        <span class="font-bold md:font-medium text-[#ebb751]">Rp {{ number_format($summaryService->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                                    </li>
+                                                    <li class="flex justify-between items-start border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                                        <span class="text-[#8a969c] mt-0.5">Marketing Sales</span>
+                                                        <div class="text-right">
+                                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white block leading-tight">{{ $summaryService->marketing_name ?? '-' }}</span>
+                                                            <span class="text-[10px] text-[#8a969c]">{{ $summaryService->marketing_phone ?? '-' }}</span>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
@@ -372,7 +385,7 @@
                     <div class="boron-card shadow-sm rounded-2xl">
                         <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Data Registrasi (Nonaktif)') }}</h5>
-                            <button x-data @click="$dispatch('open-detail-modal')" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                            <button wire:click="openDetailModal({{ $customer->service?->id }})" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
                         </div>
                         <div class="boron-card-body p-5">
                             <ul class="space-y-4 md:space-y-5 text-sm md:text-[13px]">
@@ -766,58 +779,59 @@
                     <div class="boron-card shadow-sm rounded-2xl">
                         <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Ringkasan Layanan') }}</h5>
-                            @if($customer->status !== 'menunggu_verifikasi')
-                                <button x-data @click="$dispatch('open-detail-modal')" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                            @if($activeServices->isNotEmpty())
+                                <button wire:click="openDetailModal({{ $activeServices->first()?->id }})" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
                             @endif
                         </div>
-                        <div class="boron-card-body p-5">
-                            <div class="flex items-center gap-4 mb-5">
-                                <div class="flex size-14 md:size-12 shrink-0 items-center justify-center rounded-xl md:rounded-[0.3rem] bg-[#669776]/10 text-[#669776]">
-                                    <i class="ti ti-network text-3xl md:text-2xl"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
-                                    <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $customer->service?->bandwidth }}</h6>
-                                    <p class="text-xs text-[#8a969c] mt-0.5">{{ $customer->service?->service_type ?? '-' }}</p>
-                                </div>
-                            </div>
-                            
-                            <ul class="space-y-3.5 text-sm md:text-[13px]">
-                                <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                    <span class="text-[#8a969c]">Masa Kontrak</span>
-                                    <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $customer->service?->term_of_service ?? '-' }} Tahun</span>
-                                </li>
-                                <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                    <span class="text-[#8a969c]">ID Pelanggan</span>
-                                    <span class="font-bold text-[#ebb751]">
-                                        {{ $customer->customer_number ?? 'Menunggu BAA' }}
-                                    </span>
-                                </li>
-                                
-                                @if($customer->status !== 'menunggu_verifikasi')
-                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                        <span class="text-[#8a969c]">Biaya Registrasi</span>
-                                        <span class="font-bold md:font-medium text-[#313a46] dark:text-white">
-                                            @if(!is_null($customer->service?->registration_fee) && (float)$customer->service->registration_fee === 0.0)
-                                                <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
-                                            @else
-                                                Rp {{ number_format($customer->service?->registration_fee ?? 0, 0, ',', '.') }}
-                                            @endif
-                                        </span>
-                                    </li>
-                                    <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                        <span class="text-[#8a969c]">Biaya Bulanan</span>
-                                        <span class="font-bold md:font-medium text-[#ebb751]">Rp {{ number_format($customer->service?->monthly_fee ?? 0, 0, ',', '.') }}</span>
-                                    </li>
-                                    <li class="flex justify-between items-start border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
-                                        <span class="text-[#8a969c] mt-0.5">Marketing Sales</span>
-                                        <div class="text-right">
-                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white block leading-tight">{{ $customer->service?->marketing_name ?? '-' }}</span>
-                                            <span class="text-[10px] text-[#8a969c]">{{ $customer->service?->marketing_phone ?? '-' }}</span>
+                        <div class="boron-card-body divide-y divide-[#e7e9eb] p-0 dark:divide-[#37394d]">
+                            @foreach($activeServices as $summaryService)
+                                <div class="p-5">
+                                    <div class="flex items-center gap-4 mb-5">
+                                        <div class="flex size-14 md:size-12 shrink-0 items-center justify-center rounded-xl md:rounded-[0.3rem] bg-[#669776]/10 text-[#669776]">
+                                            <i class="ti ti-network text-3xl md:text-2xl"></i>
                                         </div>
-                                    </li>
-                                @endif
-                            </ul>
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase text-[#8a969c]">Paket Pilihan</p>
+                                            <h6 class="text-lg md:text-base font-bold text-[#313a46] dark:text-white leading-tight">{{ $summaryService->bandwidth }}</h6>
+                                            <p class="text-xs text-[#8a969c] mt-0.5">{{ $summaryService->service_type ?? '-' }}</p>
+                                        </div>
+                                    </div>
+
+                                    <ul class="space-y-3.5 text-sm md:text-[13px]">
+                                        <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                            <span class="text-[#8a969c]">Masa Kontrak</span>
+                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white">{{ $summaryService->term_of_service ?? '-' }} Tahun</span>
+                                        </li>
+                                        <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                            <span class="text-[#8a969c]">ID Pelanggan</span>
+                                            <span class="font-bold text-[#ebb751]">
+                                                {{ $customer->customer_number ?? 'Menunggu BAA' }}
+                                            </span>
+                                        </li>
+                                        <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                            <span class="text-[#8a969c]">Biaya Registrasi</span>
+                                            <span class="font-bold md:font-medium text-[#313a46] dark:text-white">
+                                                @if(!is_null($summaryService->registration_fee) && (float)$summaryService->registration_fee === 0.0)
+                                                    <span class="text-[10px] text-[#70bb63] font-bold bg-[#70bb63]/10 border border-[#70bb63]/30 px-2 py-0.5 rounded uppercase tracking-wider">Gratis</span>
+                                                @else
+                                                    Rp {{ number_format($summaryService->registration_fee ?? 0, 0, ',', '.') }}
+                                                @endif
+                                            </span>
+                                        </li>
+                                        <li class="flex justify-between items-center border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                            <span class="text-[#8a969c]">Biaya Bulanan</span>
+                                            <span class="font-bold md:font-medium text-[#ebb751]">Rp {{ number_format($summaryService->monthly_fee ?? 0, 0, ',', '.') }}</span>
+                                        </li>
+                                        <li class="flex justify-between items-start border-b border-dashed border-[#e7e9eb] pb-2.5 dark:border-[#37394d]">
+                                            <span class="text-[#8a969c] mt-0.5">Marketing Sales</span>
+                                            <div class="text-right">
+                                                <span class="font-bold md:font-medium text-[#313a46] dark:text-white block leading-tight">{{ $summaryService->marketing_name ?? '-' }}</span>
+                                                <span class="text-[10px] text-[#8a969c]">{{ $summaryService->marketing_phone ?? '-' }}</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 

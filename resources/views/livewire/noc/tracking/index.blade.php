@@ -72,15 +72,15 @@
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap pb-1 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">Status</span>
                                     <div>
-                                        @if($srv->customer->status === 'proses_instalasi')
+                                        @if($srv->status === 'proses_instalasi')
                                             <span class="rounded bg-[#ed6060]/10 px-2.5 py-1 text-[10px] md:text-xs font-semibold text-[#ed6060] animate-pulse ring-2 ring-[#ed6060]/50">Tugas Baru (Instalasi)</span>
-                                        @elseif($srv->customer->status === 'proses_aktivasi')
+                                        @elseif($srv->status === 'proses_aktivasi')
                                             <span class="rounded bg-[#ebb751]/10 px-2.5 py-1 text-[10px] md:text-xs font-semibold text-[#ebb751]">Tahap Aktivasi</span>
-                                        @elseif($srv->customer->status === 'review_baa')
+                                        @elseif($srv->status === 'review_baa')
                                             <span class="rounded bg-[#60addf]/10 px-2.5 py-1 text-[10px] md:text-xs font-semibold text-[#60addf]">Review BAA Internal</span>
-                                        @elseif($srv->customer->status === 'menunggu_baa')
+                                        @elseif($srv->status === 'menunggu_baa')
                                             <span class="rounded bg-[#8a969c]/10 px-2.5 py-1 text-[10px] md:text-xs font-semibold text-[#8a969c]">Tunggu TTD Pelanggan</span>
-                                        @elseif($srv->customer->status === 'verifikasi_baa')
+                                        @elseif($srv->status === 'verifikasi_baa')
                                             <span class="rounded bg-[#70bb63]/10 px-2.5 py-1 text-[10px] md:text-xs font-semibold text-[#70bb63]">Verifikasi Marketing</span>
                                         @endif
                                     </div>

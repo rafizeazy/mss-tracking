@@ -30,32 +30,29 @@ class Index extends Component
     }
 
     #[On('echo-private:mss-updates,CustomerUpdated')]
-    public function refreshData()
-    {
-    }
+    public function refreshData() {}
 
     public function render()
     {
         $services = CustomerService::with(['customer.user', 'invoiceRegistrasi'])
-            ->whereHas('customer', function ($query) {
-                $query->whereIn('status', [
-                    'menunggu_invoice', 
-                    'menunggu_pembayaran', 
-                    'verifikasi_pembayaran', 
-                    'pembayaran_disetujui', 
-                    'proses_instalasi', 
-                    'proses_aktivasi', 
-                    'review_baa',      
-                    'menunggu_baa', 
-                    'verifikasi_baa'
-                ]);
-            })
+            ->whereIn('status', [
+                'menunggu_invoice',
+                'menunggu_pembayaran',
+                'verifikasi_pembayaran',
+                'pembayaran_disetujui',
+                'proses_instalasi',
+                'proses_aktivasi',
+                'review_baa',
+                'menunggu_baa',
+                'verifikasi_baa',
+            ])
+            ->whereHas('customer', function ($query) {})
             ->when($this->search, function ($query) {
                 $query->where(function ($sub) {
                     $sub->whereHas('customer', function ($q) {
-                        $q->where('company_name', 'like', '%' . $this->search . '%');
+                        $q->where('company_name', 'like', '%'.$this->search.'%');
                     })->orWhereHas('invoiceRegistrasi', function ($q) {
-                        $q->where('invoice_number', 'like', '%' . $this->search . '%');
+                        $q->where('invoice_number', 'like', '%'.$this->search.'%');
                     });
                 });
             })
@@ -63,7 +60,7 @@ class Index extends Component
             ->paginate(10);
 
         return view('livewire.finance.tracking.index', [
-            'services' => $services
+            'services' => $services,
         ]);
     }
 }

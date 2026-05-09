@@ -100,12 +100,12 @@
             </div>
             
             @if($service->invoiceRegistrasi?->payment_proof_file_path)
-                <div class="boron-card {{ $customer->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
-                    <div class="boron-card-header {{ $customer->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
-                        <h5 class="font-bold {{ $customer->status === 'verifikasi_pembayaran' ? 'text-[#b58c3d] dark:text-[#ebb751]' : 'text-[#313a46] dark:text-white' }}">
+                <div class="boron-card {{ $service->status === 'verifikasi_pembayaran' ? 'border-2 border-[#ebb751] shadow-lg' : 'border border-[#e7e9eb] dark:border-[#37394d]' }}">
+                    <div class="boron-card-header {{ $service->status === 'verifikasi_pembayaran' ? 'bg-[#ebb751]/10 border-b border-[#ebb751]/20' : 'border-b border-[#e7e9eb] dark:border-[#37394d]' }} pb-3 flex justify-between items-center">
+                        <h5 class="font-bold {{ $service->status === 'verifikasi_pembayaran' ? 'text-[#b58c3d] dark:text-[#ebb751]' : 'text-[#313a46] dark:text-white' }}">
                             <i class="ti ti-photo mr-1"></i> Lampiran Bukti Transfer Pelanggan
                         </h5>
-                        @if($customer->status !== 'verifikasi_pembayaran')
+                        @if($service->status !== 'verifikasi_pembayaran')
                             <span class="rounded bg-[#70bb63]/10 px-2 py-1 text-[10px] font-bold text-[#70bb63] uppercase">Arsip Disetujui</span>
                         @endif
                     </div>
@@ -124,7 +124,7 @@
                 </div>
             @endif
 
-            @if($showInvoicePreview && $customer->status === 'menunggu_invoice')
+            @if($showInvoicePreview && $service->status === 'menunggu_invoice')
                 <div class="boron-card bg-white dark:bg-[#15151b] border-2 border-[#669776] shadow-xl p-8">
                     <div class="flex justify-between items-start border-b border-[#e7e9eb] pb-6 dark:border-[#37394d]">
                         <div>
@@ -192,7 +192,7 @@
 
         <div class="space-y-6">
             
-            @if($customer->status === 'menunggu_invoice')
+            @if($service->status === 'menunggu_invoice')
                 <div class="boron-card border-2 border-[#60addf] shadow-lg">
                     <div class="boron-card-header bg-[#60addf]/10 border-b border-[#60addf]/20 pb-3">
                         <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf]"><i class="ti ti-file-invoice"></i> Aksi Penagihan</h5>
@@ -230,7 +230,7 @@
                         @endif
                     </div>
                 </div>
-            @elseif($customer->status === 'menunggu_pembayaran')
+            @elseif($service->status === 'menunggu_pembayaran')
                 <div class="boron-card border border-[#ebb751]/30 bg-[#ebb751]/10">
                     <div class="boron-card-body p-5 text-center">
                         <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[#ebb751] text-white shadow-lg shadow-[#ebb751]/30 mb-3">
@@ -242,7 +242,7 @@
                         </p>
                     </div>
                 </div>
-            @elseif($customer->status === 'verifikasi_pembayaran')
+            @elseif($service->status === 'verifikasi_pembayaran')
                 <div class="boron-card border-2 border-[#ebb751] shadow-lg">
                     <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
                         <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]"><i class="ti ti-search"></i> Verifikasi Pembayaran</h5>
@@ -322,7 +322,7 @@
                         'verifikasi_pembayaran', 'pembayaran_disetujui', 'proses_instalasi', 
                         'proses_aktivasi', 'review_baa', 'menunggu_baa', 'verifikasi_baa', 'selesai'
                     ];
-                    $currentIndex = array_search($customer->status, $statusOrder);
+                    $currentIndex = array_search($service->status, $statusOrder);
                     
                     $workflows = [
                         ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
@@ -343,7 +343,7 @@
                         @foreach($workflows as $index => $step)
                             @php
                                 $stepIndex = array_search($step['id'], $statusOrder);
-                                if ($customer->status === 'ditolak') {
+                                if ($service->status === 'ditolak') {
                                     $state = 'pending';
                                 } elseif ($stepIndex < $currentIndex) {
                                     $state = 'completed';
@@ -378,7 +378,7 @@
                         @endforeach
                     </div>
 
-                    @if($customer->status === 'ditolak')
+                    @if($service->status === 'ditolak')
                         <div class="mt-4 rounded bg-[#ed6060]/10 p-3 text-center text-sm font-semibold text-[#ed6060]">
                             <i class="ti ti-x"></i> Registrasi Ditolak oleh Marketing
                         </div>

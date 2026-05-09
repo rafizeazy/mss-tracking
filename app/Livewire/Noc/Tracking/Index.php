@@ -35,15 +35,14 @@ class Index extends Component
     public function render()
     {
         $services = CustomerService::with(['customer.user', 'spk', 'baa'])
+            ->whereIn('status', [
+                'proses_instalasi',
+                'proses_aktivasi',
+                'review_baa',
+                'menunggu_baa',
+                'verifikasi_baa',
+            ])
             ->whereHas('customer', function ($query) {
-                $query->whereIn('status', [
-                    'proses_instalasi',
-                    'proses_aktivasi',
-                    'review_baa',
-                    'menunggu_baa',
-                    'verifikasi_baa',
-                ]);
-
                 if ($this->search) {
                     $query->where(function ($q) {
                         $q->where('company_name', 'like', '%'.$this->search.'%')

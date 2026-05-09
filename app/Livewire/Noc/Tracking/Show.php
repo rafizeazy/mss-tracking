@@ -95,7 +95,7 @@ class Show extends Component
 
     public function finishInstallation()
     {
-        $this->customer->update(['status' => 'proses_aktivasi']);
+        $this->service->moveToStatus('proses_aktivasi');
 
         ActivityLog::record('installation.finished', 'Instalasi fisik selesai oleh NOC.', $this->customer);
 
@@ -174,10 +174,8 @@ class Show extends Component
 
         $this->customer->update([
             'customer_number' => $this->customer_number,
-            'status' => 'review_baa',
-            'status_reason' => null,
-            'status_reason_at' => null,
         ]);
+        $this->service->moveToStatus('review_baa');
 
         ActivityLog::record('baa.generated', 'BAA dibuat atau diperbarui oleh NOC.', $this->customer);
 
@@ -191,7 +189,7 @@ class Show extends Component
 
     public function sendBaaToCustomer()
     {
-        $this->customer->update(['status' => 'menunggu_baa']);
+        $this->service->moveToStatus('menunggu_baa');
 
         ActivityLog::record('baa.sent_to_customer', 'BAA dikirim ke pelanggan untuk ditandatangani.', $this->customer);
 

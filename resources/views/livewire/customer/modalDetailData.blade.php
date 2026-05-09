@@ -1,9 +1,11 @@
-<div x-data="{ open: false }" 
-     x-on:open-detail-modal.window="open = true" 
-     x-show="open" 
-     style="display: none;" 
+@if($showDetailModal)
+    @php
+        $detailService = $customer->services->firstWhere('id', $selectedDetailServiceId) ?? $customer->service;
+    @endphp
+
+<div
      class="fixed inset-0 z-[999] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4" 
-     x-transition.opacity>
+     data-detail-service-bandwidth="{{ $detailService?->bandwidth }}">
     
     <div class="bg-[#f6f7fb] dark:bg-[#15151b] rounded-t-2xl md:rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] md:h-auto md:max-h-[95vh] flex flex-col overflow-hidden border-t md:border border-[#e7e9eb] dark:border-[#37394d]" @click.stop>
         
@@ -17,7 +19,7 @@
                     <p class="text-xs font-medium text-[#8a969c] mt-0.5">{{ $customer->company_name }}</p>
                 </div>
             </div>
-            <button @click="open = false" class="text-[#a1a9b1] hover:text-[#ed6060] transition-colors bg-[#f8f9fa] hover:bg-[#ed6060]/10 dark:bg-[#15151b] rounded-full p-2.5">
+            <button wire:click="closeDetailModal" class="text-[#a1a9b1] hover:text-[#ed6060] transition-colors bg-[#f8f9fa] hover:bg-[#ed6060]/10 dark:bg-[#15151b] rounded-full p-2.5">
                 <i class="ti ti-x text-lg"></i>
             </button>
         </div>
@@ -68,20 +70,20 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <li class="flex flex-col gap-1">
                                     <span class="text-[10px] font-bold text-[#8a969c] uppercase">Kapasitas</span>
-                                    <span class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $customer->service?->bandwidth ?? '-' }}</span>
+                                    <span class="font-bold text-[#1e5d87] dark:text-[#60addf]">{{ $detailService?->bandwidth ?? '-' }}</span>
                                 </li>
                                 <li class="flex flex-col gap-1">
                                     <span class="text-[10px] font-bold text-[#8a969c] uppercase">Kontrak</span>
-                                    <span class="font-medium text-[#313a46] dark:text-white">{{ $customer->service?->term_of_service ?? '-' }} Tahun</span>
+                                    <span class="font-medium text-[#313a46] dark:text-white">{{ $detailService?->term_of_service ?? '-' }} Tahun</span>
                                 </li>
                             </div>
                             <li class="flex flex-col gap-1">
                                 <span class="text-[10px] font-bold text-[#8a969c] uppercase">Tipe Layanan</span>
-                                <span class="font-medium text-[#313a46] dark:text-white">{{ $customer->service?->service_type ?? '-' }}</span>
+                                <span class="font-medium text-[#313a46] dark:text-white">{{ $detailService?->service_type ?? '-' }}</span>
                             </li>
                             <li class="flex flex-col gap-1">
                                 <span class="text-[10px] font-bold text-[#8a969c] uppercase">Alamat Instalasi</span>
-                                <span class="font-medium text-[#313a46] dark:text-white">{{ $customer->service?->installation_address ?? '-' }}</span>
+                                <span class="font-medium text-[#313a46] dark:text-white">{{ $detailService?->installation_address ?? '-' }}</span>
                             </li>
                         </ul>
                     </div>
@@ -165,7 +167,8 @@
         </div>
 
         <div class="flex-none px-6 py-4 border-t border-[#e7e9eb] dark:border-[#37394d] bg-white dark:bg-[#1e1e2a] text-right">
-            <button @click="open = false" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-6 font-semibold rounded-lg">Tutup</button>
+            <button wire:click="closeDetailModal" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-6 font-semibold rounded-lg">Tutup</button>
         </div>
     </div>
 </div>
+@endif

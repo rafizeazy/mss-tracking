@@ -61,12 +61,12 @@
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap pb-1 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">Status</span>
                                     @php
-                                        $statusFormat = match($service->customer->status) {
+                                        $statusFormat = match($service->status) {
                                             'menunggu_invoice'    => ['label' => 'Buat Invoice', 'class' => 'bg-[#ed6060]/10 text-[#ed6060] border-[#ed6060]/20 ring-2 ring-[#ed6060]/50 animate-pulse'],
                                             'menunggu_pembayaran' => ['label' => 'Tunggu Transfer', 'class' => 'bg-[#ebb751]/10 text-[#ebb751] border-[#ebb751]/20'],
                                             'verifikasi_pembayaran'=> ['label' => 'Cek Bukti TF', 'class' => 'bg-[#60addf]/10 text-[#60addf] border-[#60addf]/20 ring-2 ring-[#60addf]/50 animate-pulse'],
                                             'pembayaran_disetujui'=> ['label' => 'Pembayaran Lunas', 'class' => 'bg-[#70bb63]/10 text-[#70bb63] border-[#70bb63]/20'],
-                                            default               => ['label' => ucwords(str_replace('_', ' ', $service->customer->status)), 'class' => 'bg-[#f8f9fa] text-[#8a969c] border-[#dee2e6] dark:bg-[#15151b] dark:border-[#37394d]']
+                                            default               => ['label' => ucwords(str_replace('_', ' ', $service->status)), 'class' => 'bg-[#f8f9fa] text-[#8a969c] border-[#dee2e6] dark:bg-[#15151b] dark:border-[#37394d]']
                                         };
                                     @endphp
                                     <span class="inline-flex rounded border px-2.5 py-1 text-[10px] md:text-[11px] font-bold uppercase {{ $statusFormat['class'] }}">

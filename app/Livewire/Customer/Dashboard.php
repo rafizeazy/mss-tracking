@@ -23,6 +23,10 @@ class Dashboard extends Component
 
     public $payment_proof;
 
+    public bool $showDetailModal = false;
+
+    public ?int $selectedDetailServiceId = null;
+
     public function mount()
     {
         $this->loadCustomer();
@@ -31,7 +35,14 @@ class Dashboard extends Component
     #[On('echo-private:mss-updates,CustomerUpdated')]
     public function loadCustomer()
     {
-        $this->customer = Customer::with(['baa', 'service', 'invoiceRegistrasi'])
+        $this->customer = Customer::with([
+            'baa',
+            'service',
+            'invoiceRegistrasi',
+            'services.spk',
+            'services.baa',
+            'services.invoiceRegistrasi',
+        ])
             ->where('user_id', auth()->id())
             ->latest()
             ->first();
@@ -40,6 +51,17 @@ class Dashboard extends Component
     public function viewInvoice(): void
     {
         $this->dispatch('toast', type: 'info', title: 'Info', message: 'Fitur cetak Invoice akan segera tersedia.');
+    }
+
+    public function openDetailModal(?int $serviceId = null): void
+    {
+        $this->selectedDetailServiceId = $serviceId ?? $this->customer?->service?->id;
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetailModal(): void
+    {
+        $this->showDetailModal = false;
     }
 
     public function uploadPayment()
@@ -56,11 +78,7 @@ class Dashboard extends Component
             ]);
         }
 
-        $this->customer->update([
-            'status' => 'verifikasi_pembayaran',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $this->customer->service?->moveToStatus('verifikasi_pembayaran');
 
         ActivityLog::record('payment_proof.uploaded', 'Pelanggan mengunggah bukti pembayaran.', $this->customer);
 
@@ -84,7 +102,7 @@ class Dashboard extends Component
             $this->customer->baa->update(['signed_baa_path' => $path]);
         }
 
-        $this->customer->update(['status' => 'verifikasi_baa']);
+        $this->customer->service?->moveToStatus('verifikasi_baa');
 
         ActivityLog::record('baa_signed.uploaded', 'Pelanggan mengunggah BAA yang telah ditandatangani.', $this->customer);
 

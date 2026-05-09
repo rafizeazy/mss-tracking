@@ -15,7 +15,7 @@
                 <i class="ti ti-file-text"></i> Cetak Formulir
             </a>
 
-            @if(!in_array($customer->status, ['selesai', 'dibatalkan', 'ditolak']))
+            @if(!in_array($service->status, ['selesai', 'dibatalkan', 'ditolak']))
                 <button type="button" wire:click="openCancellationModal" class="btn-boron !py-1.5 flex items-center justify-center gap-1 bg-transparent text-[#ed6060] hover:bg-[#ed6060]/10 border border-[#ed6060] transition-colors font-medium">
                     <i class="ti ti-ban"></i> Batalkan Pengajuan
                 </button>
@@ -206,7 +206,7 @@
 
         <div class="space-y-6">
             
-            @if($customer->status === 'menunggu_verifikasi')
+            @if($service->status === 'menunggu_verifikasi')
                 <div class="boron-card border-2 border-[#ebb751] shadow-lg">
                     <div class="boron-card-header bg-[#ebb751]/10 border-b border-[#ebb751]/20 pb-3">
                         <h5 class="font-bold text-[#b58c3d] dark:text-[#ebb751]"><i class="ti ti-shield-check"></i> Form Verifikasi & Komersial</h5>
@@ -338,7 +338,7 @@
                 </div>
             @endif
 
-            @if($customer->status === 'pembayaran_disetujui')
+            @if($service->status === 'pembayaran_disetujui')
                 <div class="boron-card border-2 border-[#60addf] shadow-lg">
                     <div class="boron-card-header bg-[#60addf]/10 border-b border-[#60addf]/20 pb-3">
                         <h5 class="font-bold text-[#1e5d87] dark:text-[#60addf]"><i class="ti ti-file-description"></i> Form Penerbitan SPK NOC</h5>
@@ -398,7 +398,7 @@
                 </div>
             @endif
 
-            @if($customer->status === 'verifikasi_baa')
+            @if($service->status === 'verifikasi_baa')
                 <div class="boron-card border-2 border-[#70bb63] shadow-lg">
                     <div class="boron-card-header bg-[#70bb63]/10 border-b border-[#70bb63]/20 pb-3">
                         <h5 class="font-bold text-[#4a8a3f] dark:text-[#70bb63]"><i class="ti ti-file-check"></i> Verifikasi Final BAA</h5>
@@ -435,7 +435,7 @@
                         'verifikasi_pembayaran', 'pembayaran_disetujui', 'proses_instalasi', 
                         'proses_aktivasi', 'review_baa', 'menunggu_baa', 'verifikasi_baa', 'selesai'
                     ];
-                    $currentIndex = array_search($customer->status, $statusOrder);
+                    $currentIndex = array_search($service->status, $statusOrder);
                     
                     $workflows = [
                         ['id' => 'menunggu_verifikasi', 'title' => 'Menunggu Verifikasi', 'icon' => 'ti-shield-check'],
@@ -456,7 +456,7 @@
                         @foreach($workflows as $index => $step)
                             @php
                                 $stepIndex = array_search($step['id'], $statusOrder);
-                                if ($customer->status === 'ditolak') {
+                                if ($service->status === 'ditolak') {
                                     $state = 'pending';
                                 } elseif ($stepIndex < $currentIndex) {
                                     $state = 'completed';
@@ -491,7 +491,7 @@
                         @endforeach
                     </div>
 
-                    @if($customer->status === 'ditolak')
+                    @if($service->status === 'ditolak')
                         <div class="mt-4 rounded bg-[#ed6060]/10 p-3 text-center text-sm font-semibold text-[#ed6060]">
                             <i class="ti ti-x"></i> Registrasi Ditolak oleh Marketing
                         </div>

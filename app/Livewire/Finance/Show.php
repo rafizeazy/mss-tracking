@@ -71,11 +71,7 @@ class Show extends Component
 
     public function sendInvoice()
     {
-        $this->customer->update([
-            'status' => 'menunggu_pembayaran',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $this->service->moveToStatus('menunggu_pembayaran');
 
         ActivityLog::record('invoice.sent', 'Invoice registrasi dikirim ke pelanggan.', $this->customer);
 
@@ -95,11 +91,7 @@ class Show extends Component
             'registration_fee' => 0,
         ]);
 
-        $this->customer->update([
-            'status' => 'pembayaran_disetujui',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $this->service->moveToStatus('pembayaran_disetujui');
 
         ActivityLog::record('payment.free_marked', 'Biaya registrasi digratiskan oleh Finance.', $this->customer);
 
@@ -114,11 +106,7 @@ class Show extends Component
 
     public function approvePayment()
     {
-        $this->customer->update([
-            'status' => 'pembayaran_disetujui',
-            'status_reason' => null,
-            'status_reason_at' => null,
-        ]);
+        $this->service->moveToStatus('pembayaran_disetujui');
 
         ActivityLog::record('payment.approved', 'Pembayaran pelanggan dikonfirmasi oleh Finance.', $this->customer);
 
@@ -130,9 +118,7 @@ class Show extends Component
 
     public function rejectPayment()
     {
-        $this->customer->update([
-            'status' => 'menunggu_pembayaran',
-        ]);
+        $this->service->moveToStatus('menunggu_pembayaran');
 
         ActivityLog::record('payment.rejected', 'Bukti pembayaran ditolak oleh Finance.', $this->customer);
 
