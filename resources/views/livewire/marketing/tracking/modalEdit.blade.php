@@ -124,10 +124,6 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">SLA</label>
-                                    <input type="text" wire:model="editData.sla" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm focus:border-[#60addf] focus:outline-none focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#1e1e2a] dark:text-white">
-                                </div>
                             </div>
                             <div class="border-t border-[#e7e9eb] pt-4 mt-2 dark:border-[#37394d]">
                                 <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Biaya Registrasi (Rp)</label>

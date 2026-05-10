@@ -425,12 +425,39 @@ it('renders invoice template without emoji glyphs', function () {
         ->toContain('Informasi Pembayaran');
 });
 
-it('shows overdue process customers in dashboard sla alerts', function () {
+it('lets super admin update registration created date from marketing tracking', function () {
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('menunggu_invoice');
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingIndex::class)
+        ->call('editRegistrationDate', $service->id)
+        ->assertSet('editingRegistrationDateServiceId', $service->id)
+        ->set('registrationDate', '2026-05-07T02:48')
+        ->call('updateRegistrationDate')
+        ->assertHasNoErrors()
+        ->assertSet('editingRegistrationDateServiceId', null);
+
+    expect($customer->refresh()->created_at->format('Y-m-d H:i'))->toBe('2026-05-07 02:48');
+    expect($service->refresh()->created_at->format('Y-m-d H:i'))->toBe('2026-05-07 02:48');
+
+    $this->assertDatabaseHas('activity_logs', [
+        'customer_id' => $customer->id,
+        'action' => 'registration.date_updated',
+    ]);
+});
+
+it('removes sla alerts from dashboard and tracking queue', function () {
     $admin = User::factory()->create(['role' => Role::SuperAdmin]);
     ['customer' => $customer] = createLifecycleCustomer('menunggu_invoice');
     $customer->forceFill(['updated_at' => now()->subHours(50)])->save();
 
     Livewire::actingAs($admin)
         ->test(\App\Livewire\Dashboard::class)
-        ->assertSet('stats.sla_overdue.total', 1);
+        ->assertDontSee('SLA Proses')
+        ->assertDontSee('Terlewat');
+
+    Livewire::actingAs($admin)
+        ->test(MarketingTrackingIndex::class)
+        ->assertDontSee('SLA');
 });

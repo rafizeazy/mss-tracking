@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Events\CustomerUpdated;
 use App\Models\ActivityLog;
 use App\Models\CustomerService;
+use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -25,6 +26,10 @@ class Index extends Component
     public ?int $deletingCancelledServiceId = null;
 
     public string $deleteReason = '';
+
+    public ?int $editingRegistrationDateServiceId = null;
+
+    public string $registrationDate = '';
 
     public function updatedSearch(): void
     {
@@ -61,6 +66,61 @@ class Index extends Component
     {
         $this->deletingCancelledServiceId = null;
         $this->deleteReason = '';
+    }
+
+    public function editRegistrationDate(int $id): void
+    {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $service = CustomerService::with('customer')->findOrFail($id);
+
+        $this->editingRegistrationDateServiceId = $service->id;
+        $this->registrationDate = $service->customer->created_at->format('Y-m-d\TH:i');
+    }
+
+    public function cancelEditRegistrationDate(): void
+    {
+        $this->editingRegistrationDateServiceId = null;
+        $this->registrationDate = '';
+    }
+
+    public function updateRegistrationDate(): void
+    {
+        if (! $this->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $this->validate([
+            'registrationDate' => 'required|date',
+        ], [
+            'registrationDate.required' => 'Tanggal registrasi wajib diisi.',
+            'registrationDate.date' => 'Tanggal registrasi tidak valid.',
+        ]);
+
+        $service = CustomerService::with('customer')->findOrFail($this->editingRegistrationDateServiceId);
+        $registrationDate = Carbon::parse($this->registrationDate);
+
+        $service->customer->forceFill([
+            'created_at' => $registrationDate,
+        ])->save();
+
+        $service->forceFill([
+            'created_at' => $registrationDate,
+        ])->save();
+
+        ActivityLog::record('registration.date_updated', 'Tanggal registrasi diperbarui.', $service->customer, null, [
+            'service_id' => $service->id,
+            'registration_date' => $registrationDate->toDateTimeString(),
+        ]);
+
+        if (class_exists(CustomerUpdated::class)) {
+            broadcast(new CustomerUpdated);
+        }
+
+        $this->cancelEditRegistrationDate();
+        $this->dispatch('notify', type: 'success', message: 'Tanggal registrasi berhasil diperbarui.');
     }
 
     public function deleteCancelledRegistration(?int $id = null): void

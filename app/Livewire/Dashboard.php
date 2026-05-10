@@ -23,8 +23,6 @@ class Dashboard extends Component
 
     public $stats = [];
 
-    public $slaAlerts = [];
-
     public $recentActivityLogs = [];
 
     public $comparisonLabel = 'vs Bulan Lalu';
@@ -123,7 +121,6 @@ class Dashboard extends Component
             'total_all' => ['total' => $totalKeseluruhan],
         ];
 
-        $this->loadSlaAlerts();
         $this->loadRecentActivityLogs();
 
         $createdMonthExpression = $this->monthSelectExpression('created_at');
@@ -177,32 +174,6 @@ class Dashboard extends Component
                 'created_at' => $log->created_at->diffForHumans(),
             ])
             ->toArray();
-    }
-
-    protected function loadSlaAlerts(): void
-    {
-        $thresholdHours = 48;
-
-        $this->slaAlerts = CustomerService::with('customer.user')
-            ->whereHas('customer', function ($query) use ($thresholdHours) {
-                $query->whereNotIn('status', ['selesai', 'berhenti', 'dibatalkan', 'ditolak'])
-                    ->where('updated_at', '<=', now()->subHours($thresholdHours));
-            })
-            ->latest()
-            ->limit(5)
-            ->get()
-            ->map(function (CustomerService $service) use ($thresholdHours) {
-                return [
-                    'service_id' => $service->id,
-                    'company_name' => $service->customer->company_name,
-                    'status' => $service->customer->status,
-                    'hours' => $service->customer->updated_at->diffInHours(now()),
-                    'threshold_hours' => $thresholdHours,
-                ];
-            })
-            ->toArray();
-
-        $this->stats['sla_overdue'] = ['total' => count($this->slaAlerts)];
     }
 
     public function render()

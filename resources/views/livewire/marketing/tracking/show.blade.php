@@ -229,12 +229,6 @@
                                     <input type="text" wire:model="bandwidth" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
                                     @error('bandwidth') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
                                 </div>
-                                <div class="col-span-2">
-                                    <label class="mb-1 block text-xs font-semibold uppercase text-[#8a969c]">SLA (Service Level Agreement)</label>
-                                    <input type="text" wire:model="sla" class="w-full rounded-[0.3rem] border border-[#dee2e6] bg-white px-3 py-1.5 text-sm focus:border-[#ebb751] focus:ring-1 focus:ring-[#ebb751] dark:border-[#37394d] dark:bg-[#15151b]">
-                                    @error('sla') <span class="text-[10px] text-[#ed6060]">{{ $message }}</span> @enderror
-                                </div>
-                                
                                 <div class="col-span-2" x-data="{
                                     isCustom: false,
                                     init() {

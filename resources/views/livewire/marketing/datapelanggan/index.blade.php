@@ -42,9 +42,6 @@
                         </button>
                     @endif
                 </div>
-                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-[0.4rem] border border-[#dee2e6] bg-white px-4 py-2.5 text-sm font-bold text-[#313a46] shadow-sm dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">
-                    <i class="ti ti-filter text-[#60addf]"></i> Filter
-                </button>
                 </div>
             </div>
             <div class="w-full overflow-x-auto rounded-[0.4rem] border border-[#d5deea] bg-white dark:border-[#37394d] dark:bg-[#15151b]">
@@ -254,10 +251,6 @@
                                         <div>
                                             <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Jalur Metro</label>
                                             <div class="w-full rounded-[0.4rem] border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-sm font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedService->metro_link ?? '-' }}</div>
-                                        </div>
-                                        <div>
-                                            <label class="mb-1.5 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">SLA</label>
-                                            <div class="w-full rounded-[0.4rem] border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-sm font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedService->sla ?? '-' }}</div>
                                         </div>
                                     </div>
                                     <div class="border-t border-[#e7e9eb] pt-3 mt-1 dark:border-[#37394d]">

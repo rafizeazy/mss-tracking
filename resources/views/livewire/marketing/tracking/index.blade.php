@@ -52,7 +52,14 @@
                             <tr class="flex flex-col md:table-row border-b border-[#e7e9eb] md:border-none dark:border-[#37394d] p-5 md:p-0 gap-3 md:gap-0 hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-colors">
                                 <td class="flex justify-between items-center md:table-cell md:px-6 md:py-4 whitespace-nowrap border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase">Tanggal</span>
-                                    <span class="text-sm md:text-sm font-medium md:font-normal text-[#313a46] dark:text-white md:text-inherit">{{ $customer->created_at->format('d M Y, H:i') }}</span>
+                                    <span class="inline-flex items-center gap-2 text-sm md:text-sm font-medium md:font-normal text-[#313a46] dark:text-white md:text-inherit">
+                                        {{ $customer->created_at->format('d M Y, H:i') }}
+                                        @if(auth()->user()?->isSuperAdmin())
+                                            <button type="button" wire:click="editRegistrationDate({{ $service->id }})" title="Edit tanggal registrasi" class="inline-flex size-7 items-center justify-center rounded border border-[#dee2e6] text-[#1e5d87] transition hover:border-[#60addf] hover:bg-[#60addf]/10 dark:border-[#37394d] dark:text-[#60addf]">
+                                                <i class="ti ti-calendar-edit text-base"></i>
+                                            </button>
+                                        @endif
+                                    </span>
                                 </td>
                                 <td class="flex justify-between items-start md:items-center md:table-cell md:px-6 md:py-4 border-b border-dashed border-[#e7e9eb] md:border-none dark:border-[#37394d] pb-3 md:pb-0">
                                     <span class="text-[11px] font-bold text-[#8a969c] md:hidden uppercase mt-0.5">Perusahaan</span>
@@ -95,11 +102,6 @@
                                     <span class="inline-flex rounded border px-2.5 py-1 text-[10px] md:text-[11px] font-bold uppercase {{ $statusFormat['class'] }}">
                                         {{ $statusFormat['label'] }}
                                     </span>
-                                    @if(!in_array($service->status, ['selesai', 'berhenti', 'dibatalkan', 'ditolak']) && $service->updated_at->diffInHours(now()) >= 48)
-                                        <span class="mt-1 inline-flex rounded border border-[#ed6060]/20 bg-[#ed6060]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-[#ed6060]">
-                                            SLA {{ $service->updated_at->diffInHours(now()) }} jam
-                                        </span>
-                                    @endif
                                 </td>
                                 <td class="md:px-6 md:py-4 md:text-center mt-3 md:mt-0 block md:table-cell">
                                     <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
@@ -156,6 +158,28 @@
                 <div class="mt-5 flex justify-end gap-2">
                     <button wire:click="cancelDeleteCancelledRegistration" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-4">Batal</button>
                     <button wire:click="deleteCancelledRegistration" class="btn-boron bg-[#ed6060] text-white hover:bg-[#c84d4d] !py-2 text-sm px-4 font-bold">Simpan</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($editingRegistrationDateServiceId)
+        <div class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" wire:transition.opacity>
+            <div class="w-full max-w-md rounded-2xl border border-[#e7e9eb] bg-white p-6 shadow-2xl dark:border-[#37394d] dark:bg-[#1e1f27]">
+                <div class="mb-4 flex items-center gap-3">
+                    <div class="flex size-10 items-center justify-center rounded-full bg-[#60addf]/10 text-[#60addf]">
+                        <i class="ti ti-calendar-edit text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#313a46] dark:text-white">Edit Tanggal Registrasi</h3>
+                        <p class="text-xs text-[#8a969c]">Khusus Super Admin untuk koreksi tanggal create_at.</p>
+                    </div>
+                </div>
+                <input type="datetime-local" wire:model="registrationDate" class="w-full rounded-[0.4rem] border border-[#dee2e6] bg-white px-3 py-2 text-sm focus:border-[#60addf] focus:outline-none focus:ring-1 focus:ring-[#60addf] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">
+                @error('registrationDate') <p class="mt-1 text-xs text-[#ed6060]">{{ $message }}</p> @enderror
+                <div class="mt-5 flex justify-end gap-2">
+                    <button wire:click="cancelEditRegistrationDate" class="btn-boron btn-boron-outline-secondary !py-2 text-sm px-4">Batal</button>
+                    <button wire:click="updateRegistrationDate" class="btn-boron btn-boron-primary !py-2 text-sm px-4 font-bold">Simpan</button>
                 </div>
             </div>
         </div>

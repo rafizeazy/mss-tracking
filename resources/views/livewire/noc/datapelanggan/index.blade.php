@@ -179,10 +179,6 @@
                                             <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">Jalur Metro</label>
                                             <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] line-clamp-1 dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->metro_link ?? '-' }}</div>
                                         </div>
-                                        <div>
-                                            <label class="mb-1 block text-[10px] font-bold text-[#8a969c] uppercase tracking-wider">SLA</label>
-                                            <div class="w-full rounded border border-[#e7e9eb] bg-[#f8f9fa] px-3 py-2 text-[13px] font-medium text-[#313a46] dark:border-[#37394d] dark:bg-[#15151b] dark:text-white">{{ $selectedCustomer->service?->sla ?? '-' }}</div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

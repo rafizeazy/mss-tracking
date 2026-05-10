@@ -177,38 +177,6 @@
 
     </div>
 
-    <div class="mt-6 boron-card rounded-xl sm:rounded-lg overflow-hidden border {{ ($stats['sla_overdue']['total'] ?? 0) > 0 ? 'border-[#ed6060]/30' : 'border-[#70bb63]/30' }}">
-        <div class="boron-card-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 sm:px-6 pt-5 pb-3 {{ ($stats['sla_overdue']['total'] ?? 0) > 0 ? 'bg-[#ed6060]/5' : 'bg-[#70bb63]/5' }}">
-            <div>
-                <h5 class="font-bold text-[#313a46] dark:text-white text-base md:text-lg">
-                    <i class="ti ti-clock-exclamation mr-1 {{ ($stats['sla_overdue']['total'] ?? 0) > 0 ? 'text-[#ed6060]' : 'text-[#70bb63]' }}"></i> SLA Proses
-                </h5>
-                <p class="text-[11px] md:text-xs text-[#8a969c] mt-0.5">Pelanggan yang belum bergerak statusnya lebih dari 48 jam.</p>
-            </div>
-            <span class="inline-flex w-fit items-center rounded border px-3 py-1 text-xs font-bold {{ ($stats['sla_overdue']['total'] ?? 0) > 0 ? 'border-[#ed6060]/20 bg-[#ed6060]/10 text-[#ed6060]' : 'border-[#70bb63]/20 bg-[#70bb63]/10 text-[#70bb63]' }}">
-                {{ $stats['sla_overdue']['total'] ?? 0 }} Terlewat
-            </span>
-        </div>
-        <div class="boron-card-body p-4 sm:p-6">
-            @if(($stats['sla_overdue']['total'] ?? 0) > 0)
-                <div class="grid gap-3 lg:grid-cols-5">
-                    @foreach($slaAlerts as $alert)
-                        <div class="rounded-lg border border-[#e7e9eb] bg-white p-3 dark:border-[#37394d] dark:bg-[#15151b]">
-                            <p class="truncate text-sm font-bold text-[#313a46] dark:text-white">{{ $alert['company_name'] }}</p>
-                            <p class="mt-1 text-[11px] font-semibold uppercase text-[#8a969c]">{{ str_replace('_', ' ', $alert['status']) }}</p>
-                            <p class="mt-2 text-xs font-bold text-[#ed6060]">{{ $alert['hours'] }} jam</p>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="flex items-center gap-3 rounded-lg border border-[#70bb63]/20 bg-[#70bb63]/5 p-4 text-sm text-[#4c4c5c] dark:text-[#aab8c5]">
-                    <i class="ti ti-circle-check text-xl text-[#70bb63]"></i>
-                    <span class="font-medium">Tidak ada proses yang melewati SLA saat ini.</span>
-                </div>
-            @endif
-        </div>
-    </div>
-
     <div class="mt-6 boron-card rounded-xl sm:rounded-lg overflow-hidden">
         <div class="boron-card-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 sm:px-6 pt-5 pb-3">
             <div>
