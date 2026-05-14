@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Livewire\Marketing\DataPelanggan\Index as MarketingDataPelangganIndex;
 use App\Models\Customer;
+use App\Models\CustomerService;
 use App\Models\User;
 use Database\Seeders\MultiServiceCustomerSeeder;
 use Livewire\Livewire;
@@ -37,6 +38,41 @@ it('shows every active service on the customer dashboard', function () {
         ->assertSee('Arsip Dokumen Layanan 300 Mbps');
 
     expect(substr_count($component->html(), 'data-service-summary-card'))->toBe(2);
+});
+
+it('shows service summary while a customer registration is still in progress', function () {
+    $user = User::factory()->create(['role' => Role::Customer]);
+    $customer = Customer::create([
+        'user_id' => $user->id,
+        'ktp_number' => '3273012345678901',
+        'company_name' => 'PT Ringkasan Belum Aktif',
+        'company_address' => 'Jakarta',
+        'phone' => '08123456789',
+        'status' => 'menunggu_invoice',
+    ]);
+
+    CustomerService::create([
+        'customer_id' => $customer->id,
+        'status' => 'menunggu_invoice',
+        'service_type' => 'Internet Dedicated 1:1',
+        'bandwidth' => '250 Mbps',
+        'term_of_service' => 1,
+        'registration_fee' => 1000000,
+        'monthly_fee' => 2500000,
+        'installation_address' => 'Jakarta Selatan',
+        'marketing_name' => 'Sales MSS',
+        'marketing_phone' => '08123456789',
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(\App\Livewire\Customer\Dashboard::class)
+        ->assertSee('Ringkasan Layanan')
+        ->assertSee('250 Mbps')
+        ->assertSee('Internet Dedicated 1:1')
+        ->assertSee('Rp 2.500.000')
+        ->assertSee('Sales MSS');
+
+    expect(substr_count($component->html(), 'data-service-summary-card'))->toBe(1);
 });
 
 it('opens customer dashboard detail modal for the selected service', function () {

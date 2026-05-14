@@ -210,6 +210,9 @@ class Show extends Component
 
     private function forgetBaaPdfCache(): void
     {
-        Storage::disk('local')->delete("generated/baa/baa-{$this->service->id}.pdf");
+        Storage::disk('local')->delete([
+            "generated/baa/baa-{$this->service->id}.pdf",
+            "generated/baa/v2/baa-{$this->service->id}.pdf",
+        ]);
     }
 }

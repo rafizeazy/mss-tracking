@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Role;
 use App\Models\CustomerService;
+use App\Services\PdfAssetService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -32,7 +33,7 @@ class BaaController extends Controller
         $cachePath = $this->cachePath($service->id);
 
         if ($this->shouldRegenerate($service, $cachePath)) {
-            Cache::lock("pdf-baa-{$service->id}", 120)->block(90, function () use ($service, $cachePath): void {
+            Cache::lock("pdf-baa-{$service->id}", 120)->block(10, function () use ($service, $cachePath): void {
                 if ($this->shouldRegenerate($service, $cachePath)) {
                     $this->storePdf($service, $cachePath);
                 }
@@ -74,6 +75,9 @@ class BaaController extends Controller
             'service' => $service,
             'baa' => $service->baa,
             'spk' => $service->spk,
+            'pdfLogoPath' => PdfAssetService::publicImagePath('logo/Logo MSS.png', 360),
+            'pdfNocSignaturePath' => PdfAssetService::publicStorageImagePath($service->baa->noc_signature_path, 420),
+            'pdfSpeedtestImagePath' => PdfAssetService::publicStorageImagePath($service->baa->speedtest_image_path, 900),
         ])->setPaper('a4', 'portrait');
 
         Storage::disk('local')->put($cachePath, $pdf->output());
@@ -81,6 +85,6 @@ class BaaController extends Controller
 
     private function cachePath(int $serviceId): string
     {
-        return "generated/baa/baa-{$serviceId}.pdf";
+        return "generated/baa/v2/baa-{$serviceId}.pdf";
     }
 }

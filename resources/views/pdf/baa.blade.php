@@ -155,7 +155,7 @@
     <table class="kop-surat">
         <tr>
             <td width="50%" style="vertical-align: middle;">
-                <img src="{{ public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
+                <img src="{{ $pdfLogoPath ?? public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
             </td>
             <td width="50%" class="kop-teks" style="vertical-align: middle;">
                 <strong>PT Media Solusi Sukses</strong>
@@ -216,7 +216,7 @@
                 <div>Mengetahui,<br><strong>PT Media Solusi Sukses</strong></div>
                 <div class="ruang-ttd">
                     @if($baa->noc_signature_path)
-                        <img src="{{ public_path('storage/' . $baa->noc_signature_path) }}" alt="TTD NOC">
+                        <img src="{{ $pdfNocSignaturePath ?? public_path('storage/' . $baa->noc_signature_path) }}" alt="TTD NOC">
                     @endif
                 </div>
                 <div class="nama-ttd">{{ $baa->noc_name }}</div>
@@ -241,7 +241,7 @@
     <table class="kop-surat">
         <tr>
             <td width="50%" style="vertical-align: middle;">
-                <img src="{{ public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
+                <img src="{{ $pdfLogoPath ?? public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
             </td>
             <td width="50%" class="kop-teks" style="vertical-align: middle;">
                 <strong>PT Media Solusi Sukses</strong>
@@ -281,7 +281,7 @@
 
     <div class="attachment-title">B. Bukti Pengujian (Speedtest / Link Test)</div>
     @if($baa->speedtest_image_path)
-        <img src="{{ public_path('storage/' . $baa->speedtest_image_path) }}" class="img-attachment">
+        <img src="{{ $pdfSpeedtestImagePath ?? public_path('storage/' . $baa->speedtest_image_path) }}" class="img-attachment">
     @else
         <div style="padding: 40px; border: 1px dashed #000; text-align: center; color: #8a969c; background-color: #f8f9fa;">
             Gambar lampiran pengujian tidak tersedia atau belum diunggah oleh tim NOC.

@@ -135,7 +135,7 @@
     <table class="header-table" cellspacing="0" cellpadding="0">
         <tr>
             <td style="width: 50%; vertical-align: middle;">
-                <img src="{{ public_path('logo/Logo MSS.png') }}" alt="Logo MSS" class="header-logo">
+                <img src="{{ $pdfLogoPath ?? public_path('logo/Logo MSS.png') }}" alt="Logo MSS" class="header-logo">
             </td>
             <td style="width: 50%; vertical-align: middle;" class="header-contact">
                 <h2 class="header-company-name">PT Media Solusi Sukses</h2>
@@ -224,7 +224,7 @@
             </td>
             <td>
                 <div class="signature-box">
-                    <img src="{{ public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Marketing" style="max-height: 80px; width: auto; margin: 0 auto; display: block;">
+                    <img src="{{ $pdfMarketingSignaturePath ?? public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Marketing" style="max-height: 80px; width: auto; margin: 0 auto; display: block;">
                 </div>
                 <div class="signature-name">{{ strtoupper($customer->marketing_name ?? 'Marketing') }}</div>
                 <div class="signature-meta">

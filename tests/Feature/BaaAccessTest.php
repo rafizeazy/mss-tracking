@@ -71,7 +71,7 @@ function mockBaaPdfStream(): void
 it('allows a customer to stream their own baa', function () {
     $user = User::factory()->create(['role' => Role::Customer]);
     $service = createServiceWithBaaForUser($user);
-    Storage::disk('local')->delete("generated/baa/baa-{$service->id}.pdf");
+    Storage::disk('local')->delete("generated/baa/v2/baa-{$service->id}.pdf");
 
     mockBaaPdfStream();
 
@@ -80,7 +80,7 @@ it('allows a customer to stream their own baa', function () {
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf');
 
-    expect(Storage::disk('local')->exists("generated/baa/baa-{$service->id}.pdf"))->toBeTrue();
+    expect(Storage::disk('local')->exists("generated/baa/v2/baa-{$service->id}.pdf"))->toBeTrue();
 });
 
 it('prevents a customer from streaming another customer baa', function () {
@@ -97,7 +97,7 @@ it('still allows internal users to stream customer baa', function () {
     $owner = User::factory()->create(['role' => Role::Customer]);
     $noc = User::factory()->create(['role' => Role::Noc]);
     $service = createServiceWithBaaForUser($owner);
-    Storage::disk('local')->delete("generated/baa/baa-{$service->id}.pdf");
+    Storage::disk('local')->delete("generated/baa/v2/baa-{$service->id}.pdf");
 
     mockBaaPdfStream();
 
@@ -110,7 +110,7 @@ it('reuses generated baa pdf cache on repeat views', function () {
     $owner = User::factory()->create(['role' => Role::Customer]);
     $noc = User::factory()->create(['role' => Role::Noc]);
     $service = createServiceWithBaaForUser($owner);
-    $cachePath = "generated/baa/baa-{$service->id}.pdf";
+    $cachePath = "generated/baa/v2/baa-{$service->id}.pdf";
 
     Storage::disk('local')->put($cachePath, 'CACHED BAA');
     $lastModified = Storage::disk('local')->lastModified($cachePath);

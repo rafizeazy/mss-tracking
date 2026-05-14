@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CustomerService;
+use App\Services\PdfAssetService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -87,10 +88,10 @@ class InvoiceController extends Controller
         ];
 
         $invoiceNumber = $service->invoiceRegistrasi?->invoice_number ?? 'DRAFT';
-        $cachePath = "generated/invoices/invoice-{$service->id}.pdf";
+        $cachePath = "generated/invoices/v2/invoice-{$service->id}.pdf";
 
         if ($this->shouldRegenerate($service, $cachePath)) {
-            Cache::lock("pdf-invoice-{$service->id}", 120)->block(90, function () use ($service, $customer, $prorateAmount, $ppn, $grandTotal, $invoiceData, $cachePath): void {
+            Cache::lock("pdf-invoice-{$service->id}", 120)->block(10, function () use ($service, $customer, $prorateAmount, $ppn, $grandTotal, $invoiceData, $cachePath): void {
                 if ($this->shouldRegenerate($service, $cachePath)) {
                     $pdf = Pdf::loadView('customer.invoice', [
                         'service' => $service,
@@ -99,6 +100,8 @@ class InvoiceController extends Controller
                         'ppn' => $ppn,
                         'grandTotal' => $grandTotal,
                         'invoiceData' => $invoiceData,
+                        'pdfLogoPath' => PdfAssetService::publicImagePath('logo/Logo MSS.png', 360),
+                        'pdfFinanceSignaturePath' => PdfAssetService::publicImagePath('ttd/finance/ttdfinance.png', 420),
                     ])->setPaper('a4', 'portrait');
 
                     Storage::disk('local')->put($cachePath, $pdf->output());

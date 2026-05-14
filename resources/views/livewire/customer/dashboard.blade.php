@@ -55,7 +55,14 @@
         @endif
 
         @php
-            $activeServices = $customer->services->where('status', 'selesai');
+            $activeServices = $customer->services->where('status', 'selesai')->sortByDesc('created_at')->values();
+            $summaryServices = $activeServices->isNotEmpty()
+                ? $activeServices
+                : $customer->services
+                    ->whereNotIn('status', ['ditolak', 'dibatalkan', 'berhenti'])
+                    ->sortByDesc('created_at')
+                    ->values();
+            $currentSummaryService = $summaryServices->first() ?? $customer->service;
         @endphp
 
         @if($activeServices->isNotEmpty())
@@ -779,13 +786,13 @@
                     <div class="boron-card shadow-sm rounded-2xl">
                         <div class="boron-card-header border-b border-[#e7e9eb] pb-3 pt-4 px-5 dark:border-[#37394d] flex justify-between items-center">
                             <h5 class="font-semibold text-lg md:text-base text-[#313a46] dark:text-white">{{ __('Ringkasan Layanan') }}</h5>
-                            @if($activeServices->isNotEmpty())
-                                <button wire:click="openDetailModal({{ $activeServices->first()?->id }})" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
+                            @if($summaryServices->isNotEmpty())
+                                <button wire:click="openDetailModal({{ $summaryServices->first()?->id }})" class="text-xs font-bold text-[#1e5d87] hover:underline dark:text-[#60addf]">Detail Data</button>
                             @endif
                         </div>
                         <div class="boron-card-body divide-y divide-[#e7e9eb] p-0 dark:divide-[#37394d]">
-                            @foreach($activeServices as $summaryService)
-                                <div class="p-5">
+                            @forelse($summaryServices as $summaryService)
+                                <div class="p-5" data-service-summary-card>
                                     <div class="flex items-center gap-4 mb-5">
                                         <div class="flex size-14 md:size-12 shrink-0 items-center justify-center rounded-xl md:rounded-[0.3rem] bg-[#669776]/10 text-[#669776]">
                                             <i class="ti ti-network text-3xl md:text-2xl"></i>
@@ -831,7 +838,11 @@
                                         </li>
                                     </ul>
                                 </div>
-                            @endforeach
+                            @empty
+                                <div class="p-5 text-sm text-[#8a969c]">
+                                    Data layanan belum tersedia.
+                                </div>
+                            @endforelse
                         </div>
                     </div>
 
@@ -847,7 +858,7 @@
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">Alamat Instalasi</p>
-                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $customer->service?->installation_address ?? $customer->company_address ?? '-' }}</p>
+                                    <p class="font-medium text-[#313a46] dark:text-white leading-relaxed">{{ $currentSummaryService?->installation_address ?? $customer->company_address ?? '-' }}</p>
                                 </li>
                                 <li>
                                     <p class="text-[11px] font-semibold uppercase text-[#8a969c] mb-1">PIC Teknis/Kontak</p>

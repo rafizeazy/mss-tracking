@@ -481,7 +481,7 @@
     <div class="invoice-content">
         <div class="header-row">
             <div class="brand">
-                <img src="{{ asset('logo/Logo MSS.png') }}" class="logo" alt="Logo MSS" onerror="this.style.display='none';">
+                <img src="{{ $pdfLogoPath ?? asset('logo/Logo MSS.png') }}" class="logo" alt="Logo MSS" onerror="this.style.display='none';">
                 <div class="company">
                     <h3>PT Media Solusi Sukses</h3>
                     <p>Internet Service Provider</p>
@@ -584,7 +584,7 @@
             <div class="signature">
                 <div class="sign-title">Hormat Kami,</div>
                 <div class="signature-img-container">
-                    <img src="{{ asset('ttd/finance/ttdfinance.png') }}" alt="TTD Finance">
+                    <img src="{{ $pdfFinanceSignaturePath ?? asset('ttd/finance/ttdfinance.png') }}" alt="TTD Finance">
                 </div>
                 <div class="sign-line"></div>
                 <div class="sign-name">{{ config('invoice.signature_name', 'Finance Department') }}</div>

@@ -2,14 +2,17 @@
 
 use App\Enums\Role;
 use App\Livewire\Customer\Register;
+use App\Livewire\Finance\Show as FinanceShow;
 use App\Livewire\Marketing\DataPelanggan\Index as MarketingDataPelangganIndex;
 use App\Livewire\Marketing\Tracking\Index as MarketingTrackingIndex;
 use App\Livewire\Marketing\Tracking\Show as MarketingTrackingShow;
 use App\Livewire\Noc\Tracking\Show as NocTrackingShow;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Models\InvoiceRegistrasi;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -192,8 +195,19 @@ it('shows cancellation reason modal before cancelling a registration', function 
 });
 
 it('creates spk from service id without requiring legacy customer id', function () {
+    Carbon::setTestNow('2026-05-14 10:00:00');
+
     $admin = User::factory()->create(['role' => Role::SuperAdmin]);
     ['service' => $service] = createLifecycleCustomer('pembayaran_disetujui');
+    ['service' => $existingService] = createLifecycleCustomer('pembayaran_disetujui');
+
+    $existingService->spk()->create([
+        'spk_number' => '009/SPK/MSS/V/2026',
+        'job_type' => 'Aktivasi Baru',
+        'customer_type' => 'Government',
+        'due_date' => now()->addDay()->format('Y-m-d'),
+        'notes' => 'SPK pembanding.',
+    ]);
 
     Livewire::actingAs($admin)
         ->test(MarketingTrackingShow::class, ['id' => $service->id])
@@ -205,9 +219,43 @@ it('creates spk from service id without requiring legacy customer id', function 
 
     $this->assertDatabaseHas('spk', [
         'service_id' => $service->id,
+        'spk_number' => '010/SPK/MSS/V/2026',
         'customer_type' => 'Government',
         'job_type' => 'Aktivasi Baru',
     ]);
+
+    Carbon::setTestNow();
+});
+
+it('generates invoice preview from service id with the next available sequence', function () {
+    Carbon::setTestNow('2026-05-14 10:00:00');
+
+    $admin = User::factory()->create(['role' => Role::SuperAdmin]);
+    ['customer' => $customer, 'service' => $service] = createLifecycleCustomer('menunggu_invoice');
+    ['service' => $existingService] = createLifecycleCustomer('menunggu_invoice');
+
+    InvoiceRegistrasi::create([
+        'service_id' => $existingService->id,
+        'invoice_number' => '014/INV-MSS/5/2026',
+        'invoice_generated_at' => now()->subDay(),
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(FinanceShow::class, ['id' => $service->id])
+        ->call('generatePreview')
+        ->assertHasNoErrors()
+        ->assertSet('showInvoicePreview', true);
+
+    $this->assertDatabaseHas('invoice_registrasi', [
+        'service_id' => $service->id,
+        'invoice_number' => '015/INV-MSS/5/2026',
+    ]);
+    $this->assertDatabaseHas('activity_logs', [
+        'customer_id' => $customer->id,
+        'action' => 'invoice.preview_generated',
+    ]);
+
+    Carbon::setTestNow();
 });
 
 it('caches generated spk pdf for faster repeat views', function () {
@@ -221,7 +269,7 @@ it('caches generated spk pdf for faster repeat views', function () {
         ->set('spk_notes', 'Instruksi pekerjaan untuk tim NOC.')
         ->call('saveSpkData');
 
-    $cachePath = "generated/spk/spk-{$service->id}.pdf";
+    $cachePath = "generated/spk/v2/spk-{$service->id}.pdf";
     Storage::disk('local')->delete($cachePath);
 
     $this->actingAs($admin)

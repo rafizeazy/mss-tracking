@@ -7,7 +7,11 @@ use App\Mail\StatusPelangganBerubah;
 use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\CustomerService;
+use App\Services\DocumentNumberService;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
@@ -15,6 +19,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Throwable;
 
 #[Title('Detail Tracking Registrasi')]
 #[Layout('layouts.app')]
@@ -72,7 +77,7 @@ class Show extends Component
 
     public bool $showApproveBaaModal = false;
 
-    public function mount($id)
+    public function mount($id): void
     {
         $this->service = CustomerService::with(['customer.user', 'spk'])->findOrFail($id);
         $this->customer = $this->service->customer;
@@ -91,13 +96,13 @@ class Show extends Component
     }
 
     #[On('echo-private:mss-updates,CustomerUpdated')]
-    public function refreshData()
+    public function refreshData(): void
     {
         $this->service->refresh();
         $this->customer->refresh();
     }
 
-    public function editCustomer()
+    public function editCustomer(): void
     {
         // Pastikan kita me-load seluruh relasi agar tidak null
         $this->service->loadMissing(['customer.user', 'customer.spk', 'customer.baa', 'customer.invoiceRegistrasi']);
@@ -156,7 +161,7 @@ class Show extends Component
         $this->isEditingCustomer = true;
     }
 
-    public function updateCustomer()
+    public function updateCustomer(): void
     {
         $this->validate([
             // Tambahkan validasi untuk field yang baru agar bisa disimpan
@@ -272,7 +277,7 @@ class Show extends Component
         $this->customer->update($updateData);
         $this->forgetBaaPdfCache();
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
         $this->customer->refresh();
         $this->service->refresh();
 
@@ -281,7 +286,7 @@ class Show extends Component
         $this->dispatch('notify', type: 'success', message: 'Seluruh data profil & lampiran pelanggan berhasil diperbarui!');
     }
 
-    public function cancelEdit()
+    public function cancelEdit(): void
     {
         $this->isEditingCustomer = false;
         $this->reset(['new_ktp_path', 'new_npwp_path', 'new_nib_path', 'new_certificate_path']);
@@ -320,7 +325,7 @@ class Show extends Component
         $this->showApproveBaaModal = false;
     }
 
-    public function approve()
+    public function approve(): void
     {
         $this->validate([
             'service_type' => 'required|string|max:255',
@@ -346,9 +351,9 @@ class Show extends Component
 
         $this->service->moveToStatus('menunggu_invoice');
 
-        ActivityLog::record('registration.approved', 'Registrasi disetujui oleh Marketing.', $this->customer);
+        $this->recordActivitySafely('registration.approved', 'Registrasi disetujui oleh Marketing.');
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
 
         Mail::to($this->customer->user->email)
             ->queue(new StatusPelangganBerubah($this->customer, 'menunggu_invoice'));
@@ -356,7 +361,7 @@ class Show extends Component
         $this->dispatch('notify', type: 'success', message: 'Data registrasi disetujui. Tagihan otomatis diteruskan ke Finance.');
     }
 
-    public function reject()
+    public function reject(): void
     {
         $this->validate([
             'rejectionReason' => 'required|string|min:5',
@@ -367,14 +372,14 @@ class Show extends Component
 
         $this->service->moveToStatus('ditolak', $this->rejectionReason);
 
-        ActivityLog::record('registration.rejected', 'Registrasi ditolak oleh Marketing.', $this->customer, $this->rejectionReason);
+        $this->recordActivitySafely('registration.rejected', 'Registrasi ditolak oleh Marketing.', $this->rejectionReason);
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
         $this->rejectionReason = '';
         $this->dispatch('notify', type: 'error', message: 'Data registrasi pendaftar telah ditolak.');
     }
 
-    public function saveSpkData()
+    public function saveSpkData(): void
     {
         $this->validate([
             'job_type' => 'required|string',
@@ -383,27 +388,34 @@ class Show extends Component
             'spk_notes' => 'required|string',
         ]);
 
-        $spkNumber = $this->service->spk->spk_number ?? \App\Services\DocumentNumberService::generateSpkNumber();
+        $this->withUniqueDocumentRetry(function (): void {
+            DB::transaction(function (): void {
+                $this->service->load('spk');
 
-        $this->service->spk()->updateOrCreate(
-            ['service_id' => $this->service->id],
-            [
-                'spk_number' => $spkNumber,
-                'job_type' => $this->job_type,
-                'customer_type' => $this->customer_type,
-                'due_date' => $this->due_date,
-                'notes' => $this->spk_notes,
-            ]
-        );
+                $spkNumber = $this->service->spk->spk_number ?? DocumentNumberService::generateSpkNumber();
+
+                $this->service->spk()->updateOrCreate(
+                    ['service_id' => $this->service->id],
+                    [
+                        'spk_number' => $spkNumber,
+                        'job_type' => $this->job_type,
+                        'customer_type' => $this->customer_type,
+                        'due_date' => $this->due_date,
+                        'notes' => $this->spk_notes,
+                    ]
+                );
+            });
+        });
 
         $this->forgetSpkPdfCache();
         $this->service->refresh();
+        $this->service->load('spk');
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
         $this->dispatch('notify', type: 'success', message: 'Data SPK berhasil disimpan. Anda dapat mengecek PDF SPK sekarang.');
     }
 
-    public function sendToNoc()
+    public function sendToNoc(): void
     {
         if (! $this->service->spk) {
             $this->dispatch('notify', type: 'error', message: 'Harap simpan data SPK terlebih dahulu sebelum mengirim ke NOC.');
@@ -413,9 +425,9 @@ class Show extends Component
 
         $this->service->moveToStatus('proses_instalasi');
 
-        ActivityLog::record('registration.sent_to_noc', 'SPK dikirim ke tim NOC.', $this->customer);
+        $this->recordActivitySafely('registration.sent_to_noc', 'SPK dikirim ke tim NOC.');
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
         $this->showSendToNocModal = false;
 
         Mail::to($this->customer->user->email)
@@ -424,13 +436,13 @@ class Show extends Component
         $this->dispatch('notify', type: 'success', message: 'SPK berhasil dikirim! Status layanan kini berada di tangan tim NOC.');
     }
 
-    public function approveBaa()
+    public function approveBaa(): void
     {
         $this->service->moveToStatus('selesai');
 
-        ActivityLog::record('baa.approved', 'BAA disetujui dan layanan dinyatakan aktif.', $this->customer);
+        $this->recordActivitySafely('baa.approved', 'BAA disetujui dan layanan dinyatakan aktif.');
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
 
         $this->showApproveBaaModal = false;
 
@@ -440,7 +452,7 @@ class Show extends Component
         $this->dispatch('notify', type: 'success', message: 'BAA disetujui! Layanan pelanggan telah resmi selesai dan aktif sepenuhnya.');
     }
 
-    public function rejectBaa()
+    public function rejectBaa(): void
     {
         if ($this->service->baa) {
             $this->service->baa->update(['signed_baa_path' => null]);
@@ -448,13 +460,13 @@ class Show extends Component
 
         $this->service->moveToStatus('menunggu_baa');
 
-        ActivityLog::record('baa.rejected', 'BAA ditolak dan pelanggan diminta upload ulang.', $this->customer);
+        $this->recordActivitySafely('baa.rejected', 'BAA ditolak dan pelanggan diminta upload ulang.');
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
         $this->dispatch('notify', type: 'error', message: 'BAA ditolak. Pelanggan telah diminta untuk menandatangani ulang.');
     }
 
-    public function cancelRegistration()
+    public function cancelRegistration(): mixed
     {
         $this->validate([
             'cancellationReason' => 'required|string|min:5',
@@ -465,27 +477,80 @@ class Show extends Component
 
         $this->service->moveToStatus('dibatalkan', $this->cancellationReason);
 
-        ActivityLog::record('registration.cancelled', 'Registrasi dibatalkan oleh Marketing.', $this->customer, $this->cancellationReason);
+        $this->recordActivitySafely('registration.cancelled', 'Registrasi dibatalkan oleh Marketing.', $this->cancellationReason);
 
-        broadcast(new CustomerUpdated);
+        $this->broadcastCustomerUpdatedSafely();
         $this->showCancellationModal = false;
         session()->flash('success', 'Pengajuan berhasil dibatalkan dan dihapus dari antrean.');
 
         return $this->redirect(route('marketing.tracking.index'), navigate: true);
     }
 
-    public function render()
+    public function render(): mixed
     {
         return view('livewire.marketing.tracking.show');
     }
 
     private function forgetSpkPdfCache(): void
     {
-        Storage::disk('local')->delete("generated/spk/spk-{$this->service->id}.pdf");
+        Storage::disk('local')->delete([
+            "generated/spk/spk-{$this->service->id}.pdf",
+            "generated/spk/v2/spk-{$this->service->id}.pdf",
+        ]);
     }
 
     private function forgetBaaPdfCache(): void
     {
-        Storage::disk('local')->delete("generated/baa/baa-{$this->service->id}.pdf");
+        Storage::disk('local')->delete([
+            "generated/baa/baa-{$this->service->id}.pdf",
+            "generated/baa/v2/baa-{$this->service->id}.pdf",
+        ]);
+    }
+
+    private function withUniqueDocumentRetry(callable $callback): void
+    {
+        for ($attempt = 1; $attempt <= 3; $attempt++) {
+            try {
+                $callback();
+
+                return;
+            } catch (QueryException $exception) {
+                if ($attempt === 3 || ! $this->isUniqueConstraintViolation($exception)) {
+                    throw $exception;
+                }
+
+                $this->service->refresh();
+            }
+        }
+    }
+
+    private function isUniqueConstraintViolation(QueryException $exception): bool
+    {
+        return in_array((string) $exception->getCode(), ['23000', '23505'], true);
+    }
+
+    private function recordActivitySafely(string $action, string $description, ?string $reason = null): void
+    {
+        try {
+            ActivityLog::record($action, $description, $this->customer, $reason);
+        } catch (Throwable $exception) {
+            Log::warning('Activity log failed during marketing tracking action.', [
+                'action' => $action,
+                'customer_id' => $this->customer->id,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    private function broadcastCustomerUpdatedSafely(): void
+    {
+        try {
+            broadcast(new CustomerUpdated);
+        } catch (Throwable $exception) {
+            Log::warning('Customer update broadcast failed during marketing tracking action.', [
+                'customer_id' => $this->customer->id,
+                'exception' => $exception->getMessage(),
+            ]);
+        }
     }
 }

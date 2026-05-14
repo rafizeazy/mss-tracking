@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CustomerService;
+use App\Services\PdfAssetService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -16,14 +17,16 @@ class FormController extends Controller
         $service = CustomerService::with('customer.user')->findOrFail($id);
         $customer = $service->customer;
 
-        $cachePath = "generated/forms/formulir-{$service->id}.pdf";
+        $cachePath = "generated/forms/v2/formulir-{$service->id}.pdf";
 
         if ($this->shouldRegenerate($service, $cachePath)) {
-            Cache::lock("pdf-formulir-{$service->id}", 120)->block(90, function () use ($service, $customer, $cachePath): void {
+            Cache::lock("pdf-formulir-{$service->id}", 120)->block(10, function () use ($service, $customer, $cachePath): void {
                 if ($this->shouldRegenerate($service, $cachePath)) {
                     $pdf = Pdf::loadView('pdf.formulir-berlangganan', [
                         'service' => $service,
                         'customer' => $customer,
+                        'pdfLogoPath' => PdfAssetService::publicImagePath('logo/Logo MSS.png', 360),
+                        'pdfMarketingSignaturePath' => PdfAssetService::publicImagePath('ttd/marketing/ttdmarketing.png', 420),
                     ])->setPaper('a4', 'portrait');
 
                     Storage::disk('local')->put($cachePath, $pdf->output());

@@ -2,77 +2,82 @@
 
 namespace App\Services;
 
-use App\Models\Spk;
 use App\Models\Baa;
 use App\Models\InvoiceRegistrasi;
+use App\Models\Spk;
 
 class DocumentNumberService
 {
-    private static function getRomanMonth($month)
+    private static function getRomanMonth(int $month): string
     {
         $romawis = [
             1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
-            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
         ];
-        return $romawis[(int)$month];
+
+        return $romawis[$month];
     }
 
-    public static function generateSpkNumber()
+    public static function generateSpkNumber(): string
+    {
+        $year = date('Y');
+        $month = (int) date('n');
+        $bulanRomawi = self::getRomanMonth($month);
+        $sequence = self::nextSequence(
+            Spk::query()
+                ->whereNotNull('spk_number')
+                ->where('spk_number', 'like', '%/'.$year)
+                ->pluck('spk_number')
+                ->all()
+        );
+
+        return str_pad((string) $sequence, 3, '0', STR_PAD_LEFT).'/SPK/MSS/'.$bulanRomawi.'/'.$year;
+    }
+
+    public static function generateInvoiceNumber(): string
     {
         $year = date('Y');
         $month = date('n');
-        $bulanRomawi = self::getRomanMonth($month);
+        $sequence = self::nextSequence(
+            InvoiceRegistrasi::query()
+                ->whereNotNull('invoice_number')
+                ->where('invoice_number', 'like', '%/'.$year)
+                ->pluck('invoice_number')
+                ->all()
+        );
 
-        $lastData = Spk::whereYear('created_at', $year)->latest('id')->first();
-        $urutan = 1;
-
-        if ($lastData && $lastData->spk_number) {
-            $parts = explode('/', $lastData->spk_number);
-            if (isset($parts[0]) && is_numeric($parts[0])) {
-                $urutan = intval($parts[0]) + 1;
-            }
-        }
-
-        return str_pad($urutan, 3, '0', STR_PAD_LEFT) . '/SPK/MSS/' . $bulanRomawi . '/' . $year;
+        return str_pad((string) $sequence, 3, '0', STR_PAD_LEFT).'/INV-MSS/'.$month.'/'.$year;
     }
 
-    public static function generateInvoiceNumber()
+    public static function generateBaaNumber(): string
     {
         $year = date('Y');
-        $month = date('n'); 
-        $lastData = InvoiceRegistrasi::whereNotNull('invoice_number')
-            ->whereYear('invoice_generated_at', $year)
-            ->latest('invoice_generated_at')
-            ->first();
+        $month = (int) date('n');
+        $bulanRomawi = self::getRomanMonth($month);
+        $sequence = self::nextSequence(
+            Baa::query()
+                ->whereNotNull('baa_number')
+                ->where('baa_number', 'like', '%/'.$year)
+                ->pluck('baa_number')
+                ->all()
+        );
 
-        $urutan = 1;
-
-        if ($lastData && $lastData->invoice_number) {
-            $parts = explode('/', $lastData->invoice_number);
-            if (isset($parts[0]) && is_numeric($parts[0])) {
-                $urutan = intval($parts[0]) + 1;
-            }
-        }
-
-        return str_pad($urutan, 3, '0', STR_PAD_LEFT) . '/INV-MSS/' . $month . '/' . $year;
+        return str_pad((string) $sequence, 3, '0', STR_PAD_LEFT).'/BAA-MSS/'.$bulanRomawi.'/'.$year;
     }
 
-    public static function generateBaaNumber()
+    /**
+     * @param  array<int, string|null>  $documentNumbers
+     */
+    private static function nextSequence(array $documentNumbers): int
     {
-        $year = date('Y');
-        $month = date('n');
-        $bulanRomawi = self::getRomanMonth($month);
+        $lastSequence = collect($documentNumbers)
+            ->map(function (?string $documentNumber): int {
+                $sequence = explode('/', (string) $documentNumber)[0] ?? null;
 
-        $lastData = Baa::whereYear('created_at', $year)->latest('id')->first();
-        $urutan = 1;
+                return is_numeric($sequence) ? (int) $sequence : 0;
+            })
+            ->max();
 
-        if ($lastData && $lastData->baa_number) {
-            $parts = explode('/', $lastData->baa_number);
-            if (isset($parts[0]) && is_numeric($parts[0])) {
-                $urutan = intval($parts[0]) + 1;
-            }
-        }
-
-        return str_pad($urutan, 3, '0', STR_PAD_LEFT) . '/BAA-MSS/' . $bulanRomawi . '/' . $year;
+        return ((int) $lastSequence) + 1;
     }
 }

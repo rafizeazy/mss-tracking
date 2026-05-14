@@ -127,7 +127,7 @@
     <table class="kop-surat">
         <tr>
             <td width="50%" style="vertical-align: middle;">
-                <img src="{{ public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
+                <img src="{{ $pdfLogoPath ?? public_path('logo/Logo MSS.png') }}" class="kop-logo" alt="Logo MSS" onerror="this.style.display='none';">
             </td>
             <td width="50%" class="kop-teks" style="vertical-align: middle;">
                 <strong>PT Media Solusi Sukses</strong>
@@ -226,7 +226,7 @@
             <td>
                 <div>Hormat Kami,<br><strong>PT Media Solusi Sukses</strong></div>
                 <div class="ruang-ttd">
-                    <img src="{{ public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Marketing" onerror="this.style.display='none';">
+                    <img src="{{ $pdfMarketingSignaturePath ?? public_path('ttd/marketing/ttdmarketing.png') }}" alt="TTD Marketing" onerror="this.style.display='none';">
                 </div>
                 <div class="nama-ttd">{{ $service->marketing_name ?? 'Administration' }}</div>
                 <div class="jabatan-ttd">Admin Marketing</div>

@@ -73,8 +73,8 @@ it('previews generated documents inline in a browser tab', function (string $rou
 
     expect($response->headers->get('content-disposition'))->toStartWith('inline;');
 })->with([
-    'baa' => ['noc.baa', 'generated/baa/baa', Role::Noc],
-    'spk' => ['marketing.spk', 'generated/spk/spk', Role::Marketing],
-    'formulir' => ['form.formulir', 'generated/forms/formulir', Role::Marketing],
-    'invoice' => ['customer.invoice.pdf', 'generated/invoices/invoice', Role::Customer],
+    'baa' => ['noc.baa', 'generated/baa/v2/baa', Role::Noc],
+    'spk' => ['marketing.spk', 'generated/spk/v2/spk', Role::Marketing],
+    'formulir' => ['form.formulir', 'generated/forms/v2/formulir', Role::Marketing],
+    'invoice' => ['customer.invoice.pdf', 'generated/invoices/v2/invoice', Role::Customer],
 ]);
